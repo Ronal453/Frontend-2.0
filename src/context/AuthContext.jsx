@@ -1,36 +1,61 @@
 import { createContext, useState, useEffect } from 'react'
+import {
+  guardarToken,
+  guardarUsuario,
+  obtenerToken,
+  obtenerUsuario,
+  eliminarToken,
+  haySession
+} from '../utils/jwt'
 
 export const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser]   = useState(null)
-  const [token, setToken] = useState(localStorage.getItem('token'))
+  const [user,  setUser]  = useState(null)
+  const [token, setToken] = useState(null)
+  const [cargando, setCargando] = useState(true)
 
+  // Al montar, recuperar sesión del localStorage si existe y no expiró
   useEffect(() => {
-    const t = localStorage.getItem('token')
-    const u = localStorage.getItem('user')
-    if (t && u) {
-      setToken(t)
-      setUser(JSON.parse(u))
+    if (haySession()) {
+      setToken(obtenerToken())
+      setUser(obtenerUsuario())
     }
+    setCargando(false)
   }, [])
 
+  /**
+   * Guardar sesión tras login exitoso
+   * @param {string} tokenValue  - JWT recibido del backend
+   * @param {object} userData    - { email, rol }
+   */
   const login = (tokenValue, userData) => {
-    localStorage.setItem('token', tokenValue)
-    localStorage.setItem('user', JSON.stringify(userData))
+    guardarToken(tokenValue)
+    guardarUsuario(userData)
     setToken(tokenValue)
     setUser(userData)
   }
 
+  /**
+   * Cerrar sesión y limpiar localStorage
+   */
   const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    eliminarToken()
     setToken(null)
     setUser(null)
   }
 
+  // Mientras verifica la sesión guardada, no renderiza nada
+  if (cargando) return null
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuth: !!token }}>
+    <AuthContext.Provider value={{
+      user,
+      token,
+      login,
+      logout,
+      isAuth: !!token,
+    }}>
       {children}
     </AuthContext.Provider>
   )

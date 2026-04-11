@@ -1,19 +1,44 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import api from '../api/axios'
+import { registro as registroApi } from '../api/authApi'
+import Button from '../components/ui/Button'
+import Input  from '../components/ui/Input'
 
 export default function Register() {
   const navigate = useNavigate()
-  const [form, setForm]     = useState({ nombre: '', email: '', password: '' })
-  const [error, setError]   = useState('')
+
+  const [form, setForm]       = useState({ nombre: '', email: '', password: '' })
+  const [errors, setErrors]   = useState({})
+  const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
+
+  const handleChange = (e) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    // Limpiar error del campo al escribir
+    if (errors[e.target.name]) {
+      setErrors(prev => ({ ...prev, [e.target.name]: '' }))
+    }
+  }
+
+  const validar = () => {
+    const nuevosErrores = {}
+    if (!form.nombre.trim())
+      nuevosErrores.nombre = 'El nombre es obligatorio'
+    if (!form.email.trim())
+      nuevosErrores.email = 'El email es obligatorio'
+    if (form.password.length < 6)
+      nuevosErrores.password = 'Mínimo 6 caracteres'
+    setErrors(nuevosErrores)
+    return Object.keys(nuevosErrores).length === 0
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!validar()) return
     setLoading(true)
     setError('')
     try {
-      await api.post('/auth/registro', form)
+      await registroApi(form)
       navigate('/login')
     } catch (err) {
       setError(err.response?.data?.mensaje || 'Error al registrarse')
@@ -26,77 +51,69 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center
                     bg-gray-50 px-4">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-green-800 mb-6 text-center">
-          🌱 Crear cuenta
-        </h1>
 
+        {/* Encabezado */}
+        <div className="text-center mb-6">
+          <p className="text-4xl mb-2">🌱</p>
+          <h1 className="text-2xl font-bold text-green-800">
+            Crear cuenta
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Únete a Plantopolis y empieza a comprar
+          </p>
+        </div>
+
+        {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre completo
-            </label>
-            <input
-              type="text"
-              required
-              value={form.nombre}
-              onChange={e => setForm({...form, nombre: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2
-                         focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Tu nombre"
-            />
-          </div>
+          <Input
+            label="Nombre completo"
+            name="nombre"
+            type="text"
+            required
+            value={form.nombre}
+            onChange={handleChange}
+            placeholder="Tu nombre"
+            error={errors.nombre}
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Correo electrónico
-            </label>
-            <input
-              type="email"
-              required
-              value={form.email}
-              onChange={e => setForm({...form, email: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2
-                         focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="tu@email.com"
-            />
-          </div>
+          <Input
+            label="Correo electrónico"
+            name="email"
+            type="email"
+            required
+            value={form.email}
+            onChange={handleChange}
+            placeholder="tu@email.com"
+            error={errors.email}
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Contraseña
-            </label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={form.password}
-              onChange={e => setForm({...form, password: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2
-                         focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Mínimo 6 caracteres"
-            />
-          </div>
+          <Input
+            label="Contraseña"
+            name="password"
+            type="password"
+            required
+            value={form.password}
+            onChange={handleChange}
+            placeholder="Mínimo 6 caracteres"
+            error={errors.password}
+          />
 
           {error && (
-            <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
-              {error}
-            </p>
+            <div className="bg-red-50 border border-red-200 text-red-700
+                            rounded-lg p-3 text-sm">
+              ⚠ {error}
+            </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-green-700 text-white py-2 rounded-lg
-                       font-semibold hover:bg-green-800 disabled:opacity-50
-                       transition-colors"
-          >
-            {loading ? 'Registrando...' : 'Crear cuenta'}
-          </button>
+          <Button type="submit" fullWidth loading={loading}>
+            Crear cuenta
+          </Button>
         </form>
 
         <p className="text-center text-sm text-gray-500 mt-4">
           ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="text-green-700 font-medium hover:underline">
+          <Link to="/login"
+                className="text-green-700 font-medium hover:underline">
             Inicia sesión
           </Link>
         </p>

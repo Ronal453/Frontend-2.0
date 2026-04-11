@@ -1,23 +1,24 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import api from '../api/axios'
+import { getHistorial } from '../api/pedidosApi'
 
-const ESTADO_COLOR = {
-  PENDIENTE:  'bg-yellow-100 text-yellow-800',
-  PREPARANDO: 'bg-blue-100 text-blue-800',
-  ENVIADO:    'bg-purple-100 text-purple-800',
-  ENTREGADO:  'bg-green-100 text-green-800',
-  CANCELADO:  'bg-red-100 text-red-800',
+const ESTADO_ESTILO = {
+  PENDIENTE:  { clase: 'bg-yellow-100 text-yellow-800', icono: '⏳' },
+  PREPARANDO: { clase: 'bg-blue-100 text-blue-800',     icono: '🌿' },
+  ENVIADO:    { clase: 'bg-purple-100 text-purple-800', icono: '🚚' },
+  ENTREGADO:  { clase: 'bg-green-100 text-green-800',   icono: '✅' },
+  CANCELADO:  { clase: 'bg-red-100 text-red-800',       icono: '❌' },
 }
 
 export default function MisPedidos() {
   const [pedidos, setPedidos] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error,   setError]   = useState('')
 
   useEffect(() => {
-    api.get('/pedidos')
+    getHistorial()
       .then(r => setPedidos(r.data))
-      .catch(console.error)
+      .catch(() => setError('No se pudieron cargar los pedidos'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -28,47 +29,87 @@ export default function MisPedidos() {
     </div>
   )
 
+  if (error) return (
+    <div className="max-w-2xl mx-auto px-4 py-10 text-center text-red-600">
+      ⚠ {error}
+    </div>
+  )
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-green-800 mb-6">Mis pedidos</h1>
+      <h1 className="text-2xl font-bold text-green-800 mb-6">
+        📦 Mis pedidos
+      </h1>
 
+      {/* Sin pedidos */}
       {pedidos.length === 0 ? (
-        <div className="text-center py-20 text-gray-500">
-          <p className="text-4xl mb-3">📦</p>
-          <p>Aún no tienes pedidos</p>
+        <div className="text-center py-16">
+          <p className="text-5xl mb-4">📦</p>
+          <p className="font-semibold text-gray-700 mb-1">
+            Aún no tienes pedidos
+          </p>
+          <p className="text-gray-500 text-sm mb-6">
+            Explora el catálogo y realiza tu primera compra
+          </p>
           <Link to="/catalogo"
-                className="mt-4 inline-block text-green-700 underline">
-            Ver catálogo
+                className="bg-green-700 text-white px-5 py-2 rounded-lg
+                           font-semibold hover:bg-green-800 transition-colors">
+            Ver catálogo 🌿
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
-          {pedidos.map(p => (
-            <Link key={p.idPedido} to={`/pedidos/${p.idPedido}`}
-                  className="block border border-gray-200 rounded-xl p-4
-                             hover:shadow-md transition-shadow bg-white">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-semibold text-gray-800">
-                    {p.numeroPedido}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {new Date(p.fechaPedido).toLocaleDateString('es-CO')}
-                  </p>
+        <div className="space-y-3">
+          {pedidos.map(p => {
+            const estilo = ESTADO_ESTILO[p.estado] ?? {
+              clase: 'bg-gray-100 text-gray-700', icono: '📦'
+            }
+            return (
+              <Link
+                key={p.idPedido}
+                to={`/pedidos/${p.idPedido}`}
+                className="block bg-white border border-gray-100 rounded-xl
+                           p-4 hover:shadow-md hover:border-green-200
+                           transition-all duration-200"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    {/* Número de pedido */}
+                    <p className="font-bold text-gray-800">
+                      {p.numeroPedido}
+                    </p>
+                    {/* Fecha */}
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      {new Date(p.fechaPedido)
+                        .toLocaleDateString('es-CO', {
+                          year: 'numeric', month: 'long', day: 'numeric'
+                        })}
+                    </p>
+                    {/* Productos */}
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {p.detalles?.length ?? 0} producto(s)
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    {/* Estado */}
+                    <span className={`inline-flex items-center gap-1 text-xs
+                                      font-semibold px-2 py-1 rounded-full
+                                      ${estilo.clase}`}>
+                      {estilo.icono} {p.estado}
+                    </span>
+                    {/* Total */}
+                    <p className="mt-2 font-bold text-green-800 text-lg">
+                      ${p.total?.toLocaleString('es-CO')}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className={`text-xs font-semibold px-2 py-1
-                                    rounded-full ${ESTADO_COLOR[p.estado]
-                                     ?? 'bg-gray-100 text-gray-700'}`}>
-                    {p.estado}
-                  </span>
-                  <p className="mt-2 font-bold text-green-800">
-                    ${p.total?.toLocaleString('es-CO')}
-                  </p>
+
+                <div className="mt-2 text-xs text-green-600 font-medium">
+                  Ver detalle →
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </div>
       )}
     </div>
