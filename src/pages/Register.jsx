@@ -7,14 +7,19 @@ import Input  from '../components/ui/Input'
 export default function Register() {
   const navigate = useNavigate()
 
-  const [form, setForm]       = useState({ nombre: '', email: '', password: '' })
+  const [form, setForm] = useState({
+    nombre:    '',
+    email:     '',
+    password:  '',
+    telefono:  '',   // ← nuevo
+    direccion: ''    // ← nuevo
+  })
   const [errors, setErrors]   = useState({})
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
-    // Limpiar error del campo al escribir
     if (errors[e.target.name]) {
       setErrors(prev => ({ ...prev, [e.target.name]: '' }))
     }
@@ -28,6 +33,7 @@ export default function Register() {
       nuevosErrores.email = 'El email es obligatorio'
     if (form.password.length < 6)
       nuevosErrores.password = 'Mínimo 6 caracteres'
+    // Teléfono y dirección son opcionales, sin validación obligatoria
     setErrors(nuevosErrores)
     return Object.keys(nuevosErrores).length === 0
   }
@@ -39,7 +45,7 @@ export default function Register() {
     setError('')
     try {
       await registroApi(form)
-      navigate('/login')
+      navigate('/login', { state: { registrado: true } }) // ← pasa flag
     } catch (err) {
       setError(err.response?.data?.mensaje || 'Error al registrarse')
     } finally {
@@ -49,7 +55,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center
-                    bg-gray-50 px-4">
+                    bg-gray-50 px-4 py-8">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
 
         {/* Encabezado */}
@@ -65,6 +71,8 @@ export default function Register() {
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* Nombre */}
           <Input
             label="Nombre completo"
             name="nombre"
@@ -72,10 +80,11 @@ export default function Register() {
             required
             value={form.nombre}
             onChange={handleChange}
-            placeholder="Tu nombre"
+            placeholder="Tu nombre completo"
             error={errors.nombre}
           />
 
+          {/* Email */}
           <Input
             label="Correo electrónico"
             name="email"
@@ -87,6 +96,7 @@ export default function Register() {
             error={errors.email}
           />
 
+          {/* Contraseña */}
           <Input
             label="Contraseña"
             name="password"
@@ -98,6 +108,38 @@ export default function Register() {
             error={errors.password}
           />
 
+          {/* Separador visual para datos opcionales */}
+          <div className="flex items-center gap-3 pt-1">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs text-gray-400 whitespace-nowrap">
+              Datos adicionales (opcionales)
+            </span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          {/* Teléfono */}
+          <Input
+            label="Teléfono"
+            name="telefono"
+            type="tel"
+            value={form.telefono}
+            onChange={handleChange}
+            placeholder="Ej: 3001234567"
+            error={errors.telefono}
+          />
+
+          {/* Dirección */}
+          <Input
+            label="Dirección"
+            name="direccion"
+            type="text"
+            value={form.direccion}
+            onChange={handleChange}
+            placeholder="Calle, número, barrio, ciudad"
+            error={errors.direccion}
+          />
+
+          {/* Error general */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700
                             rounded-lg p-3 text-sm">

@@ -34,3 +34,6 @@ export const getProducto = (id) =>
  */
 export const getCategorias = () =>
   api.get('/productos/categorias')
+
+export const getTipos = () =>
+  api.get('/productos/tipos')

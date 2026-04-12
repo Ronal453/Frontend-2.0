@@ -1,13 +1,17 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'  // ← agrega useLocation
 import { useAuth } from '../hooks/useAuth'
 import { login as loginApi } from '../api/authApi'
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
 
 export default function Login() {
-  const { login } = useAuth()
-  const navigate  = useNavigate()
+  const { login }    = useAuth()
+  const navigate     = useNavigate()
+  const location     = useLocation()  // ← nuevo
+
+  // Detectar si viene de un registro exitoso
+  const registradoExitoso = location.state?.registrado === true  // ← nuevo
 
   const [form, setForm]       = useState({ email: '', password: '' })
   const [error, setError]     = useState('')
@@ -22,7 +26,6 @@ export default function Login() {
     setError('')
     try {
       const res = await loginApi({ email: form.email, password: form.password })
-      // Guardar sesión en el contexto
       login(res.data.token, { email: res.data.email, rol: res.data.rol })
       navigate('/catalogo')
     } catch (err) {
@@ -37,7 +40,6 @@ export default function Login() {
                     bg-gray-50 px-4">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
 
-        {/* Encabezado */}
         <div className="text-center mb-6">
           <p className="text-4xl mb-2">🌱</p>
           <h1 className="text-2xl font-bold text-green-800">
@@ -48,7 +50,14 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Formulario */}
+        {/* ← Banner de registro exitoso */}
+        {registradoExitoso && (
+          <div className="bg-green-50 border border-green-200 text-green-700
+                          rounded-lg p-3 mb-4 text-sm text-center">
+            ✅ ¡Cuenta creada! Ya puedes iniciar sesión
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Correo electrónico"

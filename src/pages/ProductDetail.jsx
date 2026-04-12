@@ -1,3 +1,4 @@
+import { getImagenProducto } from '../utils/imageUtils'
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getProducto } from '../api/productosApi'
@@ -69,9 +70,13 @@ export default function ProductDetail() {
                         flex items-center justify-center relative">
           {producto.imagenUrl ? (
             <img
-              src={producto.imagenUrl}
+              src={getImagenProducto(producto.imagenUrl, producto.categoria)}
               alt={producto.nombreProducto}
               className="w-full h-full object-cover"
+              onError={e => {
+                e.target.onerror = null
+                e.target.src = `https://placehold.co/600x600/d1fae5/166534?text=${encodeURIComponent(producto.nombreProducto)}`
+              }}
             />
           ) : (
             <span className="text-9xl">🌿</span>
