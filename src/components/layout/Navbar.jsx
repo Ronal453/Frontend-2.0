@@ -1,43 +1,38 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useAuth } from '../../hooks/useAuth'
-import { getCarrito } from '../../api/carritoApi'
+import { useCart } from '../../context/CartContext'
 
 export default function Navbar() {
   const { isAuth, user, logout } = useAuth()
+  const { totalItems, refreshCart, clearCart } = useCart()
   const navigate = useNavigate()
-  const [totalItems, setTotalItems] = useState(0)
 
-  // Cargar cantidad de ítems del carrito cuando el usuario está logueado
+  // Cuando el usuario inicia o cierra sesión, actualiza el contador
   useEffect(() => {
-    if (!isAuth) {
-      setTotalItems(0)
-      return
+    if (isAuth) {
+      refreshCart()
+    } else {
+      clearCart()
     }
-    getCarrito()
-      .then(res => setTotalItems(res.data.totalItems ?? 0))
-      .catch(() => setTotalItems(0))
   }, [isAuth])
 
   const handleLogout = () => {
     logout()
+    clearCart()
     navigate('/login')
   }
 
   return (
     <nav className="bg-green-800 text-white px-6 py-3 flex items-center
                     justify-between shadow-md sticky top-0 z-50">
-
-      {/* ── Logo ─────────────────────────────────────── */}
       <Link to="/catalogo"
             className="flex items-center gap-2 text-xl font-bold
                        hover:text-green-200 transition-colors">
         🌱 Plantopolis
       </Link>
 
-      {/* ── Links ────────────────────────────────────── */}
       <div className="flex items-center gap-4 text-sm font-medium">
-
         <Link to="/catalogo"
               className="hover:text-green-200 transition-colors">
           Catálogo
@@ -45,13 +40,11 @@ export default function Navbar() {
 
         {isAuth ? (
           <>
-            {/* Mis pedidos */}
             <Link to="/pedidos"
                   className="hover:text-green-200 transition-colors">
               Mis pedidos
             </Link>
 
-            {/* Carrito con contador */}
             <Link to="/carrito"
                   className="relative bg-white text-green-800 px-3 py-1
                              rounded-lg font-semibold hover:bg-green-100
@@ -66,16 +59,12 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Email del usuario */}
             <span className="text-green-300 text-xs hidden md:block">
               {user?.email}
             </span>
 
-            {/* Salir */}
-            <button
-              onClick={handleLogout}
-              className="hover:text-red-300 transition-colors"
-            >
+            <button onClick={handleLogout}
+                    className="hover:text-red-300 transition-colors">
               Salir
             </button>
           </>

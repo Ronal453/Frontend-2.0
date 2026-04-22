@@ -17,54 +17,58 @@ import PrivateRoute   from './components/PrivateRoute'
 
 // ── Contexto de autenticación ────────────────────────────
 import { AuthProvider } from './context/AuthContext'
+import { CartProvider } from './context/CartContext'
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* CartProvider va dentro de AuthProvider para poder usar useAuth si fuera necesario */}
+      <CartProvider>
+        <BrowserRouter>
+          <div className="min-h-screen flex flex-col bg-gray-50">
 
-          {/* Siempre visible arriba */}
-          <Navbar />
+            {/* Siempre visible arriba */}
+            <Navbar />
 
-          {/* Contenido de la página actual */}
-          <main className="flex-1">
-            <Routes>
+            {/* Contenido de la página actual */}
+            <main className="flex-1">
+              <Routes>
 
-              {/* ── Rutas públicas (sin login) ──────────── */}
-              <Route path="/login"          element={<Login />} />
-              <Route path="/registro"       element={<Register />} />
-              <Route path="/catalogo"       element={<Catalog />} />
-              <Route path="/producto/:id"   element={<ProductDetail />} />
+                {/* ── Rutas públicas (sin login) ──────────── */}
+                <Route path="/login"          element={<Login />} />
+                <Route path="/registro"       element={<Register />} />
+                <Route path="/catalogo"       element={<Catalog />} />
+                <Route path="/producto/:id"   element={<ProductDetail />} />
 
-              {/* ── Rutas privadas (requieren login) ───── */}
-              <Route path="/carrito" element={
-                <PrivateRoute><Cart /></PrivateRoute>
-              } />
-              <Route path="/checkout" element={
-                <PrivateRoute><Checkout /></PrivateRoute>
-              } />
-              <Route path="/pedidos" element={
-                <PrivateRoute><MisPedidos /></PrivateRoute>
-              } />
-              <Route path="/pedidos/:id" element={
-                <PrivateRoute><DetallePedido /></PrivateRoute>
-              } />
+                {/* ── Rutas privadas (requieren login) ───── */}
+                <Route path="/carrito" element={
+                  <PrivateRoute><Cart /></PrivateRoute>
+                } />
+                <Route path="/checkout" element={
+                  <PrivateRoute><Checkout /></PrivateRoute>
+                } />
+                <Route path="/pedidos" element={
+                  <PrivateRoute><MisPedidos /></PrivateRoute>
+                } />
+                <Route path="/pedidos/:id" element={
+                  <PrivateRoute><DetallePedido /></PrivateRoute>
+                } />
 
-              {/* ── Redirecciones ───────────────────────── */}
-              <Route path="/"  element={<Navigate to="/catalogo" replace />} />
-              <Route path="*"  element={<Navigate to="/catalogo" replace />} />
+                {/* ── Redirecciones ───────────────────────── */}
+                <Route path="/"  element={<Navigate to="/catalogo" replace />} />
+                <Route path="*"  element={<Navigate to="/catalogo" replace />} />
 
-            </Routes>
-          </main>
+              </Routes>
+            </main>
 
-          {/* Siempre visible abajo */}
-          <Footer />
+            {/* Siempre visible abajo */}
+            <Footer />
 
-        </div>
-      </BrowserRouter>
+          </div>
+        </BrowserRouter>
+       </CartProvider>
     </AuthProvider>
   )
-}
+ }
 
-export default App
+ export default App

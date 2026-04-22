@@ -6,16 +6,18 @@ import {
   eliminarItem,
   vaciarCarrito
 } from '../api/carritoApi'
+import { useCart } from '../context/CartContext'
 import Button from '../components/ui/Button'
 
 export default function Cart() {
   const navigate = useNavigate()
-  const [carrito, setCarrito]       = useState(null)
-  const [loading, setLoading]       = useState(true)
-  const [error, setError]           = useState('')
-  const [actualizando, setActualizando] = useState(null) // id del ítem en proceso
+  const { refreshCart } = useCart()
 
-  // ── Cargar carrito ──────────────────────────────────────
+  const [carrito, setCarrito]           = useState(null)
+  const [loading, setLoading]           = useState(true)
+  const [error, setError]               = useState('')
+  const [actualizando, setActualizando] = useState(null)
+
   useEffect(() => {
     cargarCarrito()
   }, [])
@@ -24,6 +26,7 @@ export default function Cart() {
     try {
       const res = await getCarrito()
       setCarrito(res.data)
+      refreshCart()
     } catch (e) {
       setError('No se pudo cargar el carrito')
     } finally {
@@ -31,13 +34,14 @@ export default function Cart() {
     }
   }
 
-  // ── Actualizar cantidad ─────────────────────────────────
   const handleCantidad = async (idItem, nuevaCantidad) => {
     if (nuevaCantidad < 0) return
     setActualizando(idItem)
+    setError('')
     try {
       const res = await actualizarCantidad(idItem, nuevaCantidad)
       setCarrito(res.data)
+      refreshCart()
     } catch (e) {
       setError(e.response?.data?.mensaje || 'Error al actualizar cantidad')
       setTimeout(() => setError(''), 3000)
@@ -46,12 +50,13 @@ export default function Cart() {
     }
   }
 
-  // ── Eliminar ítem ───────────────────────────────────────
   const handleEliminar = async (idItem) => {
     setActualizando(idItem)
+    setError('')
     try {
       const res = await eliminarItem(idItem)
       setCarrito(res.data)
+      refreshCart()
     } catch (e) {
       setError('Error al eliminar el producto')
       setTimeout(() => setError(''), 3000)
@@ -60,7 +65,6 @@ export default function Cart() {
     }
   }
 
-  // ── Vaciar carrito ──────────────────────────────────────
   const handleVaciar = async () => {
     if (!confirm('¿Estás seguro de vaciar el carrito?')) return
     try {
@@ -71,7 +75,6 @@ export default function Cart() {
     }
   }
 
-  // ── Loading ─────────────────────────────────────────────
   if (loading) return (
     <div className="flex justify-center py-20">
       <div className="animate-spin rounded-full h-10 w-10
@@ -79,7 +82,6 @@ export default function Cart() {
     </div>
   )
 
-  // ── Carrito vacío ───────────────────────────────────────
   const estaVacio = !carrito?.items || carrito.items.length === 0
 
   if (estaVacio) return (
@@ -115,7 +117,6 @@ export default function Cart() {
         {/* ── Lista de ítems ─────────────────────────── */}
         <div className="lg:col-span-2 space-y-3">
 
-          {/* Encabezado */}
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-500">
               {carrito.totalItems} producto(s)
@@ -129,7 +130,6 @@ export default function Cart() {
             </button>
           </div>
 
-          {/* Tarjetas de ítems */}
           {carrito.items.map(item => (
             <div key={item.idItem}
                  className="bg-white border border-gray-100 rounded-xl
@@ -218,7 +218,6 @@ export default function Cart() {
               Resumen
             </h2>
 
-            {/* Desglose */}
             <div className="space-y-2 text-sm text-gray-600 mb-4">
               {carrito.items.map(item => (
                 <div key={item.idItem} className="flex justify-between">
@@ -232,7 +231,6 @@ export default function Cart() {
               ))}
             </div>
 
-            {/* Separador */}
             <div className="border-t border-gray-100 pt-4 mb-4">
               <div className="flex justify-between font-bold text-lg text-gray-800">
                 <span>Total</span>
@@ -242,7 +240,6 @@ export default function Cart() {
               </div>
             </div>
 
-            {/* Botón checkout */}
             <Button
               fullWidth
               size="lg"
@@ -251,7 +248,6 @@ export default function Cart() {
               Ir al pago ✅
             </Button>
 
-            {/* Seguir comprando */}
             <Link to="/catalogo"
                   className="block text-center text-sm text-green-700
                              hover:underline mt-3">
