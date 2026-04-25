@@ -53,9 +53,14 @@ export default function Catalog() {
       .finally(() => setLoading(false))
   }, [filtros])
 
-  // Actualiza un filtro y vuelve a la página 0 para no quedar fuera de rango
+  // Actualiza un filtro de búsqueda y resetea a página 0
+  // EXCEPTO cuando el campo que cambia es precisamente 'page'
   const handleFiltro = (campo, valor) =>
-    setFiltros(prev => ({ ...prev, [campo]: valor, page: 0 }))
+    setFiltros(prev => ({
+      ...prev,
+      [campo]: valor,
+      ...(campo !== 'page' && { page: 0 }) // solo resetea si NO es navegación de página
+    }))
 
   // Restablece todos los filtros al estado inicial
   const limpiarFiltros = () =>
@@ -355,7 +360,8 @@ function ProductoCard({ producto: p }) {
                  flex flex-col"
     >
       {/* ── Imagen con badges y overlay de sin stock ── */}
-      <div className="h-48 bg-green-50 overflow-hidden relative flex-shrink-0">
+      <div className="aspect-square bg-green-50 overflow-hidden relative flex-shrink-0 flex
+                items-center justify-center">
         <img
           src={imagenSrc}
           alt={p.nombreProducto}
