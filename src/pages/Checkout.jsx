@@ -7,8 +7,8 @@ import Input  from '../components/ui/Input'
 const METODOS_PAGO = [
   { id: 1, nombre: 'Tarjeta de Crédito', icono: '💳' },
   { id: 2, nombre: 'Tarjeta de Débito',  icono: '🏦' },
-  { id: 3, nombre: 'Transferencia',      icono: '🔄' },
-  { id: 4, nombre: 'Efectivo',           icono: '💵' },
+  { id: 3, nombre: 'PSE',      icono: '🔄' },
+  { id: 4, nombre: 'Contra Entrega',           icono: '💵' },
 ]
 
 export default function Checkout() {
