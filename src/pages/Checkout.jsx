@@ -1,18 +1,32 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { checkout as checkoutApi } from '../api/pedidosApi'
+import { useCart } from '../context/CartContext'
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
 
+/**
+ * Métodos de pago disponibles.
+ * Los IDs deben coincidir con los registros en METODOPAGO de Oracle:
+ *   1 = TARJETA_CREDITO  → Tarjeta de Crédito
+ *   2 = TARJETA_DEBITO   → Tarjeta de Débito
+ *   3 = TRANSFERENCIA    → PSE
+ *   4 = EFECTIVO         → Contra entrega
+ *
+ * Ruta destino: From/src/pages/Checkout.jsx
+ */
 const METODOS_PAGO = [
   { id: 1, nombre: 'Tarjeta de Crédito', icono: '💳' },
   { id: 2, nombre: 'Tarjeta de Débito',  icono: '🏦' },
-  { id: 3, nombre: 'PSE',      icono: '🔄' },
-  { id: 4, nombre: 'Contra Entrega',           icono: '💵' },
+  { id: 3, nombre: 'PSE',                icono: '🔄' },
+  { id: 4, nombre: 'Contra entrega',     icono: '📦' },
 ]
 
 export default function Checkout() {
   const navigate = useNavigate()
+
+  // clearCart: pone el contador del navbar en 0 después del checkout
+  const { clearCart } = useCart()
 
   const [metodoPago,  setMetodoPago]  = useState(null)
   const [direccion,   setDireccion]   = useState('')
@@ -20,16 +34,24 @@ export default function Checkout() {
   const [error,       setError]       = useState('')
 
   const handleSubmit = async () => {
-    // Validar campos
-    if (!metodoPago) return setError('Selecciona un método de pago')
+    if (!metodoPago)       return setError('Selecciona un método de pago')
     if (!direccion.trim()) return setError('Ingresa la dirección de envío')
 
     setLoading(true)
     setError('')
+
     try {
+      // POST /api/pedidos/checkout → crea el pedido en el backend
       const res = await checkoutApi(metodoPago, direccion)
-      // Redirigir al detalle con flag de "pedido nuevo"
+
+      // Limpiar el contador del carrito en el navbar INMEDIATAMENTE
+      // El carrito ya fue marcado como CONVERTIDO en el backend.
+      // clearCart() es síncrono → el badge desaparece antes de navegar.
+      clearCart()
+
+      // Redirigir al detalle del pedido con flag de "pedido nuevo"
       navigate(`/pedidos/${res.data.idPedido}`, { state: { nuevo: true } })
+
     } catch (e) {
       setError(e.response?.data?.mensaje || 'Error al procesar el pedido')
     } finally {
@@ -102,12 +124,7 @@ export default function Checkout() {
       )}
 
       {/* Botón confirmar */}
-      <Button
-        fullWidth
-        size="lg"
-        loading={loading}
-        onClick={handleSubmit}
-      >
+      <Button fullWidth size="lg" loading={loading} onClick={handleSubmit}>
         ✅ Confirmar y pagar
       </Button>
 

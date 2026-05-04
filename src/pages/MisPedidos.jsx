@@ -79,10 +79,13 @@ export default function MisPedidos() {
                     </p>
                     {/* Fecha */}
                     <p className="text-sm text-gray-500 mt-0.5">
-                      {new Date(p.fechaPedido)
+                      {new Date((p.fechaPedido || '') + 'Z')
                         .toLocaleDateString('es-CO', {
-                          year: 'numeric', month: 'long', day: 'numeric'
-                        })}
+                          year:     'numeric',
+                          month:    'long',
+                          day:      'numeric',
+                          timeZone: 'America/Bogota'
+                    })}
                     </p>
                     {/* Productos */}
                     <p className="text-xs text-gray-400 mt-0.5">
