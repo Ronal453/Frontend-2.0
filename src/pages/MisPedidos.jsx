@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom'
 import { getHistorial } from '../api/pedidosApi'
 
 const ESTADO_ESTILO = {
-  PENDIENTE:  { clase: 'bg-yellow-100 text-yellow-800', icono: '⏳' },
-  PREPARANDO: { clase: 'bg-blue-100 text-blue-800',     icono: '🌿' },
-  ENVIADO:    { clase: 'bg-purple-100 text-purple-800', icono: '🚚' },
-  ENTREGADO:  { clase: 'bg-green-100 text-green-800',   icono: '✅' },
-  CANCELADO:  { clase: 'bg-red-100 text-red-800',       icono: '❌' },
+  PENDIENTE:       { clase: 'bg-yellow-100 text-yellow-800', icono: '⏳' },
+  EN_PREPARACION:  { clase: 'bg-blue-100 text-blue-800',     icono: '🌿' },
+  ENVIADO:         { clase: 'bg-purple-100 text-purple-800', icono: '🚚' },
+  ENTREGADO:       { clase: 'bg-green-100 text-green-800',   icono: '✅' },
+  CANCELADO:       { clase: 'bg-red-100 text-red-800',       icono: '❌' },
 }
 
 export default function MisPedidos() {

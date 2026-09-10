@@ -19,20 +19,20 @@ import { getPedidosAdmin, actualizarEstadoPedido } from '../api/adminApi'
  */
 
 const ESTADOS_CONFIG = {
-  PENDIENTE:  { badge: 'bg-yellow-100 text-yellow-800', icono: '⏳', siguientes: ['PREPARANDO', 'CANCELADO'] },
-  PREPARANDO: { badge: 'bg-blue-100 text-blue-800',     icono: '🌿', siguientes: ['ENVIADO', 'CANCELADO']    },
-  ENVIADO:    { badge: 'bg-purple-100 text-purple-800', icono: '🚚', siguientes: ['ENTREGADO', 'CANCELADO']  },
-  ENTREGADO:  { badge: 'bg-green-100 text-green-800',   icono: '✅', siguientes: []                          },
-  CANCELADO:  { badge: 'bg-red-100 text-red-800',       icono: '❌', siguientes: []                          },
+  PENDIENTE:       { badge: 'bg-yellow-100 text-yellow-800', icono: '⏳', siguientes: ['EN_PREPARACION', 'CANCELADO'] },
+  EN_PREPARACION:  { badge: 'bg-blue-100 text-blue-800',     icono: '🌿', siguientes: ['ENVIADO', 'CANCELADO']         },
+  ENVIADO:         { badge: 'bg-purple-100 text-purple-800', icono: '🚚', siguientes: ['ENTREGADO', 'CANCELADO']       },
+  ENTREGADO:       { badge: 'bg-green-100 text-green-800',   icono: '✅', siguientes: []                               },
+  CANCELADO:       { badge: 'bg-red-100 text-red-800',       icono: '❌', siguientes: []                               },
 }
 
 const OPCIONES_FILTRO = [
-  { valor: '',           label: 'Todos los estados' },
-  { valor: 'PENDIENTE',  label: '⏳ Pendiente'  },
-  { valor: 'PREPARANDO', label: '🌿 Preparando' },
-  { valor: 'ENVIADO',    label: '🚚 Enviado'    },
-  { valor: 'ENTREGADO',  label: '✅ Entregado'  },
-  { valor: 'CANCELADO',  label: '❌ Cancelado'  },
+  { valor: '',               label: 'Todos los estados' },
+  { valor: 'PENDIENTE',      label: '⏳ Pendiente'  },
+  { valor: 'EN_PREPARACION', label: '🌿 Preparando' },
+  { valor: 'ENVIADO',        label: '🚚 Enviado'    },
+  { valor: 'ENTREGADO',      label: '✅ Entregado'  },
+  { valor: 'CANCELADO',      label: '❌ Cancelado'  },
 ]
 
 // Nombres legibles para los métodos de pago

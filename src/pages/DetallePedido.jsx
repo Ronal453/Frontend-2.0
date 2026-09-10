@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useLocation, Link } from 'react-router-dom'
 import { getDetallePedido } from '../api/pedidosApi'
 
-const PASOS = ['PENDIENTE', 'PREPARANDO', 'ENVIADO', 'ENTREGADO']
+const PASOS = ['PENDIENTE', 'EN_PREPARACION', 'ENVIADO', 'ENTREGADO']
 
 /**
  * Mapa completo de métodos de pago internos → nombres visibles al usuario.
