@@ -27,7 +27,15 @@ export default function Login() {
     try {
       const res = await loginApi({ email: form.email, password: form.password })
       login(res.data.token, { email: res.data.email, rol: res.data.rol })
-      navigate('/catalogo')
+
+      // Redirección por rol (RF-18)
+      if (res.data.rol === 'TRABAJADOR') {
+        navigate('/trabajador')
+      } else if (res.data.rol === 'ADMINISTRADOR') {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/catalogo')
+      }
     } catch (err) {
       setError(err.response?.data?.mensaje || 'Credenciales incorrectas')
     } finally {

@@ -14,6 +14,12 @@ import AdminProductos from './pages/AdminProductos'
 import AdminPedidos   from './pages/AdminPedidos'
 import AdminUsuarios  from './pages/AdminUsuarios'   // ← NUEVO (HU9)
 
+import TrabajadorLayout  from './components/layout/TrabajadorLayout'
+import TrabajadorRoute   from './components/TrabajadorRoute'
+import TrabajadorKanban  from './pages/trabajador/TrabajadorKanban'
+import TrabajadorLotes   from './pages/trabajador/TrabajadorLotes'
+import TrabajadorMermas  from './pages/trabajador/TrabajadorMermas'
+
 import Navbar      from './components/layout/Navbar'
 import Footer      from './components/layout/Footer'
 import PrivateRoute from './components/PrivateRoute'
@@ -51,6 +57,15 @@ function App() {
                   <Route path="pedidos" element={<AdminPedidos />} />
                   {/* [NUEVO — HU9] */}
                   <Route path="usuarios" element={<AdminUsuarios />} />
+                </Route>
+
+                {/* ── Panel del Trabajador ────────────────────── */}
+                <Route path="/trabajador" element={<TrabajadorRoute><TrabajadorLayout /></TrabajadorRoute>}>
+                  <Route index element={<Navigate to="tareas" replace />} />
+                  <Route path="tareas" element={<TrabajadorKanban />} />
+                  <Route path="kanban" element={<Navigate to="tareas" replace />} />
+                  <Route path="lotes"  element={<TrabajadorLotes />} />
+                  <Route path="mermas" element={<TrabajadorMermas />} />
                 </Route>
 
                 <Route path="/"  element={<Navigate to="/catalogo" replace />} />

@@ -24,8 +24,10 @@ export default function Navbar() {
     navigate('/login')
   }
 
-  // Determinar si el usuario es admin para mostrar el link del panel
+  // Determinar rol del usuario
   const esAdmin = user?.rol === 'ADMINISTRADOR'
+  const esTrabajador = user?.rol === 'TRABAJADOR'
+  const esCliente = !esAdmin && !esTrabajador
 
   return (
     <nav className="bg-green-800 text-white px-6 py-3 flex items-center
@@ -49,15 +51,25 @@ export default function Navbar() {
 
         {isAuth ? (
           <>
-            {/* Mis pedidos: solo para clientes autenticados */}
-            {!esAdmin && (
+            {/* Mis pedidos: solo para clientes */}
+            {esCliente && (
               <Link to="/pedidos"
                     className="hover:text-green-200 transition-colors">
                 Mis pedidos
               </Link>
             )}
 
-            {/* [NUEVO Sprint 5] Panel admin: solo para ADMINISTRADOR */}
+            {/* Panel Operativo: para TRABAJADOR o ADMINISTRADOR */}
+            {(esTrabajador || esAdmin) && (
+              <Link to="/trabajador"
+                    className="bg-emerald-600 text-white px-3 py-1
+                               rounded-lg font-semibold hover:bg-emerald-500
+                               transition-colors text-xs flex items-center gap-1 shadow-sm">
+                🧑‍🌾 Panel Operativo
+              </Link>
+            )}
+
+            {/* Panel Admin: solo para ADMINISTRADOR */}
             {esAdmin && (
               <Link to="/admin"
                     className="bg-yellow-500 text-yellow-900 px-3 py-1
@@ -67,8 +79,8 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Carrito con badge: solo para clientes (no admin) */}
-            {!esAdmin && (
+            {/* Carrito con badge: solo para clientes */}
+            {esCliente && (
               <Link to="/carrito"
                     className="relative bg-white text-green-800 px-3 py-1
                                rounded-lg font-semibold hover:bg-green-100
@@ -89,7 +101,10 @@ export default function Navbar() {
             <span className="text-green-300 text-xs hidden md:block">
               {user?.email}
               {esAdmin && (
-                <span className="ml-1 text-yellow-400">(admin)</span>
+                <span className="ml-1 text-yellow-400 font-semibold">(admin)</span>
+              )}
+              {esTrabajador && (
+                <span className="ml-1 text-emerald-300 font-semibold">(operativo)</span>
               )}
             </span>
 
