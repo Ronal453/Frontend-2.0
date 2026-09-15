@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import {
-  getUsuariosAdmin, activarUsuario, desactivarUsuario, resetearPasswordUsuario
+  getUsuariosAdmin, activarUsuario, desactivarUsuario, resetearPasswordUsuario,
+  crearTrabajador
 } from '../api/adminApi'
+import Button from '../components/ui/Button'
+import Input  from '../components/ui/Input'
 
 const ROLES = [
   { id: 1, nombre: 'ADMINISTRADOR', icono: '🛠', color: 'bg-purple-100 text-purple-800' },
@@ -21,6 +24,8 @@ export default function AdminUsuarios() {
   const [guardando,   setGuardando]   = useState(null)
   const [mensaje,     setMensaje]     = useState(null)
   const [passwordGenerada, setPasswordGenerada] = useState(null)
+  const [modalCrearAbierto, setModalCrearAbierto] = useState(false)
+  const [nuevoTrabajadorExito, setNuevoTrabajadorExito] = useState(null)
 
   const [filtros, setFiltros] = useState({
     nombre: '', idRol: '', activo: '', page: 0, size: 15
@@ -94,15 +99,81 @@ export default function AdminUsuarios() {
     mostrarMensaje('ok', 'Contraseña copiada al portapapeles')
   }
 
+  const handleCrearTrabajador = async (datos) => {
+    const res = await crearTrabajador(datos)
+    setNuevoTrabajadorExito({
+      nombreCompleto: datos.nombreCompleto,
+      correo: datos.correo,
+      passwordInicial: datos.passwordInicial,
+      idUsuario: res.data?.idUsuario
+    })
+    mostrarMensaje('ok', `Trabajador ${datos.nombreCompleto} creado exitosamente`)
+    await cargarUsuarios()
+  }
+
+  const copiarCredenciales = (cred) => {
+    if (!cred) return
+    const texto = `Credenciales de acceso a Plantopolis:\nRol: TRABAJADOR\nUsuario: ${cred.correo}\nContraseña: ${cred.passwordInicial}\nAcceso: Panel Operativo (/trabajador)`
+    navigator.clipboard?.writeText(texto)
+    mostrarMensaje('ok', 'Credenciales copiadas al portapapeles')
+  }
+
   return (
     <div className="p-6">
 
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-gray-800">👥 Gestión de usuarios</h1>
-        <p className="text-gray-500 text-sm">
-          Clientes, trabajadores y administradores registrados en Plantopolis
-        </p>
+      <div className="flex justify-between items-center mb-5 flex-wrap gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">👥 Gestión de usuarios</h1>
+          <p className="text-gray-500 text-sm">
+            Clientes, trabajadores y administradores registrados en Plantopolis
+          </p>
+        </div>
+        <Button onClick={() => setModalCrearAbierto(true)}>
+          🧑‍🌾 Crear Trabajador
+        </Button>
       </div>
+
+      {nuevoTrabajadorExito && (
+        <div className="mb-5 bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 shadow-sm animate-fadeIn">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="font-semibold text-emerald-800 text-sm flex items-center gap-1.5">
+                <span>✅</span> Cuenta de trabajador creada con éxito (HU11)
+              </p>
+              <p className="text-xs text-emerald-700 mt-1">
+                El usuario ha sido registrado con rol <strong>TRABAJADOR</strong> y estado <strong>Activo</strong>.
+              </p>
+              <div className="mt-2.5 text-xs text-gray-700 bg-white border border-emerald-200 rounded-lg p-3 inline-block">
+                <p className="font-semibold text-gray-600 mb-1">Credenciales iniciales para el trabajador:</p>
+                <p className="flex items-center gap-2 py-0.5">
+                  <span className="text-gray-500">Nombre:</span>
+                  <strong>{nuevoTrabajadorExito.nombreCompleto}</strong>
+                </p>
+                <p className="flex items-center gap-2 py-0.5">
+                  <span className="text-gray-500">Usuario / Correo:</span>
+                  <code className="font-mono text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">
+                    {nuevoTrabajadorExito.correo}
+                  </code>
+                </p>
+                <p className="flex items-center gap-2 py-0.5">
+                  <span className="text-gray-500">Contraseña inicial:</span>
+                  <code className="font-mono text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">
+                    {nuevoTrabajadorExito.passwordInicial}
+                  </code>
+                </p>
+              </div>
+            </div>
+            <button onClick={() => setNuevoTrabajadorExito(null)}
+                    className="text-emerald-500 hover:text-emerald-800 text-xl leading-none">✕</button>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <button onClick={() => copiarCredenciales(nuevoTrabajadorExito)}
+                    className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors font-medium flex items-center gap-1">
+              📋 Copiar credenciales
+            </button>
+          </div>
+        </div>
+      )}
 
       {passwordGenerada && (
         <div className="mb-5 bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
@@ -244,6 +315,150 @@ export default function AdminUsuarios() {
           </button>
         </div>
       )}
+
+      {/* Modal para Crear Trabajador (HU11) */}
+      <ModalCrearTrabajador
+        abierto={modalCrearAbierto}
+        onCerrar={() => setModalCrearAbierto(false)}
+        onCreado={handleCrearTrabajador}
+      />
+    </div>
+  )
+}
+
+/**
+ * Modal interactivo para que el Administrador cree cuentas con rol TRABAJADOR
+ * Cumple con HU11 y RF-13 (Creación administrativa con rol fijo TRABAJADOR)
+ */
+function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
+  const [form, setForm] = useState({
+    nombreCompleto: '',
+    correo: '',
+    passwordInicial: ''
+  })
+  const [errores, setErrores] = useState({})
+  const [errorBackend, setErrorBackend] = useState('')
+  const [guardando, setGuardando] = useState(false)
+
+  if (!abierto) return null
+
+  const handleChange = (e) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    if (errores[e.target.name]) {
+      setErrores(prev => ({ ...prev, [e.target.name]: '' }))
+    }
+  }
+
+  const validar = () => {
+    const err = {}
+    if (!form.nombreCompleto.trim()) {
+      err.nombreCompleto = 'El nombre completo es obligatorio'
+    }
+    if (!form.correo.trim()) {
+      err.correo = 'El correo electrónico es obligatorio'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo.trim())) {
+      err.correo = 'Formato de correo electrónico inválido'
+    }
+    if (!form.passwordInicial) {
+      err.passwordInicial = 'La contraseña inicial es obligatoria'
+    } else if (form.passwordInicial.length < 6) {
+      err.passwordInicial = 'La contraseña debe tener al menos 6 caracteres'
+    }
+    setErrores(err)
+    return Object.keys(err).length === 0
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!validar()) return
+    setGuardando(true)
+    setErrorBackend('')
+    try {
+      await onCreado({
+        nombreCompleto: form.nombreCompleto.trim(),
+        correo: form.correo.trim(),
+        passwordInicial: form.passwordInicial
+      })
+      onCerrar()
+    } catch (err) {
+      setErrorBackend(err.response?.data?.mensaje || 'Error al crear la cuenta de trabajador')
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-emerald-50">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🧑‍🌾</span>
+            <h2 className="text-lg font-bold text-emerald-950">Crear Cuenta de Trabajador</h2>
+          </div>
+          <button
+            type="button"
+            onClick={onCerrar}
+            className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="p-3 bg-emerald-50/70 border border-emerald-200 text-xs text-emerald-900 rounded-xl leading-relaxed">
+            🌿 <strong>Rol Operativo:</strong> Esta cuenta se creará exclusivamente con el rol <strong>TRABAJADOR</strong>. 
+            Permite al personal acceder directamente al Panel Operativo (Kanban, Lotes y Mermas) sin requerir autorregistro público.
+          </div>
+
+          <Input
+            label="Nombre completo"
+            name="nombreCompleto"
+            required
+            value={form.nombreCompleto}
+            onChange={handleChange}
+            placeholder="Ej: Carlos Gómez"
+            error={errores.nombreCompleto}
+          />
+
+          <Input
+            label="Correo electrónico"
+            name="correo"
+            type="email"
+            required
+            value={form.correo}
+            onChange={handleChange}
+            placeholder="trabajador@plantopolis.com"
+            error={errores.correo}
+          />
+
+          <Input
+            label="Contraseña inicial"
+            name="passwordInicial"
+            type="text"
+            required
+            value={form.passwordInicial}
+            onChange={handleChange}
+            placeholder="Mínimo 6 caracteres"
+            error={errores.passwordInicial}
+          />
+
+          {errorBackend && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg flex items-center gap-1.5">
+              <span>⚠️</span>
+              <span>{errorBackend}</span>
+            </div>
+          )}
+
+          <div className="pt-2 flex justify-end gap-2">
+            <Button variant="secondary" type="button" onClick={onCerrar} disabled={guardando}>
+              Cancelar
+            </Button>
+            <Button type="submit" loading={guardando}>
+              Crear Trabajador
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

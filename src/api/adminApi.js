@@ -79,3 +79,7 @@ export const activarUsuario = (id) => api.patch(`/admin/usuarios/${id}/activar`)
 export const desactivarUsuario = (id) => api.patch(`/admin/usuarios/${id}/desactivar`)
 
 export const resetearPasswordUsuario = (id) => api.post(`/admin/usuarios/${id}/resetear-password`)
+
+/** Crea una cuenta con rol TRABAJADOR. datos = { nombreCompleto, correo, passwordInicial } */
+export const crearTrabajador = (datos) =>
+  api.post('/admin/usuarios/trabajadores', datos)
