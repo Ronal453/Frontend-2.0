@@ -2,14 +2,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useCart } from '../../context/CartContext'
+import ThemeToggle from '../ui/ThemeToggle'
 
 export default function Navbar() {
   const { isAuth, user, logout } = useAuth()
   const { totalItems, refreshCart, clearCart } = useCart()
   const navigate = useNavigate()
 
-  // [Sprint 4] Al hacer login → cargar contador del carrito desde BD
-  // Al cerrar sesión → limpiar contador a 0
   useEffect(() => {
     if (isAuth) {
       refreshCart()
@@ -24,26 +23,23 @@ export default function Navbar() {
     navigate('/login')
   }
 
-  // Determinar rol del usuario
   const esAdmin = user?.rol === 'ADMINISTRADOR'
   const esTrabajador = user?.rol === 'TRABAJADOR'
   const esCliente = !esAdmin && !esTrabajador
 
   return (
-    <nav className="bg-green-800 text-white px-6 py-3 flex items-center
-                    justify-between shadow-md sticky top-0 z-50">
+    <nav className="bg-green-800 dark:bg-gray-950 text-white px-6 py-3 flex items-center
+                    justify-between shadow-md sticky top-0 z-50 transition-colors
+                    border-b border-transparent dark:border-gray-800">
 
-      {/* Logo con link al catálogo */}
       <Link to="/catalogo"
             className="flex items-center gap-2 text-xl font-bold
                        hover:text-green-200 transition-colors">
         🌱 Plantopolis
       </Link>
 
-      {/* Links de navegación */}
       <div className="flex items-center gap-4 text-sm font-medium">
 
-        {/* Catálogo: siempre visible */}
         <Link to="/catalogo"
               className="hover:text-green-200 transition-colors">
           Catálogo
@@ -51,7 +47,6 @@ export default function Navbar() {
 
         {isAuth ? (
           <>
-            {/* Mis pedidos: solo para clientes */}
             {esCliente && (
               <Link to="/pedidos"
                     className="hover:text-green-200 transition-colors">
@@ -59,34 +54,30 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Panel Operativo: para TRABAJADOR o ADMINISTRADOR */}
             {(esTrabajador || esAdmin) && (
               <Link to="/trabajador"
-                    className="bg-emerald-600 text-white px-3 py-1
-                               rounded-lg font-semibold hover:bg-emerald-500
+                    className="bg-emerald-600 dark:bg-emerald-700 text-white px-3 py-1
+                               rounded-lg font-semibold hover:bg-emerald-500 dark:hover:bg-emerald-600
                                transition-colors text-xs flex items-center gap-1 shadow-sm">
                 🧑‍🌾 Panel Operativo
               </Link>
             )}
 
-            {/* Panel Admin: solo para ADMINISTRADOR */}
             {esAdmin && (
               <Link to="/admin"
-                    className="bg-yellow-500 text-yellow-900 px-3 py-1
-                               rounded-lg font-semibold hover:bg-yellow-400
+                    className="bg-yellow-500 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-50 px-3 py-1
+                               rounded-lg font-semibold hover:bg-yellow-400 dark:hover:bg-yellow-500
                                transition-colors text-xs">
                 🛠 Panel Admin
               </Link>
             )}
 
-            {/* Carrito con badge: solo para clientes */}
             {esCliente && (
               <Link to="/carrito"
-                    className="relative bg-white text-green-800 px-3 py-1
-                               rounded-lg font-semibold hover:bg-green-100
+                    className="relative bg-white dark:bg-gray-800 text-green-800 dark:text-green-300 px-3 py-1
+                               rounded-lg font-semibold hover:bg-green-100 dark:hover:bg-gray-700
                                transition-colors flex items-center gap-1">
                 🛒 Carrito
-                {/* Badge del contador: visible solo cuando hay ítems */}
                 {totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500
                                    text-white text-xs rounded-full w-5 h-5
@@ -97,8 +88,7 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Email del usuario (solo desktop) */}
-            <span className="text-green-300 text-xs hidden md:block">
+            <span className="text-green-300 dark:text-gray-400 text-xs hidden md:block">
               {user?.email}
               {esAdmin && (
                 <span className="ml-1 text-yellow-400 font-semibold">(admin)</span>
@@ -108,7 +98,6 @@ export default function Navbar() {
               )}
             </span>
 
-            {/* Cerrar sesión */}
             <button onClick={handleLogout}
                     className="hover:text-red-300 transition-colors">
               Salir
@@ -121,12 +110,15 @@ export default function Navbar() {
               Iniciar sesión
             </Link>
             <Link to="/registro"
-                  className="bg-white text-green-800 px-3 py-1 rounded-lg
-                             font-semibold hover:bg-green-100 transition-colors">
+                  className="bg-white dark:bg-gray-800 text-green-800 dark:text-green-300 px-3 py-1 rounded-lg
+                             font-semibold hover:bg-green-100 dark:hover:bg-gray-700 transition-colors">
               Registrarse
             </Link>
           </>
         )}
+
+        {/* Botón de tema — siempre visible al final */}
+        <ThemeToggle />
       </div>
     </nav>
   )

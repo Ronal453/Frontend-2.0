@@ -79,10 +79,10 @@ export default function AdminDashboard() {
     <div className="p-6 max-w-5xl mx-auto">
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
           📊 Dashboard de ventas
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
           Métricas en tiempo real del sistema Plantopolis
         </p>
       </div>
@@ -101,8 +101,8 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-        <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
-          <h2 className="font-semibold text-gray-700 mb-5">
+        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+          <h2 className="font-semibold text-gray-700 dark:text-gray-200 mb-5">
             Pedidos por estado
           </h2>
 
@@ -113,14 +113,14 @@ export default function AdminDashboard() {
                 const pct     = Math.max((count / maxEstado) * 100, count > 0 ? 4 : 0)
                 return (
                   <div key={estado} className="flex flex-col items-center gap-1 flex-1">
-                    <span className="text-xs font-bold text-gray-600">
+                    <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
                       {count}
                     </span>
                     <div
                       className={`w-full rounded-t-lg transition-all duration-500 ${config.color}`}
                       style={{ height: `${pct}%`, minHeight: count > 0 ? '6px' : '2px' }}
                     />
-                    <span className="text-[10px] font-medium text-gray-500 text-center leading-tight">
+                    <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 text-center leading-tight">
                       {estado.charAt(0) + estado.slice(1).toLowerCase()}
                     </span>
                   </div>
@@ -129,13 +129,13 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
-          <h2 className="font-semibold text-gray-700 mb-4">
+        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+          <h2 className="font-semibold text-gray-700 dark:text-gray-200 mb-4">
             🏆 Top productos vendidos
           </h2>
 
           {(!reporte?.topProductos || reporte.topProductos.length === 0) ? (
-            <p className="text-gray-400 text-sm text-center py-8">
+            <p className="text-gray-400 dark:text-gray-500 text-sm text-center py-8">
               Aún no hay ventas registradas
             </p>
           ) : (
@@ -143,23 +143,23 @@ export default function AdminDashboard() {
               {reporte.topProductos.map((p, i) => (
                 <div key={p.idProducto} className="flex items-center gap-3">
                   <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-                                    ${i === 0 ? 'bg-yellow-100 text-yellow-700' :
-                                      i === 1 ? 'bg-gray-100 text-gray-600' :
-                                      i === 2 ? 'bg-orange-100 text-orange-700' :
-                                                'bg-green-50 text-green-600'}`}>
+                                    ${i === 0 ? 'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-700 dark:text-yellow-300' :
+                                      i === 1 ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' :
+                                      i === 2 ? 'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300' :
+                                                'bg-green-50 dark:bg-green-950/60 text-green-600 dark:text-green-300'}`}>
                     {i + 1}
                   </span>
 
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">
+                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
                       {p.nombreProducto}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {fmt(p.totalIngresos)}
                     </p>
                   </div>
 
-                  <span className="text-sm font-bold text-green-700 flex-shrink-0">
+                  <span className="text-sm font-bold text-green-700 dark:text-green-400 flex-shrink-0">
                     {p.totalVendido} ud.
                   </span>
                 </div>
@@ -170,39 +170,39 @@ export default function AdminDashboard() {
 
       </div>
 
-      <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm mb-6">
+      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-5 shadow-sm mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-700">
+          <h2 className="font-semibold text-gray-700 dark:text-gray-200">
             ⚠️ Alerta de stock crítico
           </h2>
           {stockCritico.length > 0 && (
-            <span className="text-xs font-bold bg-orange-100 text-orange-700 px-2.5 py-1 rounded-full">
+            <span className="text-xs font-bold bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 px-2.5 py-1 rounded-full border border-orange-200 dark:border-orange-800/40">
               {stockCritico.length} producto(s)
             </span>
           )}
         </div>
 
         {cargandoStock ? (
-          <p className="text-gray-400 text-sm text-center py-6">Cargando...</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm text-center py-6">Cargando...</p>
         ) : stockCritico.length === 0 ? (
-          <p className="text-gray-400 text-sm text-center py-6">
+          <p className="text-gray-400 dark:text-gray-500 text-sm text-center py-6">
             ✅ Ningún producto está por debajo de su umbral de stock
           </p>
         ) : (
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {stockCritico.map(p => (
               <div key={p.idProducto}
-                   className="flex items-center justify-between bg-orange-50 border border-orange-100 rounded-lg px-4 py-2.5">
+                   className="flex items-center justify-between bg-orange-50 dark:bg-orange-950/30 border border-orange-100 dark:border-orange-900/50 rounded-lg px-4 py-2.5">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">
+                  <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
                     {p.nombreProducto}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     Umbral configurado: {p.stockMinimoAlerta} unidades
                   </p>
                 </div>
                 <span className={`text-sm font-bold flex-shrink-0 ml-3
-                                  ${p.stock === 0 ? 'text-red-600' : 'text-orange-600'}`}>
+                                  ${p.stock === 0 ? 'text-red-600 dark:text-red-400' : 'text-orange-600 dark:text-orange-400'}`}>
                   {p.stock} {p.stock === 1 ? 'unidad' : 'unidades'}
                 </span>
               </div>
@@ -211,11 +211,11 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
-        <h2 className="font-semibold text-gray-700 mb-1">
+      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+        <h2 className="font-semibold text-gray-700 dark:text-gray-200 mb-1">
           📥 Exportar pedidos a CSV
         </h2>
-        <p className="text-gray-500 text-xs mb-4">
+        <p className="text-gray-500 dark:text-gray-400 text-xs mb-4">
           Descarga un archivo CSV (compatible con Excel/Sheets) con el detalle
           de pedidos del rango de fechas seleccionado. Déjalo vacío para
           exportar todos los pedidos.
@@ -223,21 +223,21 @@ export default function AdminDashboard() {
 
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-600">Desde</label>
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Desde</label>
             <input
               type="date"
               value={fechaInicio}
               onChange={e => setFechaInicio(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-600">Hasta</label>
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Hasta</label>
             <input
               type="date"
               value={fechaFin}
               onChange={e => setFechaFin(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
 
@@ -259,7 +259,7 @@ export default function AdminDashboard() {
           {(fechaInicio || fechaFin) && (
             <button
               onClick={() => { setFechaInicio(''); setFechaFin('') }}
-              className="text-xs text-gray-500 hover:text-red-600 underline"
+              className="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 underline"
             >
               Limpiar fechas
             </button>
@@ -267,7 +267,7 @@ export default function AdminDashboard() {
         </div>
 
         {errorExport && (
-          <p className="text-xs text-red-600 mt-3">⚠ {errorExport}</p>
+          <p className="text-xs text-red-600 dark:text-red-400 mt-3">⚠ {errorExport}</p>
         )}
       </div>
 
@@ -277,19 +277,19 @@ export default function AdminDashboard() {
 
 function KpiCard({ icono, titulo, valor, sub, color }) {
   const colorMap = {
-    green:   'bg-green-50 text-green-700 border-green-100',
-    blue:    'bg-blue-50 text-blue-700 border-blue-100',
-    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-    purple:  'bg-purple-50 text-purple-700 border-purple-100',
+    green:   'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800/50',
+    blue:    'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/50',
+    emerald: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50',
+    purple:  'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/50',
   }
   const cardColor = colorMap[color] ?? colorMap.green
 
   return (
-    <div className={`rounded-xl border p-4 ${cardColor}`}>
+    <div className={`rounded-xl border p-4 shadow-sm ${cardColor}`}>
       <div className="text-2xl mb-1">{icono}</div>
-      <p className="text-xs font-medium opacity-70 mb-1">{titulo}</p>
+      <p className="text-xs font-medium opacity-80 mb-1">{titulo}</p>
       <p className="text-xl font-bold leading-tight">{valor}</p>
-      <p className="text-xs opacity-60 mt-0.5">{sub}</p>
+      <p className="text-xs opacity-70 mt-0.5">{sub}</p>
     </div>
   )
 }

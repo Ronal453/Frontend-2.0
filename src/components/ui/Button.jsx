@@ -20,10 +20,10 @@
  */
 
 const VARIANTS = {
-  primary:   'bg-green-700 text-white hover:bg-green-800 disabled:bg-green-300',
-  secondary: 'border-2 border-green-700 text-green-700 hover:bg-green-50 disabled:opacity-50',
-  danger:    'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300',
-  ghost:     'text-green-700 hover:bg-green-50 disabled:opacity-50',
+  primary:   'bg-green-700 text-white hover:bg-green-800 disabled:bg-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:disabled:bg-green-900',
+  secondary: 'border-2 border-green-700 text-green-700 hover:bg-green-50 disabled:opacity-50 dark:border-green-500 dark:text-green-400 dark:hover:bg-green-900/30',
+  danger:    'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300 dark:bg-red-700 dark:hover:bg-red-800 dark:disabled:bg-red-950',
+  ghost:     'text-green-700 hover:bg-green-50 disabled:opacity-50 dark:text-green-400 dark:hover:bg-green-900/30',
 }
 
 const SIZES = {
@@ -52,6 +52,7 @@ export default function Button({
         inline-flex items-center justify-center gap-2
         font-semibold rounded-lg transition-colors
         focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
+        dark:focus:ring-offset-gray-900
         disabled:cursor-not-allowed
         ${VARIANTS[variant]}
         ${SIZES[size]}

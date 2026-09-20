@@ -26,16 +26,18 @@ import PrivateRoute from './components/PrivateRoute'
 import AdminRoute   from './components/AdminRoute'
 import AdminLayout  from './components/layout/AdminLayout'
 
+import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <BrowserRouter>
-          <div className="min-h-screen flex flex-col bg-gray-50">
-            <Navbar />
+    <ThemeProvider>
+      <AuthProvider>
+        <CartProvider>
+          <BrowserRouter>
+            <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+              <Navbar />
 
             <main className="flex-1">
               <Routes>
@@ -79,6 +81,7 @@ function App() {
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>
+    </ThemeProvider>
   )
 }
 

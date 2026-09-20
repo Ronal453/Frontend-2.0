@@ -17,10 +17,10 @@ const ESTADOS_LOTE = [
 ]
 
 const ESTADO_BADGES = {
-  GERMINANDO: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  CRECIENDO: 'bg-blue-100 text-blue-800 border-blue-200',
-  LISTO_PARA_VENTA: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  DESCARTADO: 'bg-red-100 text-red-800 border-red-200',
+  GERMINANDO: 'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
+  CRECIENDO: 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+  LISTO_PARA_VENTA: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+  DESCARTADO: 'bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800',
 }
 
 export default function TrabajadorLotes() {
@@ -186,12 +186,12 @@ export default function TrabajadorLotes() {
   return (
     <div className="space-y-6">
       {/* Cabecera y Filtros */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
             🌱 Control de Lotes de Producción
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
             Supervisa el crecimiento, trazabilidad y estado de los lotes de cultivo
           </p>
         </div>
@@ -202,7 +202,7 @@ export default function TrabajadorLotes() {
           <select
             value={filtroZona}
             onChange={(e) => { setFiltroZona(e.target.value); setPagina(0) }}
-            className="text-xs bg-white border border-gray-200 rounded-xl px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             <option value="">Todas las zonas</option>
             {zonas.map(z => (
@@ -216,7 +216,7 @@ export default function TrabajadorLotes() {
           <select
             value={filtroEstado}
             onChange={(e) => { setFiltroEstado(e.target.value); setPagina(0) }}
-            className="text-xs bg-white border border-gray-200 rounded-xl px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             {ESTADOS_LOTE.map(e => (
               <option key={e.id} value={e.id}>{e.label}</option>
@@ -226,7 +226,7 @@ export default function TrabajadorLotes() {
           <button
             onClick={cargarLotes}
             title="Refrescar lotes"
-            className="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-sm"
+            className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm"
           >
             🔄
           </button>
@@ -234,20 +234,20 @@ export default function TrabajadorLotes() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+        <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl text-sm">
           ⚠️ {error}
         </div>
       )}
 
       {/* Tabla de Lotes */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         {cargando ? (
-          <div className="py-20 text-center text-gray-400">
+          <div className="py-20 text-center text-gray-400 dark:text-gray-500">
             <p className="text-3xl mb-2 animate-bounce">🌿</p>
             <p>Cargando lotes de producción...</p>
           </div>
         ) : lotes.length === 0 ? (
-          <div className="py-20 text-center text-gray-400">
+          <div className="py-20 text-center text-gray-400 dark:text-gray-500">
             <p className="text-3xl mb-2">🌱</p>
             <p className="text-sm">No se encontraron lotes con los filtros seleccionados.</p>
           </div>
@@ -255,7 +255,7 @@ export default function TrabajadorLotes() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-gray-50/80 text-[11px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                <tr className="bg-gray-50/80 dark:bg-gray-900/60 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-gray-700">
                   <th className="py-3.5 px-4">Código / Especie</th>
                   <th className="py-3.5 px-4">Zona / Ubicación</th>
                   <th className="py-3.5 px-4">Stock (Actual / Ini)</th>
@@ -264,38 +264,38 @@ export default function TrabajadorLotes() {
                   <th className="py-3.5 px-4 text-right">Acciones Operativas</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 text-xs">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-xs">
                 {lotes.map(lote => (
-                  <tr key={lote.idLote} className="hover:bg-gray-50/60 transition-colors">
+                  <tr key={lote.idLote} className="hover:bg-gray-50/60 dark:hover:bg-gray-700/40 transition-colors">
                     <td className="py-3.5 px-4">
-                      <div className="font-bold text-gray-800 text-sm">{lote.codigoLote}</div>
-                      <div className="text-emerald-700 font-medium">{lote.especie}</div>
+                      <div className="font-bold text-gray-800 dark:text-gray-100 text-sm">{lote.codigoLote}</div>
+                      <div className="text-emerald-700 dark:text-emerald-400 font-medium">{lote.especie}</div>
                     </td>
 
-                    <td className="py-3.5 px-4 text-gray-600">
+                    <td className="py-3.5 px-4 text-gray-600 dark:text-gray-300">
                       📍 {lote.nombreZona || 'Sin asignar'}
                     </td>
 
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1.5">
-                        <span className={`font-bold text-sm ${lote.cantidadActual === 0 ? 'text-red-600' : 'text-gray-800'}`}>
+                        <span className={`font-bold text-sm ${lote.cantidadActual === 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-800 dark:text-gray-100'}`}>
                           {lote.cantidadActual}
                         </span>
-                        <span className="text-gray-400">/ {lote.cantidadInicial} u.</span>
+                        <span className="text-gray-400 dark:text-gray-500">/ {lote.cantidadInicial} u.</span>
                       </div>
                       {lote.cantidadActual < lote.cantidadInicial && (
-                        <span className="text-[10px] text-amber-600 font-semibold">
+                        <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">
                           ({lote.cantidadInicial - lote.cantidadActual} mermas)
                         </span>
                       )}
                     </td>
 
-                    <td className="py-3.5 px-4 text-gray-500 font-medium">
+                    <td className="py-3.5 px-4 text-gray-500 dark:text-gray-400 font-medium">
                       📅 {lote.fechaSiembra}
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <span className={`inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-md border ${ESTADO_BADGES[lote.estadoLote] || 'bg-gray-100'}`}>
+                      <span className={`inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-md border ${ESTADO_BADGES[lote.estadoLote] || 'bg-gray-100 dark:bg-gray-700'}`}>
                         {lote.estadoLote}
                       </span>
                     </td>
@@ -316,7 +316,7 @@ export default function TrabajadorLotes() {
                         <button
                           onClick={() => abrirModalMerma(lote)}
                           title="Reportar pérdida en este lote"
-                          className="px-2 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg font-semibold text-[11px] transition-colors"
+                          className="px-2 py-1.5 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 rounded-lg font-semibold text-[11px] transition-colors"
                         >
                           ⚠️ Merma
                         </button>
@@ -325,7 +325,7 @@ export default function TrabajadorLotes() {
                       {/* Botón Historial */}
                       <button
                         onClick={() => abrirHistorial(lote)}
-                        className="px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold text-[11px] transition-colors"
+                        className="px-2 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-semibold text-[11px] transition-colors"
                       >
                         🕒 Historial
                       </button>
@@ -339,20 +339,20 @@ export default function TrabajadorLotes() {
 
         {/* Paginación */}
         {totalPaginas > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-gray-100 text-xs text-gray-500">
+          <div className="flex items-center justify-between p-4 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
             <span>Página {pagina + 1} de {totalPaginas}</span>
             <div className="flex gap-2">
               <button
                 disabled={pagina === 0}
                 onClick={() => setPagina(p => Math.max(0, p - 1))}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40"
+                className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 disabled:opacity-40 transition-colors"
               >
                 ← Anterior
               </button>
               <button
                 disabled={pagina >= totalPaginas - 1}
                 onClick={() => setPagina(p => p + 1)}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40"
+                className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 disabled:opacity-40 transition-colors"
               >
                 Siguiente →
               </button>
@@ -363,25 +363,25 @@ export default function TrabajadorLotes() {
 
       {/* ── MODAL CAMBIAR ESTADO DE LOTE ─────────────────── */}
       {modalEstado.abierto && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-1">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl w-full max-w-md p-6">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">
               Avanzar Estado del Lote
             </h3>
-            <p className="text-xs text-gray-500 mb-4">
-              Lote <strong className="text-gray-700">{modalEstado.lote?.codigoLote}</strong> ({modalEstado.lote?.especie}) •
-              Estado actual: <strong className="text-emerald-700">{modalEstado.lote?.estadoLote}</strong>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              Lote <strong className="text-gray-700 dark:text-gray-200">{modalEstado.lote?.codigoLote}</strong> ({modalEstado.lote?.especie}) •{' '}
+              Estado actual: <strong className="text-emerald-700 dark:text-emerald-400">{modalEstado.lote?.estadoLote}</strong>
             </p>
 
             <form onSubmit={ejecutarCambioEstado} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Nuevo Estado de Cultivo
                 </label>
                 <select
                   value={modalEstado.nuevoEstado}
                   onChange={(e) => setModalEstado(prev => ({ ...prev, nuevoEstado: e.target.value }))}
-                  className="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   required
                 >
                   <option value="">Selecciona un estado...</option>
@@ -396,7 +396,7 @@ export default function TrabajadorLotes() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Observaciones Técnicas (Opcional)
                 </label>
                 <textarea
@@ -404,7 +404,7 @@ export default function TrabajadorLotes() {
                   value={modalEstado.observaciones}
                   onChange={(e) => setModalEstado(prev => ({ ...prev, observaciones: e.target.value }))}
                   placeholder="Ej: Plantas alcanzaron 25cm de altura y follaje óptimo..."
-                  className="w-full text-xs border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
@@ -412,7 +412,7 @@ export default function TrabajadorLotes() {
                 <button
                   type="button"
                   onClick={() => setModalEstado(prev => ({ ...prev, abierto: false }))}
-                  className="px-4 py-2 text-xs text-gray-600 hover:text-gray-800 font-medium"
+                  className="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors"
                 >
                   Cancelar
                 </button>
@@ -431,50 +431,50 @@ export default function TrabajadorLotes() {
 
       {/* ── MODAL HISTORIAL DEL LOTE ─────────────────────── */}
       {modalHistorial.abierto && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl w-full max-w-lg p-6">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700 mb-4">
               <div>
-                <h3 className="text-base font-bold text-gray-800">
+                <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">
                   Trazabilidad del Lote: {modalHistorial.lote?.codigoLote}
                 </h3>
-                <p className="text-xs text-gray-500">{modalHistorial.lote?.especie}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{modalHistorial.lote?.especie}</p>
               </div>
               <button
                 onClick={() => setModalHistorial(prev => ({ ...prev, abierto: false }))}
-                className="text-gray-400 hover:text-gray-700 text-lg font-bold"
+                className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-lg font-bold"
               >
                 ✕
               </button>
             </div>
 
             {modalHistorial.cargando ? (
-              <div className="py-10 text-center text-xs text-gray-400">Cargando trazabilidad...</div>
+              <div className="py-10 text-center text-xs text-gray-400 dark:text-gray-500">Cargando trazabilidad...</div>
             ) : modalHistorial.historial.length === 0 ? (
-              <p className="text-xs text-gray-400 italic py-6 text-center">Sin cambios registrados aún.</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 italic py-6 text-center">Sin cambios registrados aún.</p>
             ) : (
               <div className="space-y-3 max-h-64 overflow-y-auto pr-1 text-xs">
                 {modalHistorial.historial.map(h => (
-                  <div key={h.idHistorialLote} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <div key={h.idHistorialLote} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-gray-700">
-                        {h.estadoAnterior} → <strong className="text-emerald-700">{h.estadoNuevo}</strong>
+                      <span className="font-bold text-gray-700 dark:text-gray-200">
+                        {h.estadoAnterior} → <strong className="text-emerald-700 dark:text-emerald-400">{h.estadoNuevo}</strong>
                       </span>
-                      <span className="text-[10px] text-gray-400">{h.fechaCambio}</span>
+                      <span className="text-[10px] text-gray-400 dark:text-gray-400">{h.fechaCambio}</span>
                     </div>
-                    <p className="text-[11px] text-gray-500">Operador: {h.nombreUsuario || 'Usuario'}</p>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">Operador: {h.nombreUsuario || 'Usuario'}</p>
                     {h.observaciones && (
-                      <p className="text-gray-600 mt-1 italic">"{h.observaciones}"</p>
+                      <p className="text-gray-600 dark:text-gray-300 mt-1 italic">"{h.observaciones}"</p>
                     )}
                   </div>
                 ))}
               </div>
             )}
 
-            <div className="pt-4 border-t border-gray-100 flex justify-end">
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
               <button
                 onClick={() => setModalHistorial(prev => ({ ...prev, abierto: false }))}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl"
+                className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-xl transition-colors"
               >
                 Cerrar
               </button>
@@ -485,25 +485,25 @@ export default function TrabajadorLotes() {
 
       {/* ── MODAL REGISTRO DIRECTO DE MERMA ─────────────── */}
       {modalMerma.abierto && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-1">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl w-full max-w-md p-6">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">
               ⚠️ Reportar Merma en Lote
             </h3>
-            <p className="text-xs text-gray-500 mb-4">
-              Lote <strong className="text-gray-700">{modalMerma.lote?.codigoLote}</strong> ({modalMerma.lote?.especie}) •
-              Stock disponible: <strong className="text-emerald-700">{modalMerma.lote?.cantidadActual} u.</strong>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              Lote <strong className="text-gray-700 dark:text-gray-200">{modalMerma.lote?.codigoLote}</strong> ({modalMerma.lote?.especie}) •{' '}
+              Stock disponible: <strong className="text-emerald-700 dark:text-emerald-400">{modalMerma.lote?.cantidadActual} u.</strong>
             </p>
 
             <form onSubmit={ejecutarRegistroMerma} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Causa de la Pérdida
                 </label>
                 <select
                   value={modalMerma.idCausa}
                   onChange={(e) => setModalMerma(prev => ({ ...prev, idCausa: e.target.value }))}
-                  className="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   required
                 >
                   {modalMerma.causas.map(c => (
@@ -516,7 +516,7 @@ export default function TrabajadorLotes() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                     Cantidad Perdida
                   </label>
                   <input
@@ -525,26 +525,26 @@ export default function TrabajadorLotes() {
                     max={modalMerma.lote?.cantidadActual || 1}
                     value={modalMerma.cantidadPerdida}
                     onChange={(e) => setModalMerma(prev => ({ ...prev, cantidadPerdida: e.target.value }))}
-                    className="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                     Fecha de Pérdida
                   </label>
                   <input
                     type="date"
                     value={modalMerma.fechaMerma}
                     onChange={(e) => setModalMerma(prev => ({ ...prev, fechaMerma: e.target.value }))}
-                    className="w-full text-xs border border-gray-300 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Observaciones Detalladas
                 </label>
                 <textarea
@@ -552,7 +552,7 @@ export default function TrabajadorLotes() {
                   value={modalMerma.observaciones}
                   onChange={(e) => setModalMerma(prev => ({ ...prev, observaciones: e.target.value }))}
                   placeholder="Ej: Infección detectada en hojas basales..."
-                  className="w-full text-xs border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
@@ -560,7 +560,7 @@ export default function TrabajadorLotes() {
                 <button
                   type="button"
                   onClick={() => setModalMerma(prev => ({ ...prev, abierto: false }))}
-                  className="px-4 py-2 text-xs text-gray-600 hover:text-gray-800 font-medium"
+                  className="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors"
                 >
                   Cancelar
                 </button>
