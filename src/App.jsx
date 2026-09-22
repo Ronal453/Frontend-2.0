@@ -8,6 +8,7 @@ import Cart          from './pages/Cart'
 import Checkout      from './pages/Checkout'
 import MisPedidos    from './pages/MisPedidos'
 import DetallePedido from './pages/DetallePedido'
+import PoliticaTratamientoDatos from './pages/PoliticaTratamientoDatos'
 
 import AdminDashboard from './pages/AdminDashboard'
 import AdminProductos from './pages/AdminProductos'
@@ -43,6 +44,7 @@ function App() {
               <Routes>
 
                 <Route path="/login"        element={<Login />} />
+                <Route path="/politica-tratamiento-datos" element={<PoliticaTratamientoDatos />} />
                 <Route path="/registro"     element={<Register />} />
                 <Route path="/catalogo"     element={<Catalog />} />
                 <Route path="/producto/:id" element={<ProductDetail />} />
