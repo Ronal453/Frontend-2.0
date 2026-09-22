@@ -5,6 +5,7 @@ const TRABAJADOR_LINKS = [
   { to: '/trabajador/tareas', icono: '📋', label: 'Tablero Kanban' },
   { to: '/trabajador/lotes',  icono: '🌱', label: 'Lotes de Cultivo' },
   { to: '/trabajador/mermas', icono: '⚠️', label: 'Registro de Mermas' },
+  { to: '/trabajador/zonas', icono: '📍', label: 'Zonas / Invernaderos' },
 ]
 
 export default function TrabajadorLayout() {

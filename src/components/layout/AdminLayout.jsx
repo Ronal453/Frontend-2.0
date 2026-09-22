@@ -4,7 +4,8 @@ const ADMIN_LINKS = [
   { to: '/admin/dashboard', icono: '📊', label: 'Dashboard' },
   { to: '/admin/productos', icono: '🌿', label: 'Inventario' },
   { to: '/admin/pedidos',   icono: '📦', label: 'Pedidos' },
-  { to: '/admin/usuarios',  icono: '👥', label: 'Usuarios' },   
+  { to: '/admin/usuarios',  icono: '👥', label: 'Usuarios' },
+  { to: '/admin/zonas', icono: '📍', label: 'Zonas' },
 ]
 
 export default function AdminLayout() {

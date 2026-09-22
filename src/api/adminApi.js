@@ -83,3 +83,13 @@ export const resetearPasswordUsuario = (id) => api.post(`/admin/usuarios/${id}/r
 /** Crea una cuenta con rol TRABAJADOR. datos = { nombreCompleto, correo, passwordInicial } */
 export const crearTrabajador = (datos) =>
   api.post('/admin/usuarios/trabajadores', datos)
+
+// ═══════════════════════════════════════════════════════════════
+// GESTIÓN DE ZONAS
+// ═══════════════════════════════════════════════════════════════
+
+export const getZonasAdmin = () => api.get('/admin/zonas')
+export const crearZona = (datos) => api.post('/admin/zonas', datos)
+export const actualizarZona = (id, datos) => api.put(`/admin/zonas/${id}`, datos)
+export const activarZona = (id) => api.patch(`/admin/zonas/${id}/activar`)
+export const desactivarZona = (id) => api.patch(`/admin/zonas/${id}/desactivar`)

@@ -62,3 +62,6 @@ export const getMermasRecientes = (limite = 20) => api.get(`/mermas?limite=${lim
 // ═══════════════════════════════════════════════════════════════
 
 export const getZonas = () => api.get('/zonas')
+export const getZonasOcupacion = () => api.get('/zonas/ocupacion')
+export const getZonaDetalle = (id) => api.get(`/zonas/${id}/detalle`)
+
