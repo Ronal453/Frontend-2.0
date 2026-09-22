@@ -12,34 +12,32 @@ import DetallePedido from './pages/DetallePedido'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminProductos from './pages/AdminProductos'
 import AdminPedidos   from './pages/AdminPedidos'
-import AdminUsuarios  from './pages/AdminUsuarios'   // ← NUEVO (HU9)
-import AdminZonas from './pages/AdminZonas'
+import AdminUsuarios  from './pages/AdminUsuarios'
 
 import TrabajadorLayout  from './components/layout/TrabajadorLayout'
 import TrabajadorRoute   from './components/TrabajadorRoute'
 import TrabajadorKanban  from './pages/trabajador/TrabajadorKanban'
 import TrabajadorLotes   from './pages/trabajador/TrabajadorLotes'
 import TrabajadorMermas  from './pages/trabajador/TrabajadorMermas'
-import TrabajadorZonas from './pages/trabajador/TrabajadorZonas'
 
 import Navbar      from './components/layout/Navbar'
 import Footer      from './components/layout/Footer'
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute   from './components/AdminRoute'
 import AdminLayout  from './components/layout/AdminLayout'
+import InactivityGuard from './components/InactivityGuard'
 
-import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <CartProvider>
-          <BrowserRouter>
-            <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
-              <Navbar />
+    <AuthProvider>
+      <CartProvider>
+        <BrowserRouter>
+          <div className="min-h-screen flex flex-col bg-gray-50">
+            <Navbar />
+            <InactivityGuard />
 
             <main className="flex-1">
               <Routes>
@@ -59,19 +57,15 @@ function App() {
                   <Route path="dashboard" element={<AdminDashboard />} />
                   <Route path="productos" element={<AdminProductos />} />
                   <Route path="pedidos" element={<AdminPedidos />} />
-                  {/* [NUEVO — HU9] */}
                   <Route path="usuarios" element={<AdminUsuarios />} />
-                  <Route path="zonas" element={<AdminZonas />} />
                 </Route>
 
-                {/* ── Panel del Trabajador ────────────────────── */}
                 <Route path="/trabajador" element={<TrabajadorRoute><TrabajadorLayout /></TrabajadorRoute>}>
                   <Route index element={<Navigate to="tareas" replace />} />
                   <Route path="tareas" element={<TrabajadorKanban />} />
                   <Route path="kanban" element={<Navigate to="tareas" replace />} />
                   <Route path="lotes"  element={<TrabajadorLotes />} />
                   <Route path="mermas" element={<TrabajadorMermas />} />
-                  <Route path="zonas" element={<TrabajadorZonas />} />
                 </Route>
 
                 <Route path="/"  element={<Navigate to="/catalogo" replace />} />
@@ -85,7 +79,6 @@ function App() {
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>
-    </ThemeProvider>
   )
 }
 

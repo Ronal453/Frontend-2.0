@@ -10,7 +10,11 @@ export default function Login() {
   const navigate     = useNavigate()
   const location     = useLocation()
 
+  // Detectar si viene de un registro exitoso
   const registradoExitoso = location.state?.registrado === true
+
+  // Detectar si viene de un cierre de sesión por inactividad
+  const sesionExpirada = location.state?.sesionExpirada === true
 
   const [form, setForm]       = useState({ email: '', password: '' })
   const [error, setError]     = useState('')
@@ -27,6 +31,7 @@ export default function Login() {
       const res = await loginApi({ email: form.email, password: form.password })
       login(res.data.token, { email: res.data.email, rol: res.data.rol })
 
+      // Redirección por rol 
       if (res.data.rol === 'TRABAJADOR') {
         navigate('/trabajador')
       } else if (res.data.rol === 'ADMINISTRADOR') {
@@ -43,25 +48,32 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center
-                    bg-gray-50 dark:bg-gray-900 px-4 transition-colors">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-none
-                      dark:border dark:border-gray-700 p-8 w-full max-w-md">
+                    bg-gray-50 px-4">
+      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
 
         <div className="text-center mb-6">
           <p className="text-4xl mb-2">🌱</p>
-          <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
+          <h1 className="text-2xl font-bold text-green-800">
             Iniciar sesión
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+          <p className="text-gray-500 text-sm mt-1">
             Bienvenido de vuelta a Plantopolis
           </p>
         </div>
 
+        {/* Banner de registro exitoso */}
         {registradoExitoso && (
-          <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700
-                          text-green-700 dark:text-green-300
+          <div className="bg-green-50 border border-green-200 text-green-700
                           rounded-lg p-3 mb-4 text-sm text-center">
             ✅ ¡Cuenta creada! Ya puedes iniciar sesión
+          </div>
+        )}
+
+        {/* Banner de sesión cerrada por inactividad */}
+        {sesionExpirada && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-700
+                          rounded-lg p-3 mb-4 text-sm text-center">
+            ⏱ Tu sesión se cerró por inactividad. Inicia sesión de nuevo.
           </div>
         )}
 
@@ -87,8 +99,7 @@ export default function Login() {
           />
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800
-                            text-red-700 dark:text-red-400
+            <div className="bg-red-50 border border-red-200 text-red-700
                             rounded-lg p-3 text-sm">
               ⚠ {error}
             </div>
@@ -99,10 +110,10 @@ export default function Login() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+        <p className="text-center text-sm text-gray-500 mt-4">
           ¿No tienes cuenta?{' '}
           <Link to="/registro"
-                className="text-green-700 dark:text-green-400 font-medium hover:underline">
+                className="text-green-700 font-medium hover:underline">
             Regístrate aquí
           </Link>
         </p>
