@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { login as loginApi } from '../api/authApi'
@@ -13,8 +13,17 @@ export default function Login() {
   // Detectar si viene de un registro exitoso
   const registradoExitoso = location.state?.registrado === true
 
-  // Detectar si viene de un cierre de sesión por inactividad
-  const sesionExpirada = location.state?.sesionExpirada === true
+  // Detectar si viene de un cierre de sesión por inactividad (state o sessionStorage)
+  const [sesionExpirada, setSesionExpirada] = useState(
+    () => location.state?.sesionExpirada === true || sessionStorage.getItem('sesion_expirada') === 'true'
+  )
+
+  useEffect(() => {
+    if (sessionStorage.getItem('sesion_expirada') === 'true') {
+      sessionStorage.removeItem('sesion_expirada')
+      setSesionExpirada(true)
+    }
+  }, [])
 
   const [form, setForm]       = useState({ email: '', password: '' })
   const [error, setError]     = useState('')
@@ -28,6 +37,7 @@ export default function Login() {
     setLoading(true)
     setError('')
     try {
+      sessionStorage.removeItem('sesion_expirada')
       const res = await loginApi({ email: form.email, password: form.password })
       login(res.data.token, { email: res.data.email, rol: res.data.rol })
 
@@ -48,22 +58,22 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center
-                    bg-gray-50 px-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
+                    bg-gray-50 dark:bg-gray-900 px-4 transition-colors">
+      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/60 rounded-2xl shadow-lg p-8 w-full max-w-md transition-colors">
 
         <div className="text-center mb-6">
           <p className="text-4xl mb-2">🌱</p>
-          <h1 className="text-2xl font-bold text-green-800">
+          <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
             Iniciar sesión
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
             Bienvenido de vuelta a Plantopolis
           </p>
         </div>
 
         {/* Banner de registro exitoso */}
         {registradoExitoso && (
-          <div className="bg-green-50 border border-green-200 text-green-700
+          <div className="bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300
                           rounded-lg p-3 mb-4 text-sm text-center">
             ✅ ¡Cuenta creada! Ya puedes iniciar sesión
           </div>
@@ -71,7 +81,7 @@ export default function Login() {
 
         {/* Banner de sesión cerrada por inactividad */}
         {sesionExpirada && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-700
+          <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300
                           rounded-lg p-3 mb-4 text-sm text-center">
             ⏱ Tu sesión se cerró por inactividad. Inicia sesión de nuevo.
           </div>
@@ -99,7 +109,7 @@ export default function Login() {
           />
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700
+            <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300
                             rounded-lg p-3 text-sm">
               ⚠ {error}
             </div>
@@ -110,10 +120,10 @@ export default function Login() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-4">
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
           ¿No tienes cuenta?{' '}
           <Link to="/registro"
-                className="text-green-700 font-medium hover:underline">
+                className="text-green-700 dark:text-green-400 font-medium hover:underline">
             Regístrate aquí
           </Link>
         </p>

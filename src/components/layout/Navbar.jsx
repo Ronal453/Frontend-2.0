@@ -18,6 +18,7 @@ export default function Navbar() {
   }, [isAuth])
 
   const handleLogout = () => {
+    sessionStorage.removeItem('sesion_expirada')
     logout()
     clearCart()
     navigate('/login')

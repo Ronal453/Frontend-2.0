@@ -38,15 +38,15 @@ export default function LockScreen({ onUnlock, onForceLogout }) {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center
                     bg-gray-900/90 backdrop-blur-sm px-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-sm border border-gray-100 dark:border-gray-800">
         <div className="text-center mb-6">
           <p className="text-4xl mb-2">🔒</p>
-          <h1 className="text-xl font-bold text-green-800">
+          <h1 className="text-xl font-bold text-green-800 dark:text-green-400">
             Sesión bloqueada por inactividad
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
             Ingresa la contraseña de{' '}
-            <strong>{user?.email || 'tu cuenta'}</strong> para continuar
+            <strong className="text-gray-700 dark:text-gray-200">{user?.email || 'tu cuenta'}</strong> para continuar
           </p>
         </div>
 
@@ -70,8 +70,8 @@ export default function LockScreen({ onUnlock, onForceLogout }) {
 
         <button
           onClick={onForceLogout}
-          className="w-full text-center text-xs text-gray-400
-                     hover:text-red-500 transition-colors mt-4"
+          className="w-full text-center text-xs text-gray-400 dark:text-gray-500
+                     hover:text-red-500 dark:hover:text-red-400 transition-colors mt-4"
         >
           ¿No eres tú? Cerrar sesión
         </button>

@@ -6,29 +6,37 @@ import { useInactivityGuard } from '../hooks/useInactivityGuard'
 import LockScreen from './LockScreen'
 
 // 2:30 min → bloqueo de pantalla
-const LOCK_AFTER_MS = 10 * 1000
+const LOCK_AFTER_MS = 2.5 * 60 * 1000
 // 5:00 min → cierre de sesión forzado
-const LOGOUT_AFTER_MS = 20 * 1000
+const LOGOUT_AFTER_MS = 5 * 60 * 1000
 
 export default function InactivityGuard() {
   const { isAuth, logout } = useAuth()
   const { clearCart } = useCart()
   const navigate = useNavigate()
 
-  const handleLogout = useCallback(() => {
+  const handleTimeoutLogout = useCallback(() => {
+    sessionStorage.setItem('sesion_expirada', 'true')
     logout()
     clearCart()
-    navigate('/login', { state: { sesionExpirada: true } })
+    navigate('/login', { state: { sesionExpirada: true }, replace: true })
+  }, [logout, clearCart, navigate])
+
+  const handleManualLogout = useCallback(() => {
+    sessionStorage.removeItem('sesion_expirada')
+    logout()
+    clearCart()
+    navigate('/login', { replace: true })
   }, [logout, clearCart, navigate])
 
   const { locked, unlock } = useInactivityGuard({
     enabled: isAuth,
     lockAfterMs: LOCK_AFTER_MS,
     logoutAfterMs: LOGOUT_AFTER_MS,
-    onLogout: handleLogout,
+    onLogout: handleTimeoutLogout,
   })
 
   if (!isAuth || !locked) return null
 
-  return <LockScreen onUnlock={unlock} onForceLogout={handleLogout} />
+  return <LockScreen onUnlock={unlock} onForceLogout={handleManualLogout} />
 }
