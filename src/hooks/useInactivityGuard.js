@@ -3,84 +3,87 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 // Eventos que cuentan como "actividad" del usuario
 const EVENTOS_ACTIVIDAD = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click']
 
-// Evita reiniciar los temporizadores en cada pixel de mousemove
-const THROTTLE_MS = 1000
+// Cada cuánto revisa el tiempo transcurrido desde la última actividad
+const CHEQUEO_MS = 1000
 
 /**
- * Hook de bloqueo por inactividad.
+ * Hook de bloqueo por inactividad basado en un único setInterval que
+ * compara Date.now() contra la última actividad registrada.
  *
  * - A los `lockAfterMs` de inactividad → bloquea la pantalla (locked = true).
- * - A los `logoutAfterMs` de inactividad, contados desde la MISMA última
- *   actividad (no desde el bloqueo) → dispara `onLogout`.
+ * - A los `logoutAfterMs` de inactividad TOTAL (contados desde la misma
+ *   última actividad real, sin importar si está bloqueada o no) → onLogout().
  *
- * Mientras está bloqueada, la actividad global se ignora: mover el mouse
- * sobre la pantalla de bloqueo NO reinicia el conteo. Solo un `unlock()`
- * exitoso (contraseña correcta) reinicia ambos temporizadores.
+ * Mientras está bloqueada, mover el mouse NO cuenta como actividad
+ * (así el contador de logout sigue corriendo). Solo `unlock()` (contraseña
+ * correcta) reinicia el conteo.
  */
 export function useInactivityGuard({ enabled, lockAfterMs, logoutAfterMs, onLogout }) {
   const [locked, setLocked] = useState(false)
 
-  const lockTimerRef = useRef(null)
-  const logoutTimerRef = useRef(null)
   const lockedRef = useRef(false)
-  const lastResetRef = useRef(0)
+  const lastActivityRef = useRef(Date.now())
+  const loggedOutRef = useRef(false)
   const onLogoutRef = useRef(onLogout)
 
   useEffect(() => { lockedRef.current = locked }, [locked])
   useEffect(() => { onLogoutRef.current = onLogout }, [onLogout])
 
-  const clearTimers = useCallback(() => {
-    clearTimeout(lockTimerRef.current)
-    clearTimeout(logoutTimerRef.current)
+  // Registra actividad — se ignora si ya está bloqueada
+  const registrarActividad = useCallback(() => {
+    if (lockedRef.current) return
+    lastActivityRef.current = Date.now()
   }, [])
 
-  const armTimers = useCallback(() => {
-    clearTimers()
-    lockTimerRef.current = setTimeout(() => setLocked(true), lockAfterMs)
-    logoutTimerRef.current = setTimeout(() => {
-      clearTimers()
-      onLogoutRef.current?.()
-    }, logoutAfterMs)
-  }, [clearTimers, lockAfterMs, logoutAfterMs])
-
-  const resetActivity = useCallback(() => {
-    if (lockedRef.current) return // bloqueado: no reinicia nada
-    const ahora = Date.now()
-    if (ahora - lastResetRef.current < THROTTLE_MS) return
-    lastResetRef.current = ahora
-    armTimers()
-  }, [armTimers])
-
-  // Se llama tras validar la contraseña correctamente en la pantalla de bloqueo
+  // Se llama al desbloquear con éxito (contraseña correcta)
   const unlock = useCallback(() => {
-    lastResetRef.current = Date.now()
+    lastActivityRef.current = Date.now()
+    loggedOutRef.current = false
     setLocked(false)
-    armTimers()
-  }, [armTimers])
+  }, [])
 
-  // Arranca/detiene todo según haya o no sesión activa
+  // Arranca/detiene el intervalo según haya o no sesión activa
   useEffect(() => {
     if (!enabled) {
-      clearTimers()
       setLocked(false)
+      loggedOutRef.current = false
       return undefined
     }
-    armTimers()
-    return clearTimers
-  }, [enabled, armTimers, clearTimers])
+
+    lastActivityRef.current = Date.now()
+    loggedOutRef.current = false
+
+    const intervalo = setInterval(() => {
+      const inactivoMs = Date.now() - lastActivityRef.current
+
+      if (inactivoMs >= logoutAfterMs) {
+        if (!loggedOutRef.current) {
+          loggedOutRef.current = true
+          onLogoutRef.current?.()
+        }
+        return
+      }
+
+      if (inactivoMs >= lockAfterMs) {
+        setLocked(true)
+      }
+    }, CHEQUEO_MS)
+
+    return () => clearInterval(intervalo)
+  }, [enabled, lockAfterMs, logoutAfterMs])
 
   // Escucha global de actividad (solo con sesión iniciada)
   useEffect(() => {
     if (!enabled) return undefined
     EVENTOS_ACTIVIDAD.forEach(evento =>
-      window.addEventListener(evento, resetActivity, { passive: true })
+      window.addEventListener(evento, registrarActividad, { passive: true })
     )
     return () => {
       EVENTOS_ACTIVIDAD.forEach(evento =>
-        window.removeEventListener(evento, resetActivity)
+        window.removeEventListener(evento, registrarActividad)
       )
     }
-  }, [enabled, resetActivity])
+  }, [enabled, registrarActividad])
 
   return { locked, unlock }
 }
