@@ -23,7 +23,7 @@ export default function LockScreen({ onUnlock, onForceLogout }) {
     setLoading(true)
     setError('')
     try {
-      const res = await loginApi({ email: user?.email, password })
+      const res = await loginApi({ email: user?.email, password, website: '' })
       // Refresca el token (nuevo JWT de 24h) — la sesión "sigue viva"
       login(res.data.token, { email: res.data.email, rol: res.data.rol })
       setPassword('')

@@ -12,16 +12,19 @@ export default function Register() {
     email:     '',
     password:  '',
     telefono:  '',
-    direccion: ''
+    direccion: '',
+    aceptaPolitica: false
   })
   const [errors, setErrors]   = useState({})
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
-    if (errors[e.target.name]) {
-      setErrors(prev => ({ ...prev, [e.target.name]: '' }))
+    const { name, value, type, checked } = e.target
+    const val = type === 'checkbox' ? checked : value
+    setForm(prev => ({ ...prev, [name]: val }))
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
     }
   }
 
@@ -33,6 +36,8 @@ export default function Register() {
       nuevosErrores.email = 'El email es obligatorio'
     if (form.password.length < 6)
       nuevosErrores.password = 'Mínimo 6 caracteres'
+    if (!form.aceptaPolitica)
+      nuevosErrores.aceptaPolitica = 'Debe aceptar la política de tratamiento de datos'
     setErrors(nuevosErrores)
     return Object.keys(nuevosErrores).length === 0
   }
@@ -138,6 +143,24 @@ export default function Register() {
               ⚠ {error}
             </div>
           )}
+
+          <div className="flex flex-col gap-1">
+            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <input
+                type="checkbox"
+                name="aceptaPolitica"
+                checked={form.aceptaPolitica}
+                onChange={handleChange}
+                className="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+              />
+              <span>
+                Acepto la <Link to="/politica-datos" target="_blank" className="text-green-700 dark:text-green-400 hover:underline">política de tratamiento de datos</Link>
+              </span>
+            </label>
+            {errors.aceptaPolitica && (
+              <span className="text-red-500 text-xs mt-1">{errors.aceptaPolitica}</span>
+            )}
+          </div>
 
           <Button type="submit" fullWidth loading={loading}>
             Crear cuenta

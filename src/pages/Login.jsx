@@ -25,7 +25,7 @@ export default function Login() {
     }
   }, [])
 
-  const [form, setForm]       = useState({ email: '', password: '' })
+  const [form, setForm]       = useState({ email: '', password: '', website: '' })
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -38,7 +38,11 @@ export default function Login() {
     setError('')
     try {
       sessionStorage.removeItem('sesion_expirada')
-      const res = await loginApi({ email: form.email, password: form.password })
+      const res = await loginApi({
+        email: form.email,
+        password: form.password,
+        website: form.website,      // honeypot: siempre vacío para humanos
+      })
       login(res.data.token, { email: res.data.email, rol: res.data.rol })
 
       // Redirección por rol 
@@ -97,6 +101,22 @@ export default function Login() {
             onChange={handleChange}
             placeholder="tu@email.com"
           />
+
+          {/* Honeypot anti-bot: campo invisible para humanos, los bots lo llenan */}
+          <div aria-hidden="true"
+               className="absolute opacity-0 w-0 h-0 overflow-hidden -z-10"
+               style={{ position: 'absolute', left: '-9999px' }}>
+            <label htmlFor="website">Website</label>
+            <input
+              type="text"
+              id="website"
+              name="website"
+              value={form.website}
+              onChange={handleChange}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
 
           <Input
             label="Contraseña"
