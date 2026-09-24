@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../hooks/useAuth'
-import { login as loginApi } from '../api/authApi'
+import { login as loginApi, loginGoogle as loginGoogleApi } from '../api/authApi'
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
 
@@ -55,6 +56,26 @@ export default function Login() {
       }
     } catch (err) {
       setError(err.response?.data?.mensaje || 'Credenciales incorrectas')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setLoading(true)
+      setError('')
+      const res = await loginGoogleApi(credentialResponse.credential)
+      login(null, { email: res.data.email, rol: res.data.rol })
+      if (res.data.rol === 'TRABAJADOR') {
+        navigate('/trabajador')
+      } else if (res.data.rol === 'ADMINISTRADOR') {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/catalogo')
+      }
+    } catch (err) {
+      setError(err.response?.data?.mensaje || 'Error al iniciar sesión con Google')
     } finally {
       setLoading(false)
     }
@@ -139,6 +160,20 @@ export default function Login() {
             Ingresar
           </Button>
         </form>
+
+        <div className="flex items-center my-4">
+          <div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+          <span className="px-3 text-sm text-gray-400 dark:text-gray-500">o continuar con</span>
+          <div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+        </div>
+
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Falló la autenticación con Google')}
+            useOneTap
+          />
+        </div>
 
         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
           ¿No tienes cuenta?{' '}

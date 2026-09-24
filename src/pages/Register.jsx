@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { registro as registroApi } from '../api/authApi'
+import { GoogleLogin } from '@react-oauth/google'
+import { useAuth } from '../hooks/useAuth'
+import { registro as registroApi, loginGoogle as loginGoogleApi } from '../api/authApi'
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
 
 export default function Register() {
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const [form, setForm] = useState({
     nombre:    '',
@@ -52,6 +55,26 @@ export default function Register() {
       navigate('/login', { state: { registrado: true } })
     } catch (err) {
       setError(err.response?.data?.mensaje || 'Error al registrarse')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setLoading(true)
+      setError('')
+      const res = await loginGoogleApi(credentialResponse.credential)
+      login(null, { email: res.data.email, rol: res.data.rol })
+      if (res.data.rol === 'TRABAJADOR') {
+        navigate('/trabajador')
+      } else if (res.data.rol === 'ADMINISTRADOR') {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/catalogo')
+      }
+    } catch (err) {
+      setError(err.response?.data?.mensaje || 'Error al registrarse con Google')
     } finally {
       setLoading(false)
     }
@@ -166,6 +189,20 @@ export default function Register() {
             Crear cuenta
           </Button>
         </form>
+
+        <div className="flex items-center my-4">
+          <div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+          <span className="px-3 text-sm text-gray-400 dark:text-gray-500">o continuar con</span>
+          <div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+        </div>
+
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Falló el registro con Google')}
+            useOneTap
+          />
+        </div>
 
         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
           ¿Ya tienes cuenta?{' '}

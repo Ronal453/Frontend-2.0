@@ -14,3 +14,11 @@ export const registro = (datos) =>
  */
 export const login = (credenciales) =>
   api.post('/auth/login', credenciales)
+
+/**
+ * Autenticarse / Registrarse con Google ID Token
+ * POST /api/auth/google
+ * @returns { token, email, rol, mensaje }
+ */
+export const loginGoogle = (idToken) =>
+  api.post('/auth/google', { idToken })
