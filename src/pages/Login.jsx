@@ -43,7 +43,7 @@ export default function Login() {
         password: form.password,
         website: form.website,      // honeypot: siempre vacío para humanos
       })
-      login(res.data.token, { email: res.data.email, rol: res.data.rol })
+      login(null, { email: res.data.email, rol: res.data.rol })
 
       // Redirección por rol 
       if (res.data.rol === 'TRABAJADOR') {

@@ -27,6 +27,7 @@ import PrivateRoute from './components/PrivateRoute'
 import AdminRoute   from './components/AdminRoute'
 import AdminLayout  from './components/layout/AdminLayout'
 import InactivityGuard from './components/InactivityGuard'
+import CookieBanner from './components/CookieBanner'
 
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
@@ -41,6 +42,7 @@ function App() {
             <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
               <Navbar />
               <InactivityGuard />
+              <CookieBanner />
 
             <main className="flex-1">
               <Routes>
