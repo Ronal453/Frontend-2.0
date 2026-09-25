@@ -61,10 +61,18 @@ export default function Register() {
   }
 
   const handleGoogleSuccess = async (credentialResponse) => {
+    if (!form.aceptaPolitica) {
+      setErrors(prev => ({
+        ...prev,
+        aceptaPolitica: 'Debe aceptar la política de tratamiento de datos antes de continuar'
+      }))
+      setError('Debe aceptar la política de tratamiento de datos antes de registrarse')
+      return
+    }
     try {
       setLoading(true)
       setError('')
-      const res = await loginGoogleApi(credentialResponse.credential)
+      const res = await loginGoogleApi(credentialResponse.credential, 'registro')
       login(null, { email: res.data.email, rol: res.data.rol })
       if (res.data.rol === 'TRABAJADOR') {
         navigate('/trabajador')

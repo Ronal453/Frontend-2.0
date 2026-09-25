@@ -6,6 +6,7 @@ const ADMIN_LINKS = [
   { to: '/admin/pedidos',   icono: '📦', label: 'Pedidos' },
   { to: '/admin/usuarios',  icono: '👥', label: 'Usuarios' },
   { to: '/admin/zonas', icono: '📍', label: 'Zonas' },
+  { to: '/admin/lotes', icono: '🌱', label: 'Lotes' },
 ]
 
 export default function AdminLayout() {

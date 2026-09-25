@@ -17,8 +17,8 @@ export const login = (credenciales) =>
 
 /**
  * Autenticarse / Registrarse con Google ID Token
- * POST /api/auth/google
+ * POST /api/auth/google?modo=login|registro
  * @returns { token, email, rol, mensaje }
  */
-export const loginGoogle = (idToken) =>
-  api.post('/auth/google', { idToken })
+export const loginGoogle = (idToken, modo = 'login') =>
+  api.post('/auth/google', { idToken }, { params: { modo } })

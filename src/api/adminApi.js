@@ -93,3 +93,10 @@ export const crearZona = (datos) => api.post('/admin/zonas', datos)
 export const actualizarZona = (id, datos) => api.put(`/admin/zonas/${id}`, datos)
 export const activarZona = (id) => api.patch(`/admin/zonas/${id}/activar`)
 export const desactivarZona = (id) => api.patch(`/admin/zonas/${id}/desactivar`)
+
+// ═══════════════════════════════════════════════════════════════
+// GESTIÓN DE LOTES
+// ═══════════════════════════════════════════════════════════════
+
+export const crearLote = (datos) => api.post('/admin/lotes', datos)
+export const vincularLote = (id, datos) => api.post(`/admin/lotes/${id}/vincular`, datos)

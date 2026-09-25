@@ -14,6 +14,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import AdminProductos from './pages/AdminProductos'
 import AdminPedidos   from './pages/AdminPedidos'
 import AdminUsuarios  from './pages/AdminUsuarios'
+import AdminLotes     from './pages/AdminLotes'
 
 import TrabajadorLayout  from './components/layout/TrabajadorLayout'
 import TrabajadorRoute   from './components/TrabajadorRoute'
@@ -67,6 +68,7 @@ function App() {
                   <Route path="pedidos" element={<AdminPedidos />} />
                   <Route path="usuarios" element={<AdminUsuarios />} />
                   <Route path="zonas" element={<AdminZonas />} />
+                  <Route path="lotes" element={<AdminLotes />} />
                 </Route>
 
                 <Route path="/trabajador" element={<TrabajadorRoute><TrabajadorLayout /></TrabajadorRoute>}>
