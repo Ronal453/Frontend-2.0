@@ -5,6 +5,8 @@ import {
 } from '../api/adminApi'
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
+import Pagination from '../components/ui/Pagination'
+import FlashMessage from '../components/ui/FlashMessage'
 
 const ROLES = [
   { id: 1, nombre: 'ADMINISTRADOR', icono: '🛠', color: 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50' },
@@ -199,14 +201,7 @@ export default function AdminUsuarios() {
         </div>
       )}
 
-      {mensaje && (
-        <div className={`mb-4 p-3 rounded-lg text-sm font-medium
-                         ${mensaje.tipo === 'ok'
-                           ? 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
-                           : 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'}`}>
-          {mensaje.tipo === 'ok' ? '✅' : '⚠'} {mensaje.texto}
-        </div>
-      )}
+      <FlashMessage mensaje={mensaje} />
 
       <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4 mb-5 flex gap-3 flex-wrap shadow-sm">
         <input
@@ -302,19 +297,11 @@ export default function AdminUsuarios() {
         )}
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-4">
-          <button onClick={() => handleFiltro('page', filtros.page - 1)} disabled={filtros.page === 0}
-                  className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40">
-            ← Anterior
-          </button>
-          <span className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400">Página {filtros.page + 1} de {totalPages}</span>
-          <button onClick={() => handleFiltro('page', filtros.page + 1)} disabled={filtros.page >= totalPages - 1}
-                  className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40">
-            Siguiente →
-          </button>
-        </div>
-      )}
+      <Pagination 
+        currentPage={filtros.page} 
+        totalPages={totalPages} 
+        onPageChange={(newPage) => handleFiltro('page', newPage)} 
+      />
 
       {/* Modal para Crear Trabajador (HU11) */}
       <ModalCrearTrabajador

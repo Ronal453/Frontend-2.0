@@ -33,8 +33,9 @@ export default function PoliticaDatos() {
         <section>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">4. Datos que recolectamos</h2>
           <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Al registrarse como cliente:</strong> nombre completo, correo electrónico y contraseña son obligatorios; número de contacto y dirección son opcionales. La contraseña se almacena únicamente en forma cifrada (BCrypt), nunca en texto plano.</li>
-            <li><strong>Al iniciar sesión:</strong> se emite un token de sesión (JWT) válido por 24 horas, que el navegador guarda localmente en el dispositivo junto con su correo y su rol dentro de la plataforma.</li>
+            <li><strong>Al registrarse o iniciar sesión (Tradicional):</strong> nombre completo, correo electrónico y contraseña son obligatorios; número de contacto y dirección son opcionales. La contraseña se almacena en forma cifrada (BCrypt).</li>
+            <li><strong>Al registrarse o iniciar sesión con Google:</strong> recopilamos su nombre y correo electrónico provistos por Google. Plantopolis no tiene acceso a su contraseña de Google.</li>
+            <li><strong>Autenticación y Sesión:</strong> se emite un token de seguridad (JWT) válido por 24 horas. Para proteger su cuenta, el token se almacena en su navegador como una cookie <em>HttpOnly</em>, lo que evita que sea robado por scripts maliciosos. Ya no se almacena de forma expuesta en el almacenamiento local.</li>
             <li><strong>Al realizar un pedido:</strong> la dirección de envío indicada para ese pedido (puede ser distinta a la del perfil) y el método de pago seleccionado (tarjeta de crédito, tarjeta de débito, transferencia/PSE o efectivo). Plantopolis no captura ni almacena números de tarjeta ni ningún otro dato financiero sensible: únicamente registra cuál método fue elegido y el estado del pago. El sistema no está integrado con una pasarela de pagos real.</li>
             <li><strong>Historial de compras:</strong> se conserva el detalle de productos, cantidades, precios y estado de cada pedido, para dar soporte y trazabilidad al cliente.</li>
             <li><strong>Cuentas de trabajador:</strong> cuando un administrador crea una cuenta operativa, se registran nombre completo, correo y una contraseña inicial cifrada.</li>
@@ -88,7 +89,7 @@ export default function PoliticaDatos() {
         <section>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">10. Seguridad de la información</h2>
           <p>
-            Plantopolis protege sus datos mediante cifrado de contraseñas, control de acceso basado en roles y autenticación por token con expiración.
+            Plantopolis protege sus datos mediante cifrado de contraseñas, control de acceso basado en roles y autenticación por token (JWT) almacenado en cookies <em>HttpOnly</em> de alta seguridad con expiración de 24 horas.
           </p>
         </section>
 

@@ -20,6 +20,8 @@ import TrabajadorRoute   from './components/TrabajadorRoute'
 import TrabajadorKanban  from './pages/trabajador/TrabajadorKanban'
 import TrabajadorLotes   from './pages/trabajador/TrabajadorLotes'
 import TrabajadorMermas  from './pages/trabajador/TrabajadorMermas'
+import TrabajadorZonas   from './pages/trabajador/TrabajadorZonas'
+import AdminZonas        from './pages/AdminZonas'
 
 import Navbar      from './components/layout/Navbar'
 import Footer      from './components/layout/Footer'
@@ -64,6 +66,7 @@ function App() {
                   <Route path="productos" element={<AdminProductos />} />
                   <Route path="pedidos" element={<AdminPedidos />} />
                   <Route path="usuarios" element={<AdminUsuarios />} />
+                  <Route path="zonas" element={<AdminZonas />} />
                 </Route>
 
                 <Route path="/trabajador" element={<TrabajadorRoute><TrabajadorLayout /></TrabajadorRoute>}>
@@ -72,6 +75,7 @@ function App() {
                   <Route path="kanban" element={<Navigate to="tareas" replace />} />
                   <Route path="lotes"  element={<TrabajadorLotes />} />
                   <Route path="mermas" element={<TrabajadorMermas />} />
+                  <Route path="zonas"  element={<TrabajadorZonas />} />
                 </Route>
 
                 <Route path="/"  element={<Navigate to="/catalogo" replace />} />

@@ -5,6 +5,7 @@ import { agregarItem } from '../api/carritoApi'
 import { getImagenProducto } from '../utils/imageUtils'
 import { useAuth } from '../hooks/useAuth'
 import { useCart } from '../context/CartContext'
+import Pagination from '../components/ui/Pagination'
 
 export default function Catalog() {
   const [productos,  setProductos]  = useState([])
@@ -227,30 +228,12 @@ export default function Catalog() {
           </div>
 
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
-              <button
-                onClick={() => handleFiltro('page', filtros.page - 1)}
-                disabled={filtros.page === 0}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
-                           text-sm hover:bg-gray-50 dark:hover:bg-gray-800
-                           text-gray-700 dark:text-gray-300
-                           disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                ← Anterior
-              </button>
-              <span className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
-                Página {filtros.page + 1} de {totalPages}
-              </span>
-              <button
-                onClick={() => handleFiltro('page', filtros.page + 1)}
-                disabled={filtros.page >= totalPages - 1}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
-                           text-sm hover:bg-gray-50 dark:hover:bg-gray-800
-                           text-gray-700 dark:text-gray-300
-                           disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Siguiente →
-              </button>
+            <div className="mt-8">
+              <Pagination
+                currentPage={filtros.page}
+                totalPages={totalPages}
+                onPageChange={page => handleFiltro('page', page)}
+              />
             </div>
           )}
         </>

@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { getPedidosAdmin, actualizarEstadoPedido } from '../api/adminApi'
+import FlashMessage from '../components/ui/FlashMessage'
+import Pagination from '../components/ui/Pagination'
+import DetallePedidoDrawer from './components/DetallePedidoDrawer'
 
 /**
  * Página de gestión de pedidos — Panel Admin.
@@ -160,14 +163,7 @@ export default function AdminPedidos() {
         </div>
 
         {/* Mensaje de feedback */}
-        {mensaje && (
-          <div className={`mb-4 p-3 rounded-lg text-sm font-medium
-                           ${mensaje.tipo === 'ok'
-                             ? 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
-                             : 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'}`}>
-            {mensaje.tipo === 'ok' ? '✅' : '⚠'} {mensaje.texto}
-          </div>
-        )}
+        <FlashMessage mensaje={mensaje} />
 
         {/* Filtros por estado */}
         <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4
@@ -329,23 +325,11 @@ export default function AdminPedidos() {
 
         {/* Paginación */}
         {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-4">
-            <button
-              onClick={() => handleFiltro('page', filtros.page - 1)}
-              disabled={filtros.page === 0}
-              className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg
-                         hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40"
-            >← Anterior</button>
-            <span className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400">
-              Página {filtros.page + 1} de {totalPages}
-            </span>
-            <button
-              onClick={() => handleFiltro('page', filtros.page + 1)}
-              disabled={filtros.page >= totalPages - 1}
-              className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg
-                         hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40"
-            >Siguiente →</button>
-          </div>
+          <Pagination
+            currentPage={filtros.page}
+            totalPages={totalPages}
+            onPageChange={page => handleFiltro('page', page)}
+          />
         )}
       </div>
 
@@ -362,194 +346,4 @@ export default function AdminPedidos() {
   )
 }
 
-// ── Drawer lateral de detalle ───────────────────────────────────────────────
-/**
- * Panel lateral deslizante que muestra el detalle completo de un pedido.
- * Se abre al hacer clic en una fila de la tabla y se cierra con la X.
- *
- * Secciones:
- *   1. Header — número de pedido, fecha y badge de estado
- *   2. Cliente — nombre completo y correo
- *   3. Productos — tabla con imagen, nombre, cantidad, precio unitario, subtotal
- *   4. Resumen — total del pedido
- *   5. Dirección de envío
- *   6. Pago — método, estado y monto
- */
-function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFechaHora }) {
-  const config  = ESTADOS_CONFIG[pedido.estado] ?? ESTADOS_CONFIG.PENDIENTE
-
-  // Nombre legible del método de pago
-  const nombreMetodo = pedido.pago?.metodoPago
-    ? (NOMBRES_METODO[pedido.pago.metodoPago?.toUpperCase()]
-       || pedido.pago.metodoPago.replace(/_/g, ' '))
-    : '—'
-
-  // Color del badge de estado del pago
-  const esAprobado = pedido.pago?.estadoPago === 'APROBADO'
-
-  return (
-    <div className="w-96 flex-shrink-0 bg-white dark:bg-gray-850 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700
-                    shadow-xl flex flex-col overflow-hidden
-                    animate-in slide-in-from-right duration-200">
-
-      {/* ── Header del drawer ────────────────────────────────────────────── */}
-      <div className="bg-green-800 dark:bg-gray-950 px-5 py-4 flex items-start justify-between flex-shrink-0 border-b border-transparent dark:border-gray-750">
-        <div>
-          {/* Número de pedido */}
-          <p className="font-mono font-bold text-white text-sm tracking-wide">
-            {pedido.numeroPedido}
-          </p>
-          {/* Fecha y hora */}
-          <p className="text-green-300 dark:text-gray-400 text-xs mt-0.5">
-            {fmtFechaHora(pedido.fechaPedido)}
-          </p>
-          {/* Badge de estado */}
-          <span className={`inline-flex items-center gap-1 text-xs font-semibold
-                            px-2 py-0.5 rounded-full mt-2 ${config.badge}`}>
-            {config.icono} {pedido.estado}
-          </span>
-        </div>
-        {/* Botón cerrar */}
-        <button
-          onClick={onCerrar}
-          className="text-green-300 hover:text-white transition-colors
-                     text-xl leading-none mt-0.5 ml-4"
-        >
-          ✕
-        </button>
-      </div>
-
-      {/* ── Contenido scrollable ─────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-5">
-
-        {/* ── Sección: Cliente ─────────────────────────────────────────── */}
-        <section>
-          <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-400 uppercase
-                         tracking-wider mb-2">
-            👤 Cliente
-          </h3>
-          <div className="bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-700/60 rounded-xl p-3">
-            <p className="font-semibold text-gray-800 dark:text-gray-100">
-              {pedido.nombreCliente || '—'}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              {pedido.emailCliente || '—'}
-            </p>
-          </div>
-        </section>
-
-        {/* ── Sección: Productos ───────────────────────────────────────── */}
-        <section>
-          <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-400 uppercase
-                         tracking-wider mb-2">
-            🛒 Productos ({pedido.detalles?.length ?? 0})
-          </h3>
-
-          {(!pedido.detalles || pedido.detalles.length === 0) ? (
-            <p className="text-sm text-gray-400 dark:text-gray-500 italic">Sin detalles disponibles</p>
-          ) : (
-            <div className="space-y-2">
-              {pedido.detalles.map((d, i) => (
-                <div key={i}
-                     className="flex items-center gap-3 bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-700/60 rounded-xl p-3">
-                  {/* Imagen del producto */}
-                  <div className="w-12 h-12 bg-green-100 dark:bg-gray-700 rounded-lg overflow-hidden
-                                  flex-shrink-0 flex items-center justify-center">
-                    {d.imagenUrl
-                      ? <img src={d.imagenUrl} alt={d.nombreProducto}
-                             className="w-full h-full object-cover"
-                             onError={e => { e.target.onerror = null; e.target.src = '' }} />
-                      : <span className="text-xl">🌿</span>
-                    }
-                  </div>
-
-                  {/* Nombre y detalle de precio */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-tight truncate">
-                      {d.nombreProducto}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      {d.cantidad} × {fmtPrecio(d.precioUnitario)}
-                    </p>
-                  </div>
-
-                  {/* Subtotal del ítem */}
-                  <p className="text-sm font-semibold text-green-700 dark:text-green-400 flex-shrink-0">
-                    {fmtPrecio(d.subtotal)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* ── Sección: Total ───────────────────────────────────────────── */}
-        <section>
-          <div className="bg-green-800 dark:bg-emerald-900/80 rounded-xl px-4 py-3
-                          flex justify-between items-center border border-transparent dark:border-emerald-700/50">
-            <span className="text-green-200 dark:text-emerald-200 text-sm font-medium">Total del pedido</span>
-            <span className="text-white font-bold text-lg">
-              {fmtPrecio(pedido.total)}
-            </span>
-          </div>
-        </section>
-
-        {/* ── Sección: Dirección de envío ──────────────────────────────── */}
-        <section>
-          <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-400 uppercase
-                         tracking-wider mb-2">
-            📦 Dirección de envío
-          </h3>
-          <div className="bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-700/60 rounded-xl p-3">
-            <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
-              {pedido.direccionEnvio || 'No especificada'}
-            </p>
-          </div>
-        </section>
-
-        {/* ── Sección: Pago ────────────────────────────────────────────── */}
-        <section>
-          <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-400 uppercase
-                         tracking-wider mb-2">
-            💳 Pago
-          </h3>
-          <div className="bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-700/60 rounded-xl p-3 space-y-2">
-
-            {/* Método de pago */}
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Método</span>
-              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                {nombreMetodo}
-              </span>
-            </div>
-
-            {/* Estado del pago */}
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Estado</span>
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border
-                                ${esAprobado
-                                  ? 'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800/50'
-                                  : 'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800/50'}`}>
-                {pedido.pago?.estadoPago || '—'}
-              </span>
-            </div>
-
-            {/* Monto — etiqueta cambia según el estado del pago */}
-            <div className="flex justify-between items-center border-t
-                            border-gray-200 dark:border-gray-700 pt-2 mt-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {esAprobado ? 'Monto pagado' : 'Monto a pagar'}
-              </span>
-              <span className={`text-sm font-bold
-                                ${esAprobado ? 'text-green-700 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
-                {fmtPrecio(pedido.pago?.monto ?? pedido.total)}
-              </span>
-            </div>
-          </div>
-        </section>
-
-      </div>
-      {/* fin contenido scrollable */}
-    </div>
-  )
-}
+// Componente extraído a components/DetallePedidoDrawer.jsx
