@@ -348,8 +348,8 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
     }
     if (!form.passwordInicial) {
       err.passwordInicial = 'La contraseña inicial es obligatoria'
-    } else if (form.passwordInicial.length < 6) {
-      err.passwordInicial = 'La contraseña debe tener al menos 6 caracteres'
+    } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(form.passwordInicial)) {
+      err.passwordInicial = 'Debe tener mín. 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial'
     }
     setErrores(err)
     return Object.keys(err).length === 0
@@ -425,7 +425,7 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
             required
             value={form.passwordInicial}
             onChange={handleChange}
-            placeholder="Mínimo 6 caracteres"
+            placeholder="Mín. 8 caracteres, mayúscula, número y especial"
             error={errores.passwordInicial}
           />
 

@@ -35,31 +35,40 @@ import CookieBanner from './components/CookieBanner'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { LayoutProvider } from './context/LayoutContext'
+import PublicLayout from './components/layout/PublicLayout'
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
         <CartProvider>
-          <BrowserRouter>
-            <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
-              <Navbar />
+          <LayoutProvider>
+            <BrowserRouter>
+              <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans relative overflow-x-hidden">
+              
+
               <InactivityGuard />
               <CookieBanner />
 
-            <main className="flex-1">
+            <main className="flex-1 flex flex-col">
               <Routes>
 
-                <Route path="/login"        element={<Login />} />
-                <Route path="/registro"     element={<Register />} />
-                <Route path="/catalogo"     element={<Catalog />} />
-                <Route path="/producto/:id" element={<ProductDetail />} />
-                <Route path="/politica-datos" element={<PoliticaDatos />} />
+                <Route element={<PublicLayout />}>
+                  <Route path="/login"        element={<Login />} />
+                  <Route path="/registro"     element={<Register />} />
+                  <Route path="/catalogo"     element={<Catalog />} />
+                  <Route path="/producto/:id" element={<ProductDetail />} />
+                  <Route path="/politica-datos" element={<PoliticaDatos />} />
 
-                <Route path="/carrito" element={<PrivateRoute><Cart /></PrivateRoute>} />
-                <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
-                <Route path="/pedidos" element={<PrivateRoute><MisPedidos /></PrivateRoute>} />
-                <Route path="/pedidos/:id" element={<PrivateRoute><DetallePedido /></PrivateRoute>} />
+                  <Route path="/carrito" element={<Navigate to="/catalogo" replace />} />
+                  <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
+                  <Route path="/pedidos" element={<PrivateRoute><MisPedidos /></PrivateRoute>} />
+                  <Route path="/pedidos/:id" element={<PrivateRoute><DetallePedido /></PrivateRoute>} />
+                  
+                  <Route path="/"  element={<Navigate to="/catalogo" replace />} />
+                  <Route path="*"  element={<Navigate to="/catalogo" replace />} />
+                </Route>
 
                 <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
                   <Route index element={<Navigate to="dashboard" replace />} />
@@ -80,18 +89,16 @@ function App() {
                   <Route path="zonas"  element={<TrabajadorZonas />} />
                 </Route>
 
-                <Route path="/"  element={<Navigate to="/catalogo" replace />} />
-                <Route path="*"  element={<Navigate to="/catalogo" replace />} />
-
               </Routes>
             </main>
 
             <Footer />
           </div>
-        </BrowserRouter>
-      </CartProvider>
-    </AuthProvider>
-  </ThemeProvider>
+            </BrowserRouter>
+          </LayoutProvider>
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

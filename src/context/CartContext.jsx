@@ -21,36 +21,24 @@ import { getCarrito } from '../api/carritoApi'
 const CartContext = createContext(null)
 
 export function CartProvider({ children }) {
-  // Número total de ítems en el carrito para mostrar en el badge del navbar
   const [totalItems, setTotalItems] = useState(0)
+  const [isCartOpen, setIsCartOpen] = useState(false)
 
-  /**
-   * Recarga el contador del carrito desde el backend.
-   * Llama a GET /api/carrito y actualiza totalItems con el valor de la respuesta.
-   * Si el carrito no existe o está vacío, pone totalItems en 0.
-   * useCallback evita recrear la función en cada render.
-   */
   const refreshCart = useCallback(async () => {
     try {
       const res = await getCarrito()
-      // Usar totalItems de la respuesta, con fallback a 0
       setTotalItems(res.data.totalItems ?? 0)
     } catch {
-      // Si falla (carrito no existe, error de red, etc.) → mostrar 0
       setTotalItems(0)
     }
   }, [])
 
-  /**
-   * Limpia el contador del carrito sin llamar al backend.
-   * Se usa después del checkout exitoso para que el badge desaparezca
-   * inmediatamente sin esperar una llamada a la API.
-   * useCallback evita recrear la función en cada render.
-   */
   const clearCart = useCallback(() => setTotalItems(0), [])
+  const openCart = useCallback(() => setIsCartOpen(true), [])
+  const closeCart = useCallback(() => setIsCartOpen(false), [])
 
   return (
-    <CartContext.Provider value={{ totalItems, refreshCart, clearCart }}>
+    <CartContext.Provider value={{ totalItems, refreshCart, clearCart, isCartOpen, openCart, closeCart }}>
       {children}
     </CartContext.Provider>
   )

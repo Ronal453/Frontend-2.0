@@ -47,7 +47,12 @@ export const actualizarEstadoPedido = (id, nuevoEstado) =>
 // REPORTES / DASHBOARD
 // ═══════════════════════════════════════════════════════════════
 
-export const getReporte = () => api.get('/admin/reportes')
+export const getReporte = (fechaInicio, fechaFin) => {
+  const params = new URLSearchParams()
+  if (fechaInicio) params.set('fechaInicio', fechaInicio)
+  if (fechaFin) params.set('fechaFin', fechaFin)
+  return api.get(`/admin/reportes?${params.toString()}`)
+}
 
 /** [NUEVO] Exportar pedidos a CSV con filtro opcional de rango de fechas */
 export const exportarReporteCSV = (fechaInicio, fechaFin) => {
@@ -100,3 +105,4 @@ export const desactivarZona = (id) => api.patch(`/admin/zonas/${id}/desactivar`)
 
 export const crearLote = (datos) => api.post('/admin/lotes', datos)
 export const vincularLote = (id, datos) => api.post(`/admin/lotes/${id}/vincular`, datos)
+

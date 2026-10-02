@@ -1,53 +1,108 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import Navbar from './Navbar'
+import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft } from 'lucide-react'
 
-const ADMIN_LINKS = [
-  { to: '/admin/dashboard', icono: '📊', label: 'Dashboard' },
-  { to: '/admin/productos', icono: '🌿', label: 'Inventario' },
-  { to: '/admin/pedidos',   icono: '📦', label: 'Pedidos' },
-  { to: '/admin/usuarios',  icono: '👥', label: 'Usuarios' },
-  { to: '/admin/zonas', icono: '📍', label: 'Zonas' },
-  { to: '/admin/lotes', icono: '🌱', label: 'Lotes' },
+const ECOM_LINKS = [
+  { to: '/admin/dashboard', icono: LayoutDashboard, label: 'Dashboard' },
+  { to: '/admin/productos', icono: Package,         label: 'Inventario Catálogo' },
+  { to: '/admin/pedidos',   icono: ShoppingBag,     label: 'Pedidos' },
+  { to: '/admin/usuarios',  icono: Users,           label: 'Usuarios y Roles' },
+]
+
+const VIVERO_LINKS = [
+  { to: '/admin/zonas',     icono: MapPin,          label: 'Gestión de Zonas' },
+  { to: '/admin/lotes',     icono: Sprout,          label: 'Lotes de Cultivo' },
 ]
 
 export default function AdminLayout() {
   return (
-    <div className="flex min-h-[calc(100vh-56px)]">
-      <aside className="w-52 bg-green-900 dark:bg-gray-950 text-white flex-shrink-0 flex flex-col py-6 px-3 gap-1 border-r border-transparent dark:border-gray-800 transition-colors">
-        <div className="px-3 mb-4">
-          <p className="text-xs font-semibold text-green-400 dark:text-emerald-400 uppercase tracking-wider">
-            Panel Admin
-          </p>
+    <div className="flex h-screen p-4 gap-4 overflow-hidden bg-slate-50 dark:bg-[#060A11]">
+      <aside className="w-64 bg-gradient-to-b from-slate-600 via-slate-600 to-emerald-700 text-white flex-shrink-0 flex flex-col py-6 px-4 gap-2 rounded-[2rem] shadow-2xl shadow-emerald-800/20 border border-slate-500/40 transition-all overflow-y-auto z-10 custom-scrollbar">
+        <div className="px-2 mb-6 flex items-center gap-3">
+          <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center shadow-inner flex-shrink-0 border border-emerald-500/30">
+            <Sprout className="text-emerald-400" size={24} strokeWidth={2.5} />
+          </div>
+          <div>
+            <p className="text-xl font-black tracking-tight text-white leading-none">
+              Plantopolis
+            </p>
+            <p className="text-xs font-bold text-emerald-400 mt-1 uppercase tracking-widest">
+              Admin
+            </p>
+          </div>
         </div>
 
-        <nav className="flex flex-col gap-1">
-          {ADMIN_LINKS.map(link => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                 ${isActive
-                   ? 'bg-green-700 dark:bg-emerald-700/80 text-white shadow-sm'
-                   : 'text-green-300 dark:text-gray-400 hover:bg-green-800 dark:hover:bg-gray-800 hover:text-white'}`
-              }
-            >
-              <span className="text-lg">{link.icono}</span>
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="mb-4">
+          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">E-Commerce</p>
+          <nav className="flex flex-col gap-1.5">
+            {ECOM_LINKS.map(link => {
+              const Icon = link.icono
+              return (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group
+                     ${isActive
+                       ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 border border-emerald-400/50'
+                       : 'text-slate-300 hover:bg-white/10 hover:text-white'}`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className={`transition-transform duration-300 ${isActive ? 'scale-110 drop-shadow-md' : 'group-hover:scale-110'}`} />
+                      {link.label}
+                    </>
+                  )}
+                </NavLink>
+              )
+            })}
+          </nav>
+        </div>
 
-        <div className="mt-auto pt-4 border-t border-green-700 dark:border-gray-800">
+        <div className="mb-4">
+          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Operaciones de Vivero</p>
+          <nav className="flex flex-col gap-1.5">
+            {VIVERO_LINKS.map(link => {
+              const Icon = link.icono
+              return (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group
+                     ${isActive
+                       ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 border border-emerald-500/50'
+                       : 'text-slate-300 hover:bg-white/10 hover:text-white'}`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className={`transition-transform duration-300 ${isActive ? 'scale-110 drop-shadow-md' : 'group-hover:scale-110'}`} />
+                      {link.label}
+                    </>
+                  )}
+                </NavLink>
+              )
+            })}
+          </nav>
+        </div>
+
+        <div className="mt-auto pt-6 border-t border-slate-700/50">
           <a href="/catalogo"
-             className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-green-400 dark:text-emerald-400 hover:text-green-200 dark:hover:text-emerald-200 transition-colors">
-            ← Ver sitio público
+             className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold text-slate-400 hover:text-emerald-400 hover:bg-white/5 transition-colors">
+            <ArrowLeft size={16} strokeWidth={2.5} />
+            Volver al Catálogo
           </a>
         </div>
       </aside>
 
-      <main className="flex-1 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-auto transition-colors">
-        <Outlet />
-      </main>
+      <div className="flex-1 flex flex-col relative z-0 overflow-hidden">
+        <Navbar layoutMode="dashboard" />
+        <main className="flex-1 overflow-auto relative p-2 pr-4 custom-scrollbar">
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }

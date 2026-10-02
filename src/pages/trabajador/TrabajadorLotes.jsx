@@ -13,6 +13,7 @@ const ESTADOS_LOTE = [
   { id: 'GERMINANDO', label: '🌱 Germinando' },
   { id: 'CRECIENDO', label: '🌿 Creciendo' },
   { id: 'LISTO_PARA_VENTA', label: '🌸 Listo para Venta' },
+  { id: 'EN_TIENDA', label: '🏪 En Tienda' },
   { id: 'DESCARTADO', label: '🍂 Descartado' },
 ]
 
@@ -20,6 +21,7 @@ const ESTADO_BADGES = {
   GERMINANDO: 'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
   CRECIENDO: 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800',
   LISTO_PARA_VENTA: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+  EN_TIENDA: 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800',
   DESCARTADO: 'bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800',
 }
 
@@ -28,6 +30,7 @@ export default function TrabajadorLotes() {
   const [zonas, setZonas] = useState([])
   const [filtroZona, setFiltroZona] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
+  const [filtroBuscar, setFiltroBuscar] = useState('')
   const [pagina, setPagina] = useState(0)
   const [totalPaginas, setTotalPaginas] = useState(1)
   const [cargando, setCargando] = useState(true)
@@ -77,6 +80,7 @@ export default function TrabajadorLotes() {
       const res = await getLotes({
         idZona: filtroZona || undefined,
         estado: filtroEstado || undefined,
+        buscar: filtroBuscar || undefined,
         page: pagina,
         size: 10,
       })
@@ -91,7 +95,7 @@ export default function TrabajadorLotes() {
 
   useEffect(() => {
     cargarLotes()
-  }, [filtroZona, filtroEstado, pagina])
+  }, [filtroZona, filtroEstado, filtroBuscar, pagina])
 
   // Abrir modal de cambio de estado
   const abrirCambioEstado = (lote) => {
@@ -198,6 +202,15 @@ export default function TrabajadorLotes() {
 
         {/* Filtros */}
         <div className="flex flex-wrap items-center gap-3">
+          {/* Buscar por texto */}
+          <input
+            type="text"
+            placeholder="Buscar lote o especie..."
+            value={filtroBuscar}
+            onChange={(e) => { setFiltroBuscar(e.target.value); setPagina(0) }}
+            className="text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-auto"
+          />
+
           {/* Filtro Zona */}
           <select
             value={filtroZona}
@@ -301,8 +314,8 @@ export default function TrabajadorLotes() {
                     </td>
 
                     <td className="py-3.5 px-4 text-right space-x-2">
-                      {/* Botón Cambiar Estado (solo si no está descartado) */}
-                      {lote.estadoLote !== 'DESCARTADO' && (
+                      {/* Botón Cambiar Estado (solo si no está descartado ni en tienda) */}
+                      {!['DESCARTADO', 'EN_TIENDA'].includes(lote.estadoLote) && (
                         <button
                           onClick={() => abrirCambioEstado(lote)}
                           className="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-semibold text-[11px] transition-colors"
@@ -312,7 +325,7 @@ export default function TrabajadorLotes() {
                       )}
 
                       {/* Botón Reportar Merma */}
-                      {lote.cantidadActual > 0 && lote.estadoLote !== 'DESCARTADO' && (
+                      {lote.cantidadActual > 0 && !['DESCARTADO', 'EN_TIENDA'].includes(lote.estadoLote) && (
                         <button
                           onClick={() => abrirModalMerma(lote)}
                           title="Reportar pérdida en este lote"

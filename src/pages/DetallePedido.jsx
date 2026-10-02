@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams, useLocation, Link } from 'react-router-dom'
 import { getDetallePedido } from '../api/pedidosApi'
+import { 
+  ArrowLeft, CheckCircle, Package, Truck, Clock, XCircle, 
+  MapPin, CreditCard, ShieldCheck, FileText 
+} from 'lucide-react'
 
 const PASOS = ['PENDIENTE', 'EN_PREPARACION', 'ENVIADO', 'ENTREGADO']
 
@@ -29,15 +33,16 @@ export default function DetallePedido() {
   }, [id])
 
   if (loading) return (
-    <div className="flex justify-center py-20">
-      <div className="animate-spin rounded-full h-10 w-10
-                      border-b-2 border-green-700 dark:border-green-500" />
+    <div className="flex justify-center items-center py-32 min-h-[60vh]">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 dark:border-green-500" />
     </div>
   )
 
   if (error) return (
-    <div className="max-w-2xl mx-auto px-4 py-10 text-center text-red-600 dark:text-red-400">
-      ⚠ {error}
+    <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+      <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-6 rounded-2xl border border-red-200 dark:border-red-800 inline-block font-medium">
+        {error}
+      </div>
     </div>
   )
 
@@ -93,160 +98,189 @@ export default function DetallePedido() {
   const montoPago    = pedido.pago?.monto ?? pedido.total
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
 
       <Link to="/pedidos"
-            className="text-sm text-green-700 dark:text-green-400 hover:underline mb-4 block">
-        ← Mis pedidos
+            className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 mb-6 transition-colors">
+        <ArrowLeft size={16} /> Volver a mis pedidos
       </Link>
 
       {state?.nuevo && (
-        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-xl
-                        p-4 mb-6 text-center">
-          <p className="text-3xl mb-1">🎉</p>
-          <p className="font-bold text-green-800 dark:text-green-300">¡Pedido confirmado!</p>
-          <p className="text-green-700 dark:text-green-400 text-sm mt-1">
-            Revisa tu email para ver la confirmación
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl
+                        p-6 mb-8 text-center shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
+            <CheckCircle className="text-green-600 dark:text-green-400" size={32} />
+          </div>
+          <h2 className="text-2xl font-extrabold text-green-800 dark:text-green-400 tracking-tight">¡Pedido confirmado!</h2>
+          <p className="text-green-700 dark:text-green-500 font-medium mt-1">
+            Hemos recibido tu pedido y te enviamos un correo con los detalles.
           </p>
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl
-                      p-5 mb-4 shadow-sm dark:shadow-none">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-              {pedido.numeroPedido}
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
-              {formatearFechaColombia(pedido.fechaPedido)}
-            </p>
-          </div>
-          <span className={`text-sm font-bold px-3 py-1 rounded-full
+      {/* Encabezado del Pedido */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+            {pedido.numeroPedido}
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium mt-2 flex items-center gap-1.5">
+            <Clock size={16} />
+            {formatearFechaColombia(pedido.fechaPedido)}
+          </p>
+        </div>
+        <div>
+          <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider border shadow-sm
                             ${cancelado
-                              ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300'
-                              : 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300'}`}>
+                              ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50'
+                              : 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/50'}`}>
+            {cancelado ? <XCircle size={16} strokeWidth={2.5} /> : <Package size={16} strokeWidth={2.5} />}
             {pedido.estado}
           </span>
         </div>
       </div>
 
+      {/* Barra de Progreso */}
       {!cancelado && (
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl
-                        p-5 mb-4 shadow-sm dark:shadow-none">
-          <h2 className="font-semibold text-gray-700 dark:text-gray-200 mb-4 text-sm">
-            Estado del pedido
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 sm:p-8 mb-8">
+          <h2 className="font-bold text-slate-900 dark:text-white text-lg mb-8 flex items-center gap-2">
+            <Truck className="text-green-600 dark:text-green-500" size={20} /> Seguimiento del pedido
           </h2>
-          <div className="flex items-center justify-between relative">
-            <div className="absolute top-4 left-0 right-0 h-0.5
-                            bg-gray-200 dark:bg-gray-700 z-0" />
+          <div className="relative max-w-3xl mx-auto px-4 sm:px-8">
+            <div className="absolute top-5 left-10 right-10 h-1 bg-slate-100 dark:bg-slate-700 rounded-full z-0" />
             <div
-              className="absolute top-4 left-0 h-0.5 bg-green-600 dark:bg-green-500 z-0
-                         transition-all duration-500"
+              className="absolute top-5 left-10 h-1 bg-green-500 rounded-full z-0 transition-all duration-1000 ease-out"
               style={{
                 width: pasoActual >= 0
-                  ? `${(pasoActual / (PASOS.length - 1)) * 100}%`
+                  ? `calc(${(pasoActual / (PASOS.length - 1)) * 100}% - 2.5rem)`
                   : '0%'
               }}
             />
-            {PASOS.map((paso, i) => (
-              <div key={paso}
-                   className="flex flex-col items-center z-10 flex-1">
-                <div className={`w-8 h-8 rounded-full flex items-center
-                                 justify-center text-xs font-bold border-2
-                                 transition-colors
-                                 ${i <= pasoActual
-                                   ? 'bg-green-700 dark:bg-green-600 border-green-700 dark:border-green-600 text-white'
-                                   : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'}`}>
-                  {i < pasoActual ? '✓' : i + 1}
-                </div>
-                <p className={`text-xs mt-2 text-center font-medium
-                               ${i <= pasoActual
-                                 ? 'text-green-700 dark:text-green-400'
-                                 : 'text-gray-400 dark:text-gray-500'}`}>
-                  {paso}
-                </p>
-              </div>
-            ))}
+            <div className="flex justify-between relative z-10">
+              {PASOS.map((paso, i) => {
+                const isActive = i <= pasoActual
+                const isCurrent = i === pasoActual
+                return (
+                  <div key={paso} className="flex flex-col items-center w-24">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-500 border-4 shadow-sm
+                                     ${isActive
+                                       ? 'bg-green-600 border-green-100 dark:border-green-900/50 text-white'
+                                       : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500'}`}>
+                      {isActive && !isCurrent ? <CheckCircle size={16} /> : i + 1}
+                    </div>
+                    <p className={`text-[10px] sm:text-xs mt-3 text-center font-bold uppercase tracking-wider
+                                   ${isActive
+                                     ? 'text-green-700 dark:text-green-400'
+                                     : 'text-slate-400 dark:text-slate-500'}`}>
+                      {paso.replace('_', ' ')}
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl
-                      overflow-hidden mb-4 shadow-sm dark:shadow-none">
-        <div className="px-5 py-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700">
-          <h2 className="font-semibold text-gray-700 dark:text-gray-200 text-sm">Productos</h2>
+      {/* 2 Columnas de Información */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Columna Izquierda: Lista de Productos (Ocupa 2 de 3 fracciones en desktop) */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex-1">
+            <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
+              <FileText className="text-slate-500" size={18} />
+              <h2 className="font-bold text-slate-900 dark:text-white">Artículos del Pedido</h2>
+            </div>
+            
+            <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
+              {pedido.detalles?.map((d, idx) => (
+                <div key={idx} className="flex items-center gap-4 px-6 py-5">
+                  <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900/50 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-slate-100 dark:border-slate-700/50">
+                    {d.imagenUrl
+                      ? <img src={d.imagenUrl} alt={d.nombreProducto} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                      : <Package className="text-slate-300 dark:text-slate-600" size={24} />}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-slate-900 dark:text-white">
+                      {d.nombreProducto}
+                    </p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">
+                      <span className="text-slate-700 dark:text-slate-300 font-bold">{d.cantidad}</span> un. × {formatearPrecio(d.precioUnitario)}
+                    </p>
+                  </div>
+                  <p className="font-black text-slate-900 dark:text-white text-lg">
+                    {formatearPrecio(d.subtotal)}
+                  </p>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex justify-between items-center px-6 py-5 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700">
+              <span className="font-bold text-slate-700 dark:text-slate-300 text-lg uppercase tracking-wider">Total Final</span>
+              <span className="font-black text-green-700 dark:text-green-400 text-2xl">
+                {formatearPrecio(pedido.total)}
+              </span>
+            </div>
+          </div>
         </div>
-        {pedido.detalles?.map((d, idx) => (
-          <div key={idx}
-               className="flex items-center gap-3 px-5 py-4
-                          border-b border-gray-50 dark:border-gray-700 last:border-0">
-            <div className="w-12 h-12 bg-green-50 dark:bg-gray-900 rounded-lg overflow-hidden
-                            flex-shrink-0 flex items-center justify-center">
-              {d.imagenUrl
-                ? <img src={d.imagenUrl} alt={d.nombreProducto}
-                       className="w-full h-full object-cover" />
-                : <span className="text-xl">🌿</span>}
+
+        {/* Columna Derecha: Envío y Pago */}
+        <div className="flex flex-col gap-6">
+          
+          {/* Envío */}
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
+                <MapPin size={20} />
+              </div>
+              <h2 className="font-bold text-slate-900 dark:text-white text-lg">Dirección de Envío</h2>
             </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-800 dark:text-gray-100 text-sm">
-                {d.nombreProducto}
-              </p>
-              <p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">
-                {d.cantidad} × {formatearPrecio(d.precioUnitario)}
-              </p>
-            </div>
-            <p className="font-semibold text-gray-800 dark:text-gray-100">
-              {formatearPrecio(d.subtotal)}
+            <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50">
+              {pedido.direccionEnvio || 'No especificada'}
             </p>
           </div>
-        ))}
-        <div className="flex justify-between px-5 py-4 bg-gray-50 dark:bg-gray-900
-                        border-t border-gray-100 dark:border-gray-700">
-          <span className="font-bold text-gray-800 dark:text-gray-100">Total</span>
-          <span className="font-bold text-green-800 dark:text-green-400 text-lg">
-            {formatearPrecio(pedido.total)}
-          </span>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Pago */}
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg">
+                <CreditCard size={20} />
+              </div>
+              <h2 className="font-bold text-slate-900 dark:text-white text-lg">Detalles del Pago</h2>
+            </div>
 
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl
-                        p-4 shadow-sm dark:shadow-none">
-          <p className="font-semibold text-gray-700 dark:text-gray-200 text-sm mb-1">
-            📦 Envío a
-          </p>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            {pedido.direccionEnvio || 'No especificada'}
-          </p>
-        </div>
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Método</span>
+                <span className="text-slate-900 dark:text-white font-bold">
+                  {nombreMetodo || <span className="text-amber-500">Procesando...</span>}
+                </span>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Estado</span>
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider
+                                  ${esAprobado
+                                    ? 'bg-green-100/80 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                    : 'bg-amber-100/80 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}>
+                  {estadoPago}
+                </span>
+              </div>
+              
+              <div className="pt-3 mt-1 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Monto Cobrado</span>
+                <span className="font-black text-green-700 dark:text-green-400 text-lg">
+                  {formatearPrecio(montoPago)}
+                </span>
+              </div>
+            </div>
 
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl
-                        p-4 shadow-sm dark:shadow-none">
-          <p className="font-semibold text-gray-700 dark:text-gray-200 text-sm mb-2">
-            💳 Pago
-          </p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-4 text-center flex items-center justify-center gap-1">
+              <ShieldCheck size={14} /> Transacción segura verificada
+            </p>
+          </div>
 
-          <p className="text-gray-700 dark:text-gray-300 text-sm font-medium">
-            {nombreMetodo || (
-              <span className="text-amber-600 dark:text-amber-400 text-xs">
-                Cargando método...
-              </span>
-            )}
-          </p>
-
-          <span className={`text-xs font-medium px-2 py-0.5 rounded-full
-                            mt-1 inline-block
-                            ${esAprobado
-                              ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300'
-                              : 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300'}`}>
-            {estadoPago}
-          </span>
-
-          <p className="text-green-800 dark:text-green-400 font-bold mt-1">
-            {formatearPrecio(montoPago)}
-          </p>
         </div>
 
       </div>

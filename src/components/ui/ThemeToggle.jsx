@@ -17,18 +17,18 @@ export default function ThemeToggle() {
       title={esOscuro ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
       aria-label={esOscuro ? 'Activar tema claro' : 'Activar tema oscuro'}
       className="relative p-2 rounded-full transition-all duration-300
-                 bg-white/10 hover:bg-white/20 active:scale-95
-                 dark:bg-gray-800 dark:hover:bg-gray-700
-                 border border-white/20 dark:border-gray-700
-                 shadow-sm hover:shadow focus:outline-none focus:ring-2
-                 focus:ring-emerald-400 dark:focus:ring-emerald-500
-                 flex items-center justify-center text-white"
+                 bg-slate-100 hover:bg-slate-200 active:scale-95
+                 dark:bg-slate-800 dark:hover:bg-slate-700
+                 border border-slate-200 dark:border-slate-700
+                 shadow-sm focus:outline-none focus:ring-2
+                 focus:ring-green-500
+                 flex items-center justify-center text-slate-700 dark:text-slate-200"
     >
       {esOscuro ? (
         // Icono de Sol para regresar a modo claro
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="w-5 h-5 text-amber-300 transform transition-transform duration-300 rotate-0 hover:rotate-45"
+          className="w-5 h-5 text-yellow-400 transform transition-transform duration-300 rotate-0 hover:rotate-45"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -44,7 +44,7 @@ export default function ThemeToggle() {
         // Icono de Luna para pasar a modo oscuro
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="w-5 h-5 text-emerald-100 hover:text-white transform transition-transform duration-300 -rotate-12 hover:rotate-0"
+          className="w-5 h-5 text-slate-600 hover:text-slate-800 transform transition-transform duration-300 -rotate-12 hover:rotate-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

@@ -1,5 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { getReporte, getProductosStockCritico, exportarReporteCSV } from '../api/adminApi'
+import { DollarSign, Package, Sprout, AlertTriangle, Download, FileText, TrendingUp, Target } from 'lucide-react'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList } from 'recharts'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
+
+const COLORS_ESTADO = {
+  PENDIENTE: '#facc15',
+  PREPARANDO: '#60a5fa',
+  ENVIADO: '#c084fc',
+  ENTREGADO: '#22c55e',
+  CANCELADO: '#f87171'
+}
 
 const ESTADO_CONFIG = {
   PENDIENTE:  { color: 'bg-yellow-400', texto: 'text-yellow-700' },
@@ -7,6 +19,21 @@ const ESTADO_CONFIG = {
   ENVIADO:    { color: 'bg-purple-400', texto: 'text-purple-700' },
   ENTREGADO:  { color: 'bg-green-500',  texto: 'text-green-700'  },
   CANCELADO:  { color: 'bg-red-400',    texto: 'text-red-700'    },
+}
+
+const FASE_CONFIG = {
+  GERMINANDO:       { color: 'bg-yellow-400', label: 'Germinando' },
+  CRECIENDO:        { color: 'bg-blue-400',   label: 'Creciendo' },
+  LISTO_PARA_VENTA: { color: 'bg-green-500',  label: 'Listo' },
+  DESCARTADO:       { color: 'bg-red-400',    label: 'Descartado' },
+}
+
+const TAREA_CONFIG = {
+  POR_HACER:   { color: 'bg-slate-400', label: 'Por Hacer' },
+  EN_PROGRESO: { color: 'bg-blue-400',  label: 'Progreso' },
+  EN_REVISION: { color: 'bg-purple-400',label: 'Revisión' },
+  COMPLETADA:  { color: 'bg-green-500', label: 'Completada' },
+  BLOQUEADA:   { color: 'bg-red-500',   label: 'Bloqueada' },
 }
 
 export default function AdminDashboard() {
@@ -21,13 +48,36 @@ export default function AdminDashboard() {
   const [fechaFin,    setFechaFin]    = useState('')
   const [exportando,  setExportando]  = useState(false)
   const [errorExport, setErrorExport] = useState('')
+  const [exportandoPdf, setExportandoPdf] = useState(false)
+
+  const dashboardRef = useRef(null)
+
+  const handleExportarPDF = async () => {
+    if (!dashboardRef.current) return
+    setExportandoPdf(true)
+    try {
+      const canvas = await html2canvas(dashboardRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      pdf.save(`dashboard_plantopolis_${new Date().toISOString().slice(0, 10)}.pdf`)
+    } catch (err) {
+      console.error(err)
+      setErrorExport('Error generando el PDF')
+    } finally {
+      setExportandoPdf(false)
+    }
+  }
 
   useEffect(() => {
-    getReporte()
+    getReporte(fechaInicio, fechaFin)
       .then(r => setReporte(r.data))
-      .catch(() => setError('No se pudo cargar el reporte'))
+      .catch(() => setError('No se pudo cargar el reporte. Revisa el backend.'))
       .finally(() => setLoading(false))
-  }, [])
+    }, [fechaInicio, fechaFin])
 
   useEffect(() => {
     getProductosStockCritico()
@@ -60,12 +110,14 @@ export default function AdminDashboard() {
 
   if (loading) return (
     <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-700" />
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600" />
     </div>
   )
 
   if (error) return (
-    <div className="p-6 text-red-600">⚠ {error}</div>
+    <div className="p-6 text-red-600 bg-red-50 dark:bg-red-900/20 rounded-2xl border border-red-200 dark:border-red-800">
+      <AlertTriangle className="inline mr-2" /> {error}
+    </div>
   )
 
   const maxEstado = reporte?.pedidosPorEstado
@@ -76,91 +128,177 @@ export default function AdminDashboard() {
     '$' + Number(val ?? 0).toLocaleString('es-CO', { minimumFractionDigits: 0 })
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="max-w-6xl mx-auto space-y-8 pb-10" ref={dashboardRef}>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          📊 Dashboard de ventas
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-          Métricas en tiempo real del sistema Plantopolis
-        </p>
+      {/* --- ENCABEZADO LOCAL --- */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
+        <div>
+          <h1 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Dashboard Ejecutivo</h1>
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-1">Análisis de E-Commerce y Ventas</p>
+        </div>
+        
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Desde</label>
+              <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)} className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500 transition-all" />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Hasta</label>
+              <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)} className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500 transition-all" />
+            </div>
+            {(fechaInicio || fechaFin) && (
+              <button onClick={() => { setFechaInicio(''); setFechaFin('') }} className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors">Limpiar</button>
+            )}
+          </div>
+          <button
+            onClick={handleExportarPDF}
+          disabled={exportandoPdf}
+          className="bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-slate-800/20 transition-all disabled:opacity-50 flex items-center gap-2"
+        >
+          {exportandoPdf ? (
+            <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <FileText size={18} />
+          )}
+          {exportandoPdf ? 'Generando PDF...' : 'Exportar a PDF'}
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-
-        <KpiCard icono="💰" titulo="Ingresos totales" valor={fmt(reporte?.totalIngresos)}
-                 sub="Pagos aprobados" color="green" />
-        <KpiCard icono="📦" titulo="Total pedidos" valor={reporte?.totalPedidos ?? 0}
-                 sub="En el sistema" color="blue" />
-        <KpiCard icono="🌿" titulo="Productos activos" valor={reporte?.totalProductosActivos ?? 0}
-                 sub="En el catálogo" color="emerald" />
-        <KpiCard icono="📈" titulo="Promedio/orden" valor={fmt(reporte?.promedioOrden)}
-                 sub="Valor medio" color="purple" />
+      {/* --- SECCIÓN E-COMMERCE --- */}
+      <div>
+        <h2 className="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+          <TrendingUp size={16} /> E-Commerce & Ventas
+        </h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <KpiCard icon={DollarSign} titulo="Ingresos" valor={fmt(reporte?.totalIngresos)}
+                   sub="Pagos aprobados" color="purple" />
+          <KpiCard icon={Package} titulo="Pedidos" valor={reporte?.totalPedidos ?? 0}
+                   sub="En el sistema" color="blue" />
+          <KpiCard icon={Sprout} titulo="Productos" valor={reporte?.totalProductosActivos ?? 0}
+                   sub="En catálogo" color="green" />
+          <KpiCard icon={Target} titulo="Ticket Promedio" valor={fmt(reporte?.promedioOrden)}
+                   sub="Valor por orden" color="pink" />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-5 shadow-sm">
-          <h2 className="font-semibold text-gray-700 dark:text-gray-200 mb-5">
-            Pedidos por estado
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Chart Panel Pedidos */}
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col">
+          <h2 className="font-bold text-slate-800 dark:text-white text-lg mb-4">
+            Pedidos por Estado
           </h2>
 
-          <div className="flex items-end justify-around h-40 gap-2">
-            {reporte?.pedidosPorEstado &&
-              Object.entries(reporte.pedidosPorEstado).map(([estado, count]) => {
-                const config  = ESTADO_CONFIG[estado] ?? { color: 'bg-gray-400' }
-                const pct     = Math.max((count / maxEstado) * 100, count > 0 ? 4 : 0)
-                return (
-                  <div key={estado} className="flex flex-col items-center gap-1 flex-1">
-                    <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
-                      {count}
-                    </span>
-                    <div
-                      className={`w-full rounded-t-lg transition-all duration-500 ${config.color}`}
-                      style={{ height: `${pct}%`, minHeight: count > 0 ? '6px' : '2px' }}
-                    />
-                    <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 text-center leading-tight">
-                      {estado.charAt(0) + estado.slice(1).toLowerCase()}
-                    </span>
-                  </div>
-                )
-              })}
+          <div className="flex-1 min-h-[250px]">
+            {reporte?.pedidosPorEstado ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={Object.entries(reporte.pedidosPorEstado).map(([name, value]) => ({ name, value }))}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={5}
+                    dataKey="value"
+                      label={{ fill: '#64748b', fontSize: 12, fontWeight: 'bold' }}
+                      labelLine={{ stroke: '#cbd5e1' }}
+                  >
+                    {Object.entries(reporte.pedidosPorEstado).map(([estado], index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS_ESTADO[estado] || '#94a3b8'} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderRadius: '12px', border: 'none', color: '#fff' }}
+                    itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-400">Sin datos</div>
+            )}
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-3 mt-4">
+             {reporte?.pedidosPorEstado && Object.keys(reporte.pedidosPorEstado).map(estado => (
+               <div key={estado} className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-slate-600 dark:text-slate-300">
+                  <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: COLORS_ESTADO[estado] || '#94a3b8' }}></span>
+                  {estado.substring(0, 3)}
+               </div>
+             ))}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-5 shadow-sm">
-          <h2 className="font-semibold text-gray-700 dark:text-gray-200 mb-4">
+        {/* Top Products Panel */}
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col">
+          <h2 className="font-bold text-slate-800 dark:text-white text-lg mb-4 flex items-center gap-2">
             🏆 Top productos vendidos
           </h2>
 
-          {(!reporte?.topProductos || reporte.topProductos.length === 0) ? (
-            <p className="text-gray-400 dark:text-gray-500 text-sm text-center py-8">
-              Aún no hay ventas registradas
+          <div className="flex-1 min-h-[250px]">
+            {(!reporte?.topProductos || reporte.topProductos.length === 0) ? (
+              <div className="h-full flex items-center justify-center text-slate-400">Aún no hay ventas</div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={reporte.topProductos} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#334155" opacity={0.2} />
+                  <XAxis type="number" hide />
+                  <YAxis dataKey="nombreProducto" type="category" width={100} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 'bold' }} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }} 
+                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderRadius: '12px', border: 'none', color: '#fff' }}
+                    itemStyle={{ color: '#10b981', fontWeight: 'bold' }}
+                    formatter={(value, name) => [value + ' uds.', 'Vendido']}
+                  />
+                  <Bar dataKey="totalVendido" fill="#10b981" radius={[0, 4, 4, 0]} barSize={24}>
+                      <LabelList dataKey="totalVendido" position="right" fill="#64748b" fontSize={11} fontWeight="bold" />
+                    </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div></div>{/* --- SECCIÓN ALERTAS Y EXPORTACIÓN --- */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+        
+        {/* Alerts Panel */}
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl border border-orange-200 dark:border-orange-500/30 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-[50px] rounded-full pointer-events-none"></div>
+          
+          <div className="flex items-center justify-between mb-6 relative z-10">
+            <h2 className="font-bold text-slate-800 dark:text-white text-lg flex items-center gap-2">
+              <AlertTriangle className="text-orange-500" /> Alerta de Stock Crítico
+            </h2>
+            {stockCritico.length > 0 && (
+              <span className="text-xs font-black bg-orange-500 text-white px-3 py-1.5 rounded-xl shadow-md">
+                {stockCritico.length} crítico
+              </span>
+            )}
+          </div>
+
+          {cargandoStock ? (
+            <div className="animate-pulse space-y-3">
+              <div className="h-12 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+              <div className="h-12 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+            </div>
+          ) : stockCritico.length === 0 ? (
+            <p className="text-emerald-600 dark:text-emerald-400 text-sm font-bold text-center py-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-200 dark:border-emerald-800/50">
+              ✅ Ningún producto está por debajo de su umbral
             </p>
           ) : (
-            <div className="space-y-3">
-              {reporte.topProductos.map((p, i) => (
-                <div key={p.idProducto} className="flex items-center gap-3">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-                                    ${i === 0 ? 'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-700 dark:text-yellow-300' :
-                                      i === 1 ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' :
-                                      i === 2 ? 'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300' :
-                                                'bg-green-50 dark:bg-green-950/60 text-green-600 dark:text-green-300'}`}>
-                    {i + 1}
-                  </span>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
+            <div className="space-y-3 max-h-64 overflow-y-auto relative z-10 pr-2 custom-scrollbar">
+              {stockCritico.map(p => (
+                <div key={p.idProducto}
+                     className="flex items-center justify-between bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-500/30 rounded-2xl px-4 py-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-800 dark:text-white truncate">
                       {p.nombreProducto}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {fmt(p.totalIngresos)}
+                    <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+                      Umbral de alerta: {p.stockMinimoAlerta} ud.
                     </p>
                   </div>
-
-                  <span className="text-sm font-bold text-green-700 dark:text-green-400 flex-shrink-0">
-                    {p.totalVendido} ud.
+                  <span className={`text-sm font-black flex-shrink-0 ml-3 px-3 py-1.5 rounded-xl
+                                    ${p.stock === 0 ? 'bg-red-500 text-white' : 'bg-orange-500 text-white'}`}>
+                    {p.stock} ud.
                   </span>
                 </div>
               ))}
@@ -168,128 +306,76 @@ export default function AdminDashboard() {
           )}
         </div>
 
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-5 shadow-sm mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-700 dark:text-gray-200">
-            ⚠️ Alerta de stock crítico
+        {/* Export Panel */}
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col">
+          <h2 className="font-bold text-slate-800 dark:text-white text-lg mb-2 flex items-center gap-2">
+            <Download className="text-blue-500" /> Exportar Ventas
           </h2>
-          {stockCritico.length > 0 && (
-            <span className="text-xs font-bold bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 px-2.5 py-1 rounded-full border border-orange-200 dark:border-orange-800/40">
-              {stockCritico.length} producto(s)
-            </span>
-          )}
-        </div>
-
-        {cargandoStock ? (
-          <p className="text-gray-400 dark:text-gray-500 text-sm text-center py-6">Cargando...</p>
-        ) : stockCritico.length === 0 ? (
-          <p className="text-gray-400 dark:text-gray-500 text-sm text-center py-6">
-            ✅ Ningún producto está por debajo de su umbral de stock
+          <p className="text-slate-500 dark:text-slate-400 text-xs mb-6 font-medium leading-relaxed">
+            Descarga el historial de pedidos en CSV para análisis en Excel/Sheets. Deja vacío para exportar todo el histórico.
           </p>
-        ) : (
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {stockCritico.map(p => (
-              <div key={p.idProducto}
-                   className="flex items-center justify-between bg-orange-50 dark:bg-orange-950/30 border border-orange-100 dark:border-orange-900/50 rounded-lg px-4 py-2.5">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
-                    {p.nombreProducto}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Umbral configurado: {p.stockMinimoAlerta} unidades
-                  </p>
-                </div>
-                <span className={`text-sm font-bold flex-shrink-0 ml-3
-                                  ${p.stock === 0 ? 'text-red-600 dark:text-red-400' : 'text-orange-600 dark:text-orange-400'}`}>
-                  {p.stock} {p.stock === 1 ? 'unidad' : 'unidades'}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-5 shadow-sm">
-        <h2 className="font-semibold text-gray-700 dark:text-gray-200 mb-1">
-          📥 Exportar pedidos a CSV
-        </h2>
-        <p className="text-gray-500 dark:text-gray-400 text-xs mb-4">
-          Descarga un archivo CSV (compatible con Excel/Sheets) con el detalle
-          de pedidos del rango de fechas seleccionado. Déjalo vacío para
-          exportar todos los pedidos.
-        </p>
-
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Desde</label>
-            <input
-              type="date"
-              value={fechaInicio}
-              onChange={e => setFechaInicio(e.target.value)}
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Hasta</label>
-            <input
-              type="date"
-              value={fechaFin}
-              onChange={e => setFechaFin(e.target.value)}
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-          </div>
-
-          <button
-            onClick={handleExportarCSV}
-            disabled={exportando}
-            className="bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {exportando ? (
-              <>
-                <span className="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Generando...
-              </>
-            ) : (
-              <>⬇ Descargar CSV</>
-            )}
-          </button>
-
-          {(fechaInicio || fechaFin) && (
+          <div className="mt-auto flex justify-end">
             <button
-              onClick={() => { setFechaInicio(''); setFechaFin('') }}
-              className="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 underline"
+              onClick={handleExportarCSV}
+              disabled={exportando}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg shadow-emerald-600/30 hover:shadow-xl transition-all disabled:opacity-50 flex items-center gap-2"
             >
-              Limpiar fechas
+              {exportando ? (
+                <>
+                  <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Generando...
+                </>
+              ) : (
+                <>Descargar CSV</>
+              )}
             </button>
+          </div>
+          
+          {errorExport && (
+            <p className="text-xs font-bold text-red-500 mt-4 bg-red-50 dark:bg-red-900/20 p-3 rounded-xl border border-red-200 dark:border-red-800">
+              <AlertTriangle size={14} className="inline mr-1" /> {errorExport}
+            </p>
           )}
         </div>
 
-        {errorExport && (
-          <p className="text-xs text-red-600 dark:text-red-400 mt-3">⚠ {errorExport}</p>
-        )}
       </div>
 
     </div>
   )
 }
 
-function KpiCard({ icono, titulo, valor, sub, color }) {
-  const colorMap = {
-    green:   'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800/50',
-    blue:    'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/50',
-    emerald: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50',
-    purple:  'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/50',
+function KpiCard({ icon: Icon, titulo, valor, sub, color }) {
+  const colorStyles = {
+    purple: 'text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-500/20 border-purple-200 dark:border-purple-500/30',
+    blue:   'text-blue-600 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-500/20 border-blue-200 dark:border-blue-500/30',
+    green:  'text-emerald-600 dark:text-emerald-400 bg-emerald-100/50 dark:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/30',
+    pink:   'text-pink-600 dark:text-pink-400 bg-pink-100/50 dark:bg-pink-500/20 border-pink-200 dark:border-pink-500/30',
   }
-  const cardColor = colorMap[color] ?? colorMap.green
 
   return (
-    <div className={`rounded-xl border p-4 shadow-sm ${cardColor}`}>
-      <div className="text-2xl mb-1">{icono}</div>
-      <p className="text-xs font-medium opacity-80 mb-1">{titulo}</p>
-      <p className="text-xl font-bold leading-tight">{valor}</p>
-      <p className="text-xs opacity-70 mt-0.5">{sub}</p>
+    <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl rounded-3xl border border-slate-200 dark:border-slate-800 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col gap-3 group shadow-md">
+      <div className="flex justify-between items-start">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${colorStyles[color]} transition-transform group-hover:scale-110 group-hover:rotate-3`}>
+          <Icon size={20} strokeWidth={2.5} />
+        </div>
+      </div>
+      <div>
+        <p className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{titulo}</p>
+        <p className="text-2xl lg:text-3xl font-black text-slate-800 dark:text-white tracking-tight leading-none">{valor}</p>
+      </div>
+      <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">{sub}</p>
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
