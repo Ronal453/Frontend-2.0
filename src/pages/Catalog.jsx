@@ -6,7 +6,7 @@ import { getImagenProducto } from '../utils/imageUtils'
 import { useAuth } from '../hooks/useAuth'
 import { useCart } from '../context/CartContext'
 import Pagination from '../components/ui/Pagination'
-import { Search, Droplets, Leaf, Sun, ChevronDown, ShoppingBag, Filter, FilterX } from 'lucide-react'
+import { Search, Droplets, Leaf, Sun, ChevronDown, ShoppingBag, Filter, FilterX, Home, Trees, Package, Flower2 } from 'lucide-react'
 
 export default function Catalog() {
   const [productos,  setProductos]  = useState([])
@@ -25,7 +25,7 @@ export default function Catalog() {
     precioMin:   '',
     precioMax:   '',
     page:        0,
-    size:        15 // Incrementado para la nueva grilla
+    size:        24 // Incrementado para mostrar 24 productos
   })
 
   // Lógica para detectar scroll y ocultar/mostrar botón flotante
@@ -83,7 +83,7 @@ export default function Catalog() {
   const limpiarFiltros = () =>
     setFiltros({
       nombre: '', idCategoria: '', idTipo: '',
-      precioMin: '', precioMax: '', page: 0, size: 15
+      precioMin: '', precioMax: '', page: 0, size: 24
     })
 
   const hayFiltros = filtros.nombre || filtros.idCategoria ||
@@ -100,20 +100,6 @@ export default function Catalog() {
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-8 relative z-10">
       
-        {/* Botón flotante que reacciona al scroll */}
-        <div className={`fixed right-4 sm:right-8 z-40 transition-all duration-300 ease-in-out ${showFloating ? 'top-[88px] translate-y-0' : 'top-0 -translate-y-[150%]'}`}>
-          <button 
-            onClick={() => setMostrarFiltros(!mostrarFiltros)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-green-600/90 hover:bg-green-700 dark:bg-green-600/80 dark:hover:bg-green-500 text-white backdrop-blur-md rounded-full text-sm font-bold shadow-lg shadow-green-600/30 transition-all transform hover:scale-105 active:scale-95 border border-green-500/50"
-          >
-            {mostrarFiltros ? (
-              <><FilterX size={18} /> Ocultar Filtros</>
-            ) : (
-              <><Filter size={18} /> Mostrar Filtros</>
-            )}
-          </button>
-        </div>
-
         <div className="mb-6 border-b border-green-200/60 dark:border-slate-800 pb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-5xl font-black text-emerald-900 dark:text-white tracking-tight flex items-center gap-3 drop-shadow-sm">
@@ -127,117 +113,128 @@ export default function Catalog() {
             </p>
           </div>
           
-          <div className="flex items-center gap-4 lg:hidden">
-            <p className="text-sm font-bold text-emerald-600 dark:text-slate-500 bg-white/60 dark:bg-slate-800 px-3 py-1 rounded-full shadow-sm">
+          <div className="flex items-center gap-4">
+            <p className="hidden md:block text-sm font-bold text-emerald-600 dark:text-slate-500 bg-white/60 dark:bg-slate-800 px-3 py-1 rounded-full shadow-sm">
               {productos.length} resultados
             </p>
+            <button 
+              onClick={() => setMostrarFiltros(!mostrarFiltros)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold shadow-md transition-all active:scale-95 border border-green-500"
+            >
+              {mostrarFiltros ? (
+                <><FilterX size={18} /> Ocultar Filtros</>
+              ) : (
+                <><Filter size={18} /> Mostrar Filtros</>
+              )}
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 transition-all duration-300">
+        <div className="flex flex-col gap-6 lg:gap-8 transition-all duration-300">
           
-          {/* Sticky Sidebar Filters - Colapsable */}
-          <div className={`transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 ${mostrarFiltros ? 'w-full lg:w-72 opacity-100' : 'w-0 h-0 lg:h-auto opacity-0'}`}>
-            <div className="bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl border border-white/80 dark:border-slate-700/50 rounded-3xl p-6 sticky top-24 shadow-xl shadow-green-900/5 w-full lg:w-72">
+          {/* Top Bar Filters - Colapsable */}
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden origin-top ${mostrarFiltros ? 'opacity-100 max-h-[800px]' : 'max-h-0 opacity-0'}`}>
+            <div className="bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl border border-white/80 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl shadow-green-900/5 w-full">
               
-              <h2 className="font-extrabold text-emerald-900 dark:text-slate-100 mb-5 flex items-center gap-2 text-lg">
-                <Search size={20} className="text-green-600 dark:text-green-500" />
-                Explorar
-              </h2>
-
-              {/* Search */}
-              <div className="mb-5">
-                <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">Nombre</label>
-                <input
-                  type="text"
-                  placeholder="Ej: Monstera..."
-                  value={filtros.nombre}
-                  onChange={e => handleFiltro('nombre', e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
-                             text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all shadow-sm"
-                />
-              </div>
-
-              {/* Categories */}
-              <div className="mb-5">
-                <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">Categoría</label>
-                <div className="relative">
-                  <select
-                    value={filtros.idCategoria}
-                    onChange={e => handleFiltro('idCategoria', e.target.value)}
-                    className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
-                               text-slate-900 dark:text-slate-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all cursor-pointer shadow-sm font-medium"
-                  >
-                    <option value="">Todas las categorías</option>
-                    {categorias.map(c => (
-                      <option key={c.idCategoria} value={c.idCategoria}>
-                        {c.nombreCategoria}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 dark:text-slate-400 pointer-events-none" size={16} />
-                </div>
-              </div>
-
-              <div className="mb-5">
-                <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">Tipo</label>
-                <div className="relative">
-                  <select
-                    value={filtros.idTipo}
-                    onChange={e => handleFiltro('idTipo', e.target.value)}
-                    className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
-                               text-slate-900 dark:text-slate-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all cursor-pointer shadow-sm font-medium"
-                  >
-                    <option value="">Todos los tipos</option>
-                    {tipos.map(t => (
-                      <option key={t.idTipo} value={t.idTipo}>
-                        {t.nombreTipo}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 dark:text-slate-400 pointer-events-none" size={16} />
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div className="mb-6">
-                <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">Rango de Precio</label>
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col md:flex-row gap-4 lg:gap-6 items-end">
+                {/* Search */}
+                <div className="w-full md:flex-1">
+                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider flex items-center gap-1">
+                    <Search size={14} className="text-green-600 dark:text-green-500" /> Nombre
+                  </label>
                   <input
-                    type="number"
-                    placeholder="Min"
-                    min="0"
-                    value={filtros.precioMin}
-                    onChange={e => handleFiltro('precioMin', e.target.value)}
-                    className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-2 py-2.5 text-sm
-                               text-slate-900 dark:text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-center shadow-sm"
-                  />
-                  <span className="text-green-300 font-bold">-</span>
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    min="0"
-                    value={filtros.precioMax}
-                    onChange={e => handleFiltro('precioMax', e.target.value)}
-                    className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-2 py-2.5 text-sm
-                               text-slate-900 dark:text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-center shadow-sm"
+                    type="text"
+                    placeholder="Ej: Monstera..."
+                    value={filtros.nombre}
+                    onChange={e => handleFiltro('nombre', e.target.value)}
+                    className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
+                               text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all shadow-sm"
                   />
                 </div>
-              </div>
 
-              {hayFiltros && (
-                <button
-                  onClick={limpiarFiltros}
-                  className="w-full py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50 rounded-xl text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors shadow-sm"
-                >
-                  Limpiar Filtros
-                </button>
-              )}
+                {/* Categories */}
+                <div className="w-full md:flex-1">
+                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">Categoría</label>
+                  <div className="relative">
+                    <select
+                      value={filtros.idCategoria}
+                      onChange={e => handleFiltro('idCategoria', e.target.value)}
+                      className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
+                                 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all cursor-pointer shadow-sm font-medium"
+                    >
+                      <option value="">Todas las categorías</option>
+                      {categorias.map(c => (
+                        <option key={c.idCategoria} value={c.idCategoria}>
+                          {c.nombreCategoria}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 dark:text-slate-400 pointer-events-none" size={16} />
+                  </div>
+                </div>
+
+                <div className="w-full md:flex-1">
+                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">Tipo</label>
+                  <div className="relative">
+                    <select
+                      value={filtros.idTipo}
+                      onChange={e => handleFiltro('idTipo', e.target.value)}
+                      className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
+                                 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all cursor-pointer shadow-sm font-medium"
+                    >
+                      <option value="">Todos los tipos</option>
+                      {tipos.map(t => (
+                        <option key={t.idTipo} value={t.idTipo}>
+                          {t.nombreTipo}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 dark:text-slate-400 pointer-events-none" size={16} />
+                  </div>
+                </div>
+
+                {/* Price Range */}
+                <div className="w-full md:flex-1">
+                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">Precio</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      min="0"
+                      value={filtros.precioMin}
+                      onChange={e => handleFiltro('precioMin', e.target.value)}
+                      className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-2 py-2.5 text-sm
+                                 text-slate-900 dark:text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-center shadow-sm"
+                    />
+                    <span className="text-green-300 font-bold">-</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      min="0"
+                      value={filtros.precioMax}
+                      onChange={e => handleFiltro('precioMax', e.target.value)}
+                      className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-2 py-2.5 text-sm
+                                 text-slate-900 dark:text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-center shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                {hayFiltros && (
+                  <div className="w-full md:w-auto">
+                    <button
+                      onClick={limpiarFiltros}
+                      className="w-full md:w-auto px-6 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50 rounded-xl text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors shadow-sm whitespace-nowrap"
+                    >
+                      Limpiar
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
         {/* Main Product Grid */}
-        <div className={`transition-all duration-300 min-w-0 ${mostrarFiltros ? 'flex-1' : 'w-full'}`}>
+        <div className="transition-all duration-300 w-full mt-2">
           {loading ? (
             <div className="flex justify-center py-32">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 dark:border-green-500" />
@@ -255,8 +252,8 @@ export default function Catalog() {
             </div>
           ) : (
             <>
-              {/* Productos más pequeños, ajustando el grid a más columnas */}
-              <div className={`grid gap-4 sm:gap-6 ${mostrarFiltros ? 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
+              {/* Grid de productos responsivo a ancho completo */}
+              <div className="grid gap-4 sm:gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {productos.map(p => (
                   <ProductoCard key={p.idProducto} producto={p} tipos={tipos} />
                 ))}
@@ -337,11 +334,18 @@ function ProductoCard({ producto: p }) {
         
         {/* Type Icon Badge */}
         <div className="absolute top-4 left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-2.5 rounded-2xl shadow-sm border border-white dark:border-slate-700 group-hover:scale-110 transition-transform">
-          {p.tipo?.toLowerCase().includes('suculenta') || p.categoria?.toLowerCase().includes('cactus') ? (
-             <Sun size={20} className="text-amber-500 drop-shadow-sm" />
-          ) : (
-             <Droplets size={20} className="text-cyan-500 drop-shadow-sm" />
-          )}
+          {(() => {
+            const cat = p.categoria?.toLowerCase() || ''
+            const tipo = p.tipo?.toLowerCase() || ''
+            
+            if (cat.includes('interior')) return <Home size={20} className="text-blue-500 drop-shadow-sm" />
+            if (cat.includes('exterior')) return <Trees size={20} className="text-emerald-600 drop-shadow-sm" />
+            if (cat.includes('suculenta') || cat.includes('cactus') || tipo.includes('suculenta')) return <Sun size={20} className="text-amber-500 drop-shadow-sm" />
+            if (cat.includes('arom') || cat.includes('medicin')) return <Flower2 size={20} className="text-fuchsia-500 drop-shadow-sm" />
+            if (cat.includes('insumos') || cat.includes('accesorios')) return <Package size={20} className="text-orange-500 drop-shadow-sm" />
+            
+            return <Leaf size={20} className="text-green-500 drop-shadow-sm" />
+          })()}
         </div>
 
         {sinStock && (

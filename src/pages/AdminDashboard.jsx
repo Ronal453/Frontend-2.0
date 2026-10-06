@@ -4,6 +4,7 @@ import { DollarSign, Package, Sprout, AlertTriangle, Download, FileText, Trendin
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList } from 'recharts'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
+import 'jspdf-autotable'
 
 const COLORS_ESTADO = {
   PENDIENTE: '#facc15',
@@ -52,20 +53,80 @@ export default function AdminDashboard() {
 
   const dashboardRef = useRef(null)
 
-  const handleExportarPDF = async () => {
-    if (!dashboardRef.current) return
+  const handleExportarPDF = () => {
     setExportandoPdf(true)
     try {
-      const canvas = await html2canvas(dashboardRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
-      const imgData = canvas.toDataURL('image/png')
       const pdf = new jsPDF('p', 'mm', 'a4')
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+      const localFmt = (val) => '$' + Number(val ?? 0).toLocaleString('es-CO', { minimumFractionDigits: 0 })
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(`dashboard_plantopolis_${new Date().toISOString().slice(0, 10)}.pdf`)
+      pdf.setFontSize(22)
+      pdf.setTextColor(15, 23, 42)
+      pdf.text('Reporte Gerencial - Plantopolis', 14, 20)
+      
+      pdf.setFontSize(11)
+      pdf.setTextColor(100)
+      const dateStr = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
+      pdf.text(`Fecha de generación: ${dateStr}`, 14, 28)
+      if (fechaInicio || fechaFin) {
+        pdf.text(`PerÃ­odo: ${fechaInicio || 'Inicio'} a ${fechaFin || 'Hoy'}`, 14, 34)
+      }
+
+      pdf.setFontSize(14)
+      pdf.setTextColor(15, 23, 42)
+      pdf.text('Indicadores Principales', 14, 45)
+      
+      pdf.autoTable({
+        startY: 50,
+        head: [['Métrica', 'Valor', 'Descripción']],
+        body: [
+          ['Ingresos', localFmt(reporte?.totalIngresos), 'Total de ventas procesadas'],
+          ['Total Pedidos', (reporte?.totalPedidos ?? 0).toString(), 'Pedidos en el sistema'],
+          ['Productos Activos', (reporte?.totalProductosActivos ?? 0).toString(), 'Plantas/Productos en catálogo'],
+          ['Ticket Promedio', localFmt(reporte?.promedioOrden), 'Promedio de venta por orden']
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [15, 23, 42] }
+      })
+
+      let finalY = pdf.lastAutoTable.finalY + 15
+
+      if (reporte?.topProductos && reporte.topProductos.length > 0) {
+        if (finalY > 230) { pdf.addPage(); finalY = 20; }
+        pdf.setFontSize(14)
+        pdf.text('Top Productos Más Vendidos', 14, finalY)
+        
+        pdf.autoTable({
+          startY: finalY + 5,
+          head: [['Producto', 'Cantidad Vendida', 'Total Recaudado']],
+          body: reporte.topProductos.map(p => [
+            p.nombreProducto, 
+            (p.totalVendido ?? 0).toString(),
+            localFmt(p.totalIngresos)
+          ]),
+          theme: 'striped',
+          headStyles: { fillColor: [16, 185, 129] }
+        })
+        finalY = pdf.lastAutoTable.finalY + 15
+      }
+
+      if (reporte?.pedidosPorEstado) {
+         if (finalY > 230) { pdf.addPage(); finalY = 20; }
+         pdf.setFontSize(14)
+         pdf.text('Desglose de Pedidos por Estado', 14, finalY)
+         
+         pdf.autoTable({
+            startY: finalY + 5,
+            head: [['Estado', 'Cantidad']],
+            body: Object.entries(reporte.pedidosPorEstado).map(([estado, cantidad]) => [estado, cantidad.toString()]),
+            theme: 'grid',
+            headStyles: { fillColor: [59, 130, 246] }
+         })
+      }
+
+      pdf.save(`reporte_ejecutivo_plantopolis_${new Date().toISOString().slice(0, 10)}.pdf`)
     } catch (err) {
       console.error(err)
+      alert('Error: ' + err.message)
       setErrorExport('Error generando el PDF')
     } finally {
       setExportandoPdf(false)
@@ -137,7 +198,7 @@ export default function AdminDashboard() {
           <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-1">Análisis de E-Commerce y Ventas</p>
         </div>
         
-                  <div className="flex flex-col sm:flex-row items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="flex items-center gap-2">
               <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Desde</label>
               <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)} className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500 transition-all" />
@@ -231,12 +292,12 @@ export default function AdminDashboard() {
         {/* Top Products Panel */}
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col">
           <h2 className="font-bold text-slate-800 dark:text-white text-lg mb-4 flex items-center gap-2">
-            🏆 Top productos vendidos
+            Top productos vendidos
           </h2>
 
           <div className="flex-1 min-h-[250px]">
             {(!reporte?.topProductos || reporte.topProductos.length === 0) ? (
-              <div className="h-full flex items-center justify-center text-slate-400">Aún no hay ventas</div>
+              <div className="h-full flex items-center justify-center text-slate-400">AÃºn no hay ventas</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={reporte.topProductos} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }}>
@@ -256,7 +317,10 @@ export default function AdminDashboard() {
               </ResponsiveContainer>
             )}
           </div>
-        </div></div>{/* --- SECCIÓN ALERTAS Y EXPORTACIÓN --- */}
+        </div>
+      </div>
+
+      {/* --- SECCIÓN ALERTAS Y EXPORTACIÃ“N --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
         
         {/* Alerts Panel */}
@@ -269,7 +333,7 @@ export default function AdminDashboard() {
             </h2>
             {stockCritico.length > 0 && (
               <span className="text-xs font-black bg-orange-500 text-white px-3 py-1.5 rounded-xl shadow-md">
-                {stockCritico.length} crítico
+                {stockCritico.length} crÃ­tico
               </span>
             )}
           </div>
@@ -281,7 +345,7 @@ export default function AdminDashboard() {
             </div>
           ) : stockCritico.length === 0 ? (
             <p className="text-emerald-600 dark:text-emerald-400 text-sm font-bold text-center py-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-200 dark:border-emerald-800/50">
-              ✅ Ningún producto está por debajo de su umbral
+              Ningún producto está por debajo de su umbral
             </p>
           ) : (
             <div className="space-y-3 max-h-64 overflow-y-auto relative z-10 pr-2 custom-scrollbar">
@@ -368,14 +432,3 @@ function KpiCard({ icon: Icon, titulo, valor, sub, color }) {
     </div>
   )
 }
-
-
-
-
-
-
-
-
-
-
-

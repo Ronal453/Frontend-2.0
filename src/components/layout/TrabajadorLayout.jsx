@@ -1,74 +1,86 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import Navbar from './Navbar'
+import { Kanban, Sprout, AlertTriangle, MapPin, ArrowLeft } from 'lucide-react'
 
 const TRABAJADOR_LINKS = [
-  { to: '/trabajador/tareas', icono: '📋', label: 'Tablero Kanban' },
-  { to: '/trabajador/lotes',  icono: '🌱', label: 'Lotes de Cultivo' },
-  { to: '/trabajador/mermas', icono: '⚠️', label: 'Registro de Mermas' },
-  { to: '/trabajador/zonas', icono: '📍', label: 'Zonas / Invernaderos' },
+  { to: '/trabajador/tareas', icono: Kanban, label: 'Tablero Kanban' },
+  { to: '/trabajador/lotes',  icono: Sprout, label: 'Lotes de Cultivo' },
+  { to: '/trabajador/mermas', icono: AlertTriangle, label: 'Registro de Mermas' },
+  { to: '/trabajador/zonas', icono: MapPin, label: 'Zonas / Invernaderos' },
 ]
 
 export default function TrabajadorLayout() {
   const { user } = useAuth()
 
   return (
-    <div className="flex h-screen p-4 gap-4 overflow-hidden">
+    <div className="flex h-screen p-4 gap-4 overflow-hidden bg-slate-50 dark:bg-[#060A11]">
       {/* Sidebar Operativa */}
-      <aside className="w-60 bg-gradient-to-b from-emerald-900/90 to-emerald-950/90 dark:from-emerald-950/90 dark:to-black/90 backdrop-blur-xl text-white flex-shrink-0 flex flex-col py-6 px-4 shadow-[0_8px_32px_rgba(0,0,0,0.2)] border border-white/20 dark:border-white/5 rounded-2xl transition-all overflow-y-auto z-10">
+      <aside className="w-64 bg-gradient-to-b from-[#7BD389] to-[#2A9D8F] text-white flex-shrink-0 flex flex-col py-6 px-4 gap-2 rounded-[2rem] shadow-2xl shadow-[#2A9D8F]/30 border border-[#7BD389]/40 transition-all overflow-y-auto z-10 custom-scrollbar">
         {/* Cabecera Sidebar */}
-        <div className="px-2 mb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-2xl filter drop-shadow-md">🧑‍🌾</span>
-            <div>
-              <p className="text-xs font-semibold text-emerald-300 uppercase tracking-wider drop-shadow-sm">
-                Panel Operativo
-              </p>
-              <h2 className="text-sm font-bold text-white truncate max-w-[150px]">
-                {user?.email || 'Trabajador'}
-              </h2>
-            </div>
+        <div className="px-2 mb-6 flex items-center gap-3">
+          <div className="w-11 h-11 bg-white/95 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 border border-white/50 p-1">
+            <img src="/logo-plantopolis.png" alt="Logo" className="w-full h-full object-contain drop-shadow-sm" />
           </div>
-          <span className="inline-block mt-2 px-2 py-0.5 text-[11px] font-semibold bg-emerald-800/50 dark:bg-emerald-950/70 text-emerald-200 rounded-full border border-emerald-500/50">
-            Rol: {user?.rol || 'TRABAJADOR'}
-          </span>
+          <div>
+            <p className="text-xl font-black tracking-tight text-white leading-none">
+              Operativo
+            </p>
+            <p className="text-xs font-bold text-[#D0F0DB] mt-1 uppercase tracking-widest truncate max-w-[120px]" title={user?.email}>
+              {user?.email || 'Trabajador'}
+            </p>
+          </div>
         </div>
 
         {/* Navegación */}
         <nav className="flex flex-col gap-2 flex-1">
-          {TRABAJADOR_LINKS.map(link => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300
-                 ${isActive
-                   ? 'bg-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.2)] border border-white/40'
-                   : 'text-emerald-100 hover:bg-white/10 hover:text-white'}`
-              }
-            >
-              <span className="text-lg filter drop-shadow-md">{link.icono}</span>
-              {link.label}
-            </NavLink>
-          ))}
+          {TRABAJADOR_LINKS.map(link => {
+            const Icon = link.icono
+            return (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group
+                   ${isActive
+                     ? 'bg-white/25 text-white shadow-inner border border-white/40'
+                     : 'text-[#D0F0DB] hover:bg-white/20 hover:text-white'}`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon 
+                      size={20} 
+                      strokeWidth={isActive ? 2.5 : 2} 
+                      className={`transition-transform duration-300 ${isActive ? 'scale-110 drop-shadow-md text-white' : 'text-[#D0F0DB] group-hover:scale-110 group-hover:text-white'}`} 
+                    />
+                    {link.label}
+                  </>
+                )}
+              </NavLink>
+            )
+          })}
         </nav>
 
         {/* Pie de sidebar */}
-        <div className="pt-4 border-t border-emerald-700/50 dark:border-white/10">
+        <div className="pt-4 mt-auto">
           <NavLink
             to="/catalogo"
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-emerald-200 hover:text-white hover:bg-white/10 transition-colors"
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-[#D0F0DB] hover:text-white hover:bg-white/20 transition-colors group"
           >
-            ← Ir a Tienda Pública
+            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+            Volver a Tienda
           </NavLink>
         </div>
       </aside>
 
       {/* Contenido principal */}
-      <div className="flex-1 flex flex-col gap-4 relative z-0 overflow-hidden">
-        <Navbar />
-        <main className="flex-1 bg-white/30 dark:bg-black/30 backdrop-blur-2xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/40 dark:border-white/10 overflow-auto relative p-6 md:p-8">
-          <Outlet />
+      <div className="flex-1 flex flex-col relative z-0 overflow-hidden">
+        <Navbar layoutMode="operativo" />
+        <main className="flex-1 overflow-auto relative p-2 pr-4 custom-scrollbar">
+          <div className="bg-white/70 dark:bg-slate-900/80 backdrop-blur-2xl rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-white/80 dark:border-slate-700/50 min-h-full p-6 md:p-8">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

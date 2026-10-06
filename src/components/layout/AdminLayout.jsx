@@ -17,16 +17,16 @@ const VIVERO_LINKS = [
 export default function AdminLayout() {
   return (
     <div className="flex h-screen p-4 gap-4 overflow-hidden bg-slate-50 dark:bg-[#060A11]">
-      <aside className="w-64 bg-gradient-to-b from-slate-600 via-slate-600 to-emerald-700 text-white flex-shrink-0 flex flex-col py-6 px-4 gap-2 rounded-[2rem] shadow-2xl shadow-emerald-800/20 border border-slate-500/40 transition-all overflow-y-auto z-10 custom-scrollbar">
+      <aside className="w-64 bg-gradient-to-b from-teal-700 via-teal-800 to-cyan-900 text-white flex-shrink-0 flex flex-col py-6 px-4 gap-2 rounded-[2rem] shadow-2xl shadow-teal-900/30 border border-teal-600/40 transition-all overflow-y-auto z-10 custom-scrollbar">
         <div className="px-2 mb-6 flex items-center gap-3">
-          <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center shadow-inner flex-shrink-0 border border-emerald-500/30">
-            <Sprout className="text-emerald-400" size={24} strokeWidth={2.5} />
+          <div className="w-11 h-11 bg-white/95 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 border border-white/50 p-1">
+            <img src="/logo-plantopolis.png" alt="Logo" className="w-full h-full object-contain drop-shadow-sm" />
           </div>
           <div>
             <p className="text-xl font-black tracking-tight text-white leading-none">
               Plantopolis
             </p>
-            <p className="text-xs font-bold text-emerald-400 mt-1 uppercase tracking-widest">
+            <p className="text-xs font-bold text-cyan-300 mt-1 uppercase tracking-widest">
               Admin
             </p>
           </div>
@@ -44,7 +44,7 @@ export default function AdminLayout() {
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group
                      ${isActive
-                       ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 border border-emerald-400/50'
+                       ? 'bg-cyan-400/20 text-white shadow-lg shadow-cyan-500/20 border border-cyan-400/40'
                        : 'text-slate-300 hover:bg-white/10 hover:text-white'}`
                   }
                 >
@@ -72,7 +72,7 @@ export default function AdminLayout() {
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group
                      ${isActive
-                       ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 border border-emerald-500/50'
+                       ? 'bg-cyan-400/20 text-white shadow-lg shadow-cyan-500/20 border border-cyan-400/40'
                        : 'text-slate-300 hover:bg-white/10 hover:text-white'}`
                   }
                 >
@@ -90,7 +90,7 @@ export default function AdminLayout() {
 
         <div className="mt-auto pt-6 border-t border-slate-700/50">
           <a href="/catalogo"
-             className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold text-slate-400 hover:text-emerald-400 hover:bg-white/5 transition-colors">
+             className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold text-slate-400 hover:text-cyan-300 hover:bg-white/5 transition-colors">
             <ArrowLeft size={16} strokeWidth={2.5} />
             Volver al Catálogo
           </a>

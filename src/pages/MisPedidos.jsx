@@ -7,8 +7,8 @@ import {
 
 const ESTADO_ESTILO = {
   PENDIENTE:       { clase: 'bg-amber-100/80 dark:bg-amber-900/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-800/50', icono: Clock },
-  EN_PREPARACION:  { clase: 'bg-blue-100/80 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800/50',   icono: Package },
-  ENVIADO:         { clase: 'bg-indigo-100/80 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50', icono: Truck },
+  EN_PREPARACION:  { clase: 'bg-teal-100/80 dark:bg-teal-900/40 text-teal-800 dark:text-teal-400 border-teal-200 dark:border-teal-800/50',   icono: Package },
+  ENVIADO:         { clase: 'bg-cyan-100/80 dark:bg-cyan-900/40 text-cyan-800 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800/50', icono: Truck },
   ENTREGADO:       { clase: 'bg-emerald-100/80 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50', icono: CheckCircle },
   CANCELADO:       { clase: 'bg-red-100/80 dark:bg-red-900/40 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800/50',     icono: XCircle },
 }
@@ -40,52 +40,52 @@ export default function MisPedidos() {
   )
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/40 dark:from-slate-900 dark:via-[#0F172A] dark:to-indigo-950/20 relative z-0 overflow-hidden">
+    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/40 dark:from-slate-900 dark:via-[#060A11] dark:to-emerald-950/20 relative z-0 overflow-hidden">
       
       {/* Elementos decorativos de fondo */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-[-1]">
-        <div className="absolute top-[-10%] left-[10%] w-[40%] h-[40%] rounded-full bg-blue-300/20 dark:bg-blue-600/5 blur-[120px]" />
-        <div className="absolute bottom-[20%] right-[-5%] w-[30%] h-[50%] rounded-full bg-violet-300/20 dark:bg-violet-600/5 blur-[100px]" />
+        <div className="absolute top-[-10%] left-[10%] w-[40%] h-[40%] rounded-full bg-green-300/20 dark:bg-green-600/5 blur-[120px]" />
+        <div className="absolute bottom-[20%] right-[-5%] w-[30%] h-[50%] rounded-full bg-teal-300/20 dark:bg-teal-600/5 blur-[100px]" />
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-8 md:py-12 relative z-10">
         
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center shadow-sm">
-            <Package className="text-blue-600 dark:text-blue-400" size={28} strokeWidth={2.5} />
+          <div className="w-14 h-14 bg-green-100 dark:bg-green-900/50 rounded-2xl flex items-center justify-center shadow-sm border border-green-200 dark:border-green-800/50">
+            <Package className="text-green-600 dark:text-green-400" size={28} strokeWidth={2.5} />
           </div>
           <div>
-            <h1 className="text-3xl md:text-4xl font-black text-indigo-950 dark:text-white tracking-tight drop-shadow-sm">
+            <h1 className="text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight drop-shadow-sm">
               Historial de Pedidos
             </h1>
-            <p className="text-indigo-700/80 dark:text-slate-400 text-sm md:text-base mt-1 font-medium">
+            <p className="text-emerald-700/80 dark:text-slate-400 text-sm md:text-base mt-1 font-medium">
               Revisa el estado y detalle de tus compras recientes.
             </p>
           </div>
         </div>
 
         {pedidos.length === 0 ? (
-          <div className="text-center py-24 bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-white/80 dark:border-slate-700/50 shadow-xl shadow-blue-900/5">
-            <div className="w-24 h-24 bg-blue-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-              <Inbox className="text-blue-300 dark:text-blue-500/50" size={48} />
+          <div className="text-center py-24 bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-white/80 dark:border-slate-700/50 shadow-xl shadow-green-900/5">
+            <div className="w-24 h-24 bg-green-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-green-100 dark:border-slate-700/50">
+              <Inbox className="text-green-300 dark:text-green-500/50" size={48} />
             </div>
-            <h3 className="text-2xl font-black text-indigo-950 dark:text-white mb-3">
+            <h3 className="text-2xl font-black text-emerald-950 dark:text-white mb-3">
               Aún no tienes pedidos
             </h3>
-            <p className="text-indigo-700/70 dark:text-slate-400 mb-8 max-w-sm mx-auto font-medium">
+            <p className="text-emerald-700/70 dark:text-slate-400 mb-8 max-w-sm mx-auto font-medium">
               Explora nuestro catálogo y realiza tu primera compra para llenar este espacio de vida.
             </p>
             <Link to="/catalogo"
-                  className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600/90 dark:hover:bg-blue-500 text-white px-8 py-3.5 rounded-2xl
-                             font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-blue-600/30">
+                  className="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 dark:bg-green-600/90 dark:hover:bg-green-500 text-white px-8 py-3.5 rounded-2xl
+                             font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-green-600/30">
               <Search size={20} strokeWidth={2.5} /> Explorar Catálogo
             </Link>
           </div>
         ) : (
-          <div className="bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-white/80 dark:border-slate-700/50 shadow-xl shadow-blue-900/5 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-white/80 dark:border-slate-700/50 shadow-xl shadow-green-900/5 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
             
             {/* Header Desktop */}
-            <div className="hidden md:grid grid-cols-12 gap-4 px-8 py-5 bg-blue-50/50 dark:bg-slate-800/50 border-b border-blue-100/50 dark:border-slate-700/50 text-xs font-black text-indigo-800/60 dark:text-slate-400 uppercase tracking-widest">
+            <div className="hidden md:grid grid-cols-12 gap-4 px-8 py-5 bg-green-50/50 dark:bg-slate-800/50 border-b border-green-100/50 dark:border-slate-700/50 text-xs font-black text-emerald-800/60 dark:text-slate-400 uppercase tracking-widest">
               <div className="col-span-3">Pedido</div>
               <div className="col-span-3">Fecha</div>
               <div className="col-span-2 text-center">Artículos</div>
@@ -94,7 +94,7 @@ export default function MisPedidos() {
             </div>
 
             {/* Lista de Pedidos */}
-            <div className="divide-y divide-blue-50/80 dark:divide-slate-700/50">
+            <div className="divide-y divide-green-50/80 dark:divide-slate-700/50">
               {pedidos.map(p => {
                 const config = ESTADO_ESTILO[p.estado] ?? ESTADO_ESTILO['PENDIENTE']
                 const Icon = config.icono
@@ -114,16 +114,16 @@ export default function MisPedidos() {
                   >
                     {/* Vista Desktop */}
                     <div className="hidden md:grid grid-cols-12 gap-4 items-center">
-                      <div className="col-span-3 font-black text-indigo-950 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      <div className="col-span-3 font-black text-emerald-950 dark:text-white text-lg group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                         {p.numeroPedido}
                       </div>
                       
-                      <div className="col-span-3 text-indigo-900/70 dark:text-slate-300 font-semibold text-sm flex items-center gap-2">
-                         <Clock size={16} className="text-blue-400/70" />
+                      <div className="col-span-3 text-emerald-900/70 dark:text-slate-300 font-semibold text-sm flex items-center gap-2">
+                         <Clock size={16} className="text-green-400/70" />
                          {fecha}
                       </div>
                       
-                      <div className="col-span-2 text-center text-indigo-900/60 dark:text-slate-400 font-bold">
+                      <div className="col-span-2 text-center text-emerald-900/60 dark:text-slate-400 font-bold">
                         {p.detalles?.length ?? 0}
                       </div>
                       
@@ -134,10 +134,10 @@ export default function MisPedidos() {
                       </div>
                       
                       <div className="col-span-2 flex items-center justify-end gap-3 text-right">
-                        <span className="font-black text-slate-900 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        <span className="font-black text-slate-900 dark:text-white text-lg group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                           ${p.total?.toLocaleString('es-CO')}
                         </span>
-                        <ChevronRight size={20} className="text-blue-200 dark:text-slate-600 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                        <ChevronRight size={20} className="text-green-200 dark:text-slate-600 group-hover:text-green-600 group-hover:translate-x-1 transition-all" />
                       </div>
                     </div>
 
@@ -145,23 +145,23 @@ export default function MisPedidos() {
                     <div className="md:hidden flex flex-col gap-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-black text-indigo-950 dark:text-white mb-1 text-lg group-hover:text-blue-600 transition-colors">
+                          <p className="font-black text-emerald-950 dark:text-white mb-1 text-lg group-hover:text-green-600 transition-colors">
                             {p.numeroPedido}
                           </p>
-                          <p className="text-sm text-indigo-900/70 font-semibold flex items-center gap-1.5">
-                            <Clock size={14} className="text-blue-400/70" /> {fecha}
+                          <p className="text-sm text-emerald-900/70 dark:text-slate-300 font-semibold flex items-center gap-1.5">
+                            <Clock size={14} className="text-green-400/70" /> {fecha}
                           </p>
                         </div>
-                        <span className="font-black text-slate-900 dark:text-white text-xl group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        <span className="font-black text-slate-900 dark:text-white text-xl group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                           ${p.total?.toLocaleString('es-CO')}
                         </span>
                       </div>
                       
-                      <div className="flex items-center justify-between mt-3 pt-4 border-t border-blue-50 dark:border-slate-700/50">
+                      <div className="flex items-center justify-between mt-3 pt-4 border-t border-green-50 dark:border-slate-700/50">
                         <span className={`inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${config.clase}`}>
                           <Icon size={12} strokeWidth={3} /> {p.estado}
                         </span>
-                        <div className="flex items-center gap-1 text-sm font-bold text-blue-400 group-hover:text-blue-600 transition-colors">
+                        <div className="flex items-center gap-1 text-sm font-bold text-green-500 dark:text-green-400 group-hover:text-green-600 dark:group-hover:text-green-300 transition-colors">
                           Detalles <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>

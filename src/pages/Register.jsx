@@ -113,9 +113,9 @@ export default function Register() {
         <div className="text-center mb-8 flex-shrink-0">
           <Link to="/" className="inline-block mb-4">
             <img 
-              src="/logo-plantopolis.jpg" 
+              src="/logo-plantopolis.png" 
               alt="Plantopolis Logo" 
-              className="w-28 h-28 mx-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:filter dark:invert dark:opacity-90 drop-shadow-md" 
+              className="w-28 h-28 mx-auto object-contain drop-shadow-md" 
             />
           </Link>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center justify-center gap-2">
