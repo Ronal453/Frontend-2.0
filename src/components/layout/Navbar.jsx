@@ -76,7 +76,7 @@ export default function Navbar({ layoutMode = 'public' }) {
   }
 
   const getNavBackground = () => {
-    if (isOperativo) return 'relative w-full rounded-2xl mb-4 bg-gradient-to-r from-[#7BD389] to-[#2A9D8F] text-white border border-[#7BD389]/40 shadow-lg shadow-[#2A9D8F]/20'
+    if (isOperativo) return 'relative w-full rounded-2xl mb-4 bg-gradient-to-r from-emerald-800 to-teal-950 text-white border border-emerald-700/30 shadow-lg shadow-teal-900/20'
     if (isDashboard) return 'relative w-full rounded-2xl mb-4 bg-gradient-to-r from-teal-700 via-teal-800 to-cyan-900 text-white border border-teal-600/40 shadow-lg shadow-teal-900/10'
     return `bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-emerald-800 dark:to-teal-900 text-white border-b border-emerald-400/50 shadow-md fixed top-0 w-full ${showNavbar ? 'translate-y-0' : '-translate-y-full'}`
   }

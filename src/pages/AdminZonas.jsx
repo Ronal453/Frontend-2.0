@@ -4,14 +4,15 @@ import {
   crearZona,
   actualizarZona,
   activarZona,
-  desactivarZona
+  desactivarZona,
+  getZonaDetalleAdmin
 } from '../api/adminApi'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import FlashMessage from '../components/ui/FlashMessage'
 import { 
   Map, ThermometerSun, AlertTriangle, LayoutGrid, List, CheckCircle, 
-  XCircle, Cloud, Sun, Edit, Play, Square, Loader2, X 
+  XCircle, Cloud, Sun, Edit, Play, Square, Loader2, X, ExternalLink, Box, MapPin 
 } from 'lucide-react'
 
 const CONDICIONES_OPTIONS = [
@@ -28,6 +29,13 @@ const EXPOSICION_OPTIONS = [
   { value: 'MEDIA_SOMBRA', label: 'Media Sombra' },
 ]
 
+const ESTADO_BADGES = {
+  GERMINANDO: 'bg-transparent border-amber-300 dark:border-amber-700/50 text-amber-600 dark:text-amber-400',
+  CRECIENDO: 'bg-transparent border-blue-300 dark:border-blue-700/50 text-blue-600 dark:text-blue-400',
+  LISTO_PARA_VENTA: 'bg-transparent border-emerald-300 dark:border-emerald-700/50 text-emerald-600 dark:text-emerald-400',
+  DESCARTADO: 'bg-transparent border-red-300 dark:border-red-700/50 text-red-600 dark:text-red-400',
+}
+
 export default function AdminZonas() {
   const [zonas, setZonas] = useState([])
   const [loading, setLoading] = useState(true)
@@ -41,6 +49,41 @@ export default function AdminZonas() {
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [zonaEdit, setZonaEdit] = useState(null)
+
+  // Modal detalle de zona
+  const [modalDetalle, setModalDetalle] = useState({
+    abierto: false,
+    zona: null,
+    lotes: [],
+    cargando: false,
+    error: '',
+  })
+
+  const abrirDetalleZona = async (zona) => {
+    setModalDetalle({
+      abierto: true,
+      zona,
+      lotes: [],
+      cargando: true,
+      error: '',
+    })
+    try {
+      const res = await getZonaDetalleAdmin(zona.idZona)
+      setModalDetalle({
+        abierto: true,
+        zona: res.data,
+        lotes: res.data.lotes || [],
+        cargando: false,
+        error: '',
+      })
+    } catch (err) {
+      setModalDetalle(prev => ({
+        ...prev,
+        cargando: false,
+        error: err.response?.data?.mensaje || 'Error al consultar los lotes de la zona',
+      }))
+    }
+  }
 
   const cargarZonas = async () => {
     setLoading(true)
@@ -424,8 +467,11 @@ export default function AdminZonas() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button onClick={() => abrirEditar(zona)} className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                      Editar Capacidad
+                    <button onClick={() => abrirEditar(zona)} className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5">
+                      <Edit size={16} /> Editar
+                    </button>
+                    <button onClick={() => abrirDetalleZona(zona)} className="flex-[1.5] py-2.5 rounded-xl border border-teal-200 dark:border-teal-800/50 bg-teal-50 dark:bg-teal-900/30 text-sm font-bold text-teal-700 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors flex items-center justify-center gap-1.5">
+                      <ExternalLink size={16} /> Ver Lotes
                     </button>
                   </div>
                 </div>
@@ -436,6 +482,113 @@ export default function AdminZonas() {
 
       </div>
       
+      {/* MODAL DETALLE DE ZONA Y LOTES ASIGNADOS */}
+      {modalDetalle.abierto && (
+        <div className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh] overflow-hidden">
+            
+            <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start bg-slate-50/50 dark:bg-slate-800/50">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+                  <MapPin size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+                    {modalDetalle.zona?.nombre}
+                  </h3>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                    <span>Condición: <strong className="text-slate-700 dark:text-slate-300">{modalDetalle.zona?.tipoCondicion}</strong></span>
+                    <span>Luz: <strong className="text-slate-700 dark:text-slate-300">{modalDetalle.zona?.exposicionSolar}</strong></span>
+                    <span>Capacidad: <strong className="text-teal-600 dark:text-teal-400">{modalDetalle.zona?.capacidadMaxima} lotes</strong></span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setModalDetalle({ abierto: false, zona: null, lotes: [], cargando: false, error: '' })}
+                className="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-full p-2 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-white dark:bg-slate-900">
+              {modalDetalle.cargando ? (
+                <div className="py-16 flex flex-col items-center justify-center text-slate-400">
+                  <Loader2 className="w-10 h-10 animate-spin mb-4 text-teal-500" />
+                  <p className="font-bold text-sm">Consultando lotes asignados...</p>
+                </div>
+              ) : modalDetalle.error ? (
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 rounded-2xl text-sm font-bold flex items-center gap-2">
+                  <AlertTriangle size={18} /> {modalDetalle.error}
+                </div>
+              ) : modalDetalle.lotes.length === 0 ? (
+                <div className="py-16 text-center text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
+                  <Box size={48} className="mx-auto mb-4 text-slate-300 dark:text-slate-600" strokeWidth={1} />
+                  <p className="font-bold text-slate-600 dark:text-slate-300 mb-1">No hay lotes activos en esta zona.</p>
+                  <p className="text-xs">Espacio libre para asignar nuevos cultivos.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between px-2">
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                      Lotes activos ({modalDetalle.lotes.length})
+                    </span>
+                    <span className="text-[10px] font-black bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 px-3 py-1 rounded-lg border border-teal-200/50 dark:border-teal-800/50">
+                      Ocupación: {Math.round((modalDetalle.lotes.length / (modalDetalle.zona?.capacidadMaxima || 1)) * 100)}%
+                    </span>
+                  </div>
+
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                        <tr>
+                          <th className="py-3 px-4">Código / Especie</th>
+                          <th className="py-3 px-4">Estado</th>
+                          <th className="py-3 px-4 text-center">Plantas Vivas</th>
+                          <th className="py-3 px-4">Fecha Siembra</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 bg-white dark:bg-slate-900">
+                        {modalDetalle.lotes.map(lote => (
+                          <tr key={lote.idLote} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="py-3 px-4">
+                              <div className="font-bold text-slate-800 dark:text-slate-100 text-xs font-mono">{lote.codigoLote}</div>
+                              <div className="text-[11px] font-bold text-teal-600 dark:text-teal-400">{lote.especie}</div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className={`inline-flex text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border ${ESTADO_BADGES[lote.estadoLote] || 'bg-slate-100 border-slate-200'}`}>
+                                {lote.estadoLote === 'LISTO_PARA_VENTA' ? 'LISTO PARA VENTA' : lote.estadoLote}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className="font-black text-slate-800 dark:text-slate-200 text-sm">{lote.cantidadActual}</span>
+                              <span className="text-slate-400 text-xs font-medium"> / {lote.cantidadInicial}</span>
+                            </td>
+                            <td className="py-3 px-4 text-xs font-bold text-slate-500 dark:text-slate-400">
+                              {new Date(lote.fechaSiembra).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="pt-4 pb-4 px-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setModalDetalle({ abierto: false, zona: null, lotes: [], cargando: false, error: '' })}
+                className="px-6 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors"
+              >
+                Cerrar Panel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL CREAR/EDITAR */}
       {modalAbierto && (
         <ZonaModal

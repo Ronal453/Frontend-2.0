@@ -8,18 +8,23 @@ import {
 } from '../../api/trabajadorApi'
 import ModalCambioEstado from './components/ModalCambioEstado'
 import ModalDetalleTarea from './components/ModalDetalleTarea'
+import { 
+  Kanban, AlertTriangle, RefreshCw, ClipboardList, Hourglass, 
+  Search, CheckCircle2, Lock, Unlock, Play, ArrowRight, CornerUpLeft, 
+  MapPin, Sprout, User, Calendar, ExternalLink, Loader2
+} from 'lucide-react'
 
 const COLUMNAS = [
-  { id: 'POR_HACER',   titulo: '📌 Por Hacer',    badgeBg: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200' },
-  { id: 'EN_PROGRESO', titulo: '⏳ En Progreso',  badgeBg: 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50' },
-  { id: 'EN_REVISION', titulo: '🔍 En Revisión',  badgeBg: 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50' },
-  { id: 'COMPLETADA',  titulo: '✅ Completadas',  badgeBg: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50' },
+  { id: 'POR_HACER',   titulo: 'Por Hacer',    icono: ClipboardList, badgeBg: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300', headerBg: 'bg-slate-100/50 dark:bg-slate-800/30' },
+  { id: 'EN_PROGRESO', titulo: 'En Progreso',  icono: Hourglass, badgeBg: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50', headerBg: 'bg-blue-50/50 dark:bg-blue-900/10' },
+  { id: 'EN_REVISION', titulo: 'En Revisión',  icono: Search, badgeBg: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50', headerBg: 'bg-purple-50/50 dark:bg-purple-900/10' },
+  { id: 'COMPLETADA',  titulo: 'Completadas',  icono: CheckCircle2, badgeBg: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50', headerBg: 'bg-emerald-50/50 dark:bg-emerald-900/10' },
 ]
 
 const PRIORIDAD_COLORS = {
-  ALTA: 'bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/50',
-  MEDIA: 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50',
-  BAJA: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50',
+  ALTA: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50',
+  MEDIA: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50',
+  BAJA: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50',
 }
 
 export default function TrabajadorKanban() {
@@ -29,7 +34,6 @@ export default function TrabajadorKanban() {
   const [soloMias, setSoloMias] = useState(true)
   const [filtroPrioridad, setFiltroPrioridad] = useState('')
 
-  // Modal para cambio de estado con comentario opcional
   const [modalTransicion, setModalTransicion] = useState({
     abierto: false,
     tarea: null,
@@ -38,7 +42,6 @@ export default function TrabajadorKanban() {
     enviando: false,
   })
 
-  // Modal de detalle y comentarios
   const [modalDetalle, setModalDetalle] = useState({
     abierto: false,
     tarea: null,
@@ -69,18 +72,10 @@ export default function TrabajadorKanban() {
     cargarTareas()
   }, [soloMias, filtroPrioridad])
 
-  // Abrir modal de transición
   const solicitarCambioEstado = (tarea, nuevoEstado) => {
-    setModalTransicion({
-      abierto: true,
-      tarea,
-      nuevoEstado,
-      comentario: '',
-      enviando: false,
-    })
+    setModalTransicion({ abierto: true, tarea, nuevoEstado, comentario: '', enviando: false })
   }
 
-  // Confirmar cambio de estado
   const ejecutarCambioEstado = async (e) => {
     e.preventDefault()
     const { tarea, nuevoEstado, comentario } = modalTransicion
@@ -97,7 +92,6 @@ export default function TrabajadorKanban() {
     }
   }
 
-  // Abrir modal de detalles, comentarios e historial
   const abrirDetalle = async (tarea) => {
     setModalDetalle({
       abierto: true,
@@ -126,7 +120,6 @@ export default function TrabajadorKanban() {
     }
   }
 
-  // Agregar comentario en modal de detalle
   const handleAgregarComentario = async (e) => {
     e.preventDefault()
     if (!modalDetalle.nuevoComentario.trim()) return
@@ -149,105 +142,102 @@ export default function TrabajadorKanban() {
   const tareasBloqueadas = tareas.filter(t => t.estadoTarea === 'BLOQUEADA')
 
   return (
-    <div className="space-y-6">
-      {/* Cabecera y Filtros */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-            📋 Tablero de Tareas Operativas
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            Gestiona visualmente las labores de cultivo, riego, poda y fertilización
-          </p>
+    <div className="flex flex-col h-full animate-fade-in">
+      
+      {/* HEADER & FILTERS */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white">
+            <Kanban size={24} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+              Tablero de Tareas Operativas
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-0.5">
+              Gestiona visualmente las labores de cultivo, riego, poda y fertilización
+            </p>
+          </div>
         </div>
 
-        {/* Filtros */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Toggle Mis Tareas vs Todas */}
-          <div className="inline-flex rounded-xl border border-gray-200 dark:border-gray-700 p-1 bg-gray-50 dark:bg-gray-900/60">
+          <div className="flex p-1 bg-slate-200/60 dark:bg-slate-800/80 rounded-xl">
             <button
-              type="button"
               onClick={() => setSoloMias(true)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                soloMias ? 'bg-emerald-700 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
+                soloMias ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
               Mis Tareas
             </button>
             <button
-              type="button"
               onClick={() => setSoloMias(false)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                !soloMias ? 'bg-emerald-700 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
+                !soloMias ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
               Todas las Tareas
             </button>
           </div>
 
-          {/* Filtro Prioridad */}
           <select
             value={filtroPrioridad}
             onChange={(e) => setFiltroPrioridad(e.target.value)}
-            className="text-xs bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none"
           >
             <option value="">Todas las prioridades</option>
-            <option value="ALTA">Prioridad Alta</option>
-            <option value="MEDIA">Prioridad Media</option>
-            <option value="BAJA">Prioridad Baja</option>
+            <option value="ALTA">Alta</option>
+            <option value="MEDIA">Media</option>
+            <option value="BAJA">Baja</option>
           </select>
 
           <button
             onClick={cargarTareas}
             title="Refrescar tareas"
-            className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm"
+            className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors border border-slate-200 dark:border-slate-700"
           >
-            🔄
+            <RefreshCw size={16} />
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl text-sm">
-          ⚠️ {error}
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 rounded-2xl text-sm font-bold flex items-center gap-2">
+          <AlertTriangle size={18} /> {error}
         </div>
       )}
 
-      {/* Sección Alerta de Tareas Bloqueadas si existen */}
+      {/* TAREAS BLOQUEADAS */}
       {tareasBloqueadas.length > 0 && (
-        <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-amber-900 dark:text-amber-200 flex items-center gap-2">
-              ⚠️ Tareas Bloqueadas ({tareasBloqueadas.length})
+        <div className="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 shadow-sm animate-pulse">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-bold text-amber-900 dark:text-amber-300 flex items-center gap-2">
+              <Lock size={18} className="text-amber-600 dark:text-amber-400" />
+              Tareas Bloqueadas ({tareasBloqueadas.length})
             </h3>
-            <span className="text-xs text-amber-700 dark:text-amber-400">Requieren atención o desbloqueo operativo</span>
+            <span className="text-xs font-bold text-amber-700/80 dark:text-amber-400 bg-amber-100/50 dark:bg-amber-900/40 px-3 py-1 rounded-full">Requieren atención</span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {tareasBloqueadas.map(tarea => (
-              <div key={tarea.idTarea} className="bg-white dark:bg-gray-800 p-3.5 rounded-xl border border-amber-200 dark:border-amber-800/60 shadow-sm flex flex-col justify-between">
+              <div key={tarea.idTarea} className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-sm p-4 rounded-xl border border-amber-200 dark:border-amber-800/50 flex flex-col justify-between shadow-sm">
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-xs font-bold text-gray-800 dark:text-gray-100">{tarea.tipoTarea}</span>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <span className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight">{tarea.tipoTarea}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${PRIORIDAD_COLORS[tarea.prioridad]}`}>
                       {tarea.prioridad}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
-                    {tarea.nombreZona ? `📍 Zona: ${tarea.nombreZona}` : `🌱 Lote: ${tarea.codigoLote} (${tarea.especieLote || ''})`}
-                  </p>
+                  <div className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-3 space-y-1">
+                    {tarea.nombreZona && <p className="flex items-center gap-1.5"><MapPin size={12} /> {tarea.nombreZona}</p>}
+                    {tarea.codigoLote && <p className="flex items-center gap-1.5"><Sprout size={12} /> {tarea.codigoLote}</p>}
+                  </div>
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700 text-xs">
-                  <button
-                    onClick={() => abrirDetalle(tarea)}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 underline"
-                  >
-                    Ver detalle
+                <div className="flex items-center justify-between pt-3 border-t border-amber-100 dark:border-amber-800/30">
+                  <button onClick={() => abrirDetalle(tarea)} className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 flex items-center gap-1">
+                    <ExternalLink size={12} /> Ver detalle
                   </button>
-                  <button
-                    onClick={() => solicitarCambioEstado(tarea, 'EN_PROGRESO')}
-                    className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium text-[11px] transition-colors"
-                  >
-                    Desbloquear
+                  <button onClick={() => solicitarCambioEstado(tarea, 'EN_PROGRESO')} className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-xs transition-colors flex items-center gap-1.5 shadow-sm shadow-amber-600/20">
+                    <Unlock size={12} /> Desbloquear
                   </button>
                 </div>
               </div>
@@ -256,134 +246,105 @@ export default function TrabajadorKanban() {
         </div>
       )}
 
-      {/* Columnas Kanban */}
+      {/* KANBAN BOARD */}
       {cargando ? (
-        <div className="py-20 text-center text-gray-400">
-          <p className="text-3xl mb-2 animate-bounce">🌱</p>
-          <p>Cargando tablero operativo...</p>
+        <div className="flex-1 flex flex-col items-center justify-center py-20 text-slate-400">
+          <Loader2 className="w-10 h-10 text-emerald-500 animate-spin mb-4" />
+          <p className="font-medium">Cargando tablero operativo...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 pb-6 min-h-[500px]">
           {COLUMNAS.map(col => {
             const tareasColumna = tareas.filter(t => t.estadoTarea === col.id)
+            const ColIcon = col.icono
             return (
-              <div key={col.id} className="bg-gray-100/80 dark:bg-gray-900/50 rounded-2xl p-4 flex flex-col min-h-[500px] border border-gray-200/70 dark:border-gray-800">
+              <div key={col.id} className="bg-slate-100/50 dark:bg-slate-800/20 rounded-3xl flex flex-col border border-slate-200/60 dark:border-slate-700/50 overflow-hidden">
+                
                 {/* Cabecera Columna */}
-                <div className="flex items-center justify-between mb-4 px-1">
-                  <h2 className="font-bold text-gray-700 dark:text-gray-200 text-sm">{col.titulo}</h2>
-                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${col.badgeBg}`}>
+                <div className={`flex items-center justify-between px-5 py-4 ${col.headerBg} border-b border-slate-200/50 dark:border-slate-700/50`}>
+                  <h2 className="font-bold text-slate-700 dark:text-slate-200 text-sm flex items-center gap-2">
+                    <ColIcon size={16} /> {col.titulo}
+                  </h2>
+                  <span className={`text-[10px] font-black px-2.5 py-1 rounded-xl ${col.badgeBg}`}>
                     {tareasColumna.length}
                   </span>
                 </div>
 
                 {/* Lista de Tarjetas */}
-                <div className="space-y-3 flex-1 overflow-y-auto">
+                <div className="flex-1 p-3 overflow-y-auto custom-scrollbar space-y-3">
                   {tareasColumna.length === 0 ? (
-                    <div className="h-32 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">
+                    <div className="h-24 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl flex items-center justify-center text-xs font-bold text-slate-400 dark:text-slate-500 m-2">
                       Sin tareas
                     </div>
                   ) : (
                     tareasColumna.map(tarea => (
-                      <div
-                        key={tarea.idTarea}
-                        className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200/80 dark:border-gray-700 hover:shadow-md transition-shadow flex flex-col justify-between gap-3"
-                      >
-                        {/* Cabecera Tarjeta */}
-                        <div>
-                          <div className="flex items-start justify-between gap-2 mb-1.5">
-                            <span className="font-bold text-gray-800 dark:text-gray-100 text-sm">
+                      <div key={tarea.idTarea} className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all flex flex-col justify-between group">
+                        
+                        <div className="mb-3">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <span className="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight">
                               {tarea.tipoTarea}
                             </span>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${PRIORIDAD_COLORS[tarea.prioridad]}`}>
+                            <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg border ${PRIORIDAD_COLORS[tarea.prioridad]}`}>
                               {tarea.prioridad}
                             </span>
                           </div>
 
-                          {/* Objetivo: Zona o Lote */}
-                          <p className="text-xs text-gray-600 dark:text-gray-300 font-medium flex items-center gap-1">
+                          <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 space-y-1">
                             {tarea.nombreZona && (
-                              <span>📍 Zona: <strong className="text-gray-800 dark:text-gray-100">{tarea.nombreZona}</strong></span>
+                              <p className="flex items-center gap-1.5"><MapPin size={12} /> Zona: <strong className="text-slate-700 dark:text-slate-200">{tarea.nombreZona}</strong></p>
                             )}
                             {tarea.codigoLote && (
-                              <span>🌱 Lote: <strong className="text-gray-800 dark:text-gray-100">{tarea.codigoLote}</strong> ({tarea.especieLote})</span>
+                              <p className="flex items-center gap-1.5"><Sprout size={12} /> Lote: <strong className="text-slate-700 dark:text-slate-200">{tarea.codigoLote}</strong></p>
                             )}
-                          </p>
-
-                          {/* Asignación */}
-                          {tarea.nombreTrabajador && (
-                            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
-                              👤 Asignado a: <span className="font-medium text-gray-700 dark:text-gray-200">{tarea.nombreTrabajador}</span>
-                            </p>
-                          )}
+                            {tarea.nombreTrabajador && (
+                              <p className="flex items-center gap-1.5 pt-1"><User size={12} /> <span className="truncate">{tarea.nombreTrabajador}</span></p>
+                            )}
+                          </div>
                         </div>
 
-                        {/* Fecha Límite */}
-                        <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-700">
-                          <span>📅 Límite: <strong className="text-gray-700 dark:text-gray-200">{tarea.fechaLimite || 'Sin fecha'}</strong></span>
-                          <button
-                            onClick={() => abrirDetalle(tarea)}
-                            className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 font-semibold"
-                          >
-                            Detalles →
+                        <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 dark:text-slate-500 pt-3 border-t border-slate-100 dark:border-slate-700/50 mb-3">
+                          <span className="flex items-center gap-1.5"><Calendar size={12} /> Límite: {tarea.fechaLimite ? new Date(tarea.fechaLimite).toLocaleDateString() : 'N/A'}</span>
+                          <button onClick={() => abrirDetalle(tarea)} className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 flex items-center gap-1 bg-teal-50 dark:bg-teal-900/30 px-2 py-1 rounded-lg transition-colors">
+                            <ExternalLink size={12} /> Detalles
                           </button>
                         </div>
 
-                        {/* Acciones Rápidas de Transición */}
-                        <div className="pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between gap-2">
+                        {/* Acciones Transición */}
+                        <div className="flex items-center justify-between gap-2 pt-1">
                           {col.id === 'POR_HACER' && (
                             <>
-                              <button
-                                onClick={() => solicitarCambioEstado(tarea, 'BLOQUEADA')}
-                                className="text-[11px] px-2 py-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded"
-                              >
-                                Bloquear
+                              <button onClick={() => solicitarCambioEstado(tarea, 'BLOQUEADA')} className="text-[10px] font-bold px-2 py-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-1">
+                                <Lock size={12} /> Bloquear
                               </button>
-                              <button
-                                onClick={() => solicitarCambioEstado(tarea, 'EN_PROGRESO')}
-                                className="text-[11px] px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors ml-auto"
-                              >
-                                Iniciar →
+                              <button onClick={() => solicitarCambioEstado(tarea, 'EN_PROGRESO')} className="text-[10px] font-bold px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50 dark:hover:bg-blue-900/50 rounded-lg transition-colors flex items-center gap-1 ml-auto">
+                                <Play size={12} /> Iniciar
                               </button>
                             </>
                           )}
-
                           {col.id === 'EN_PROGRESO' && (
                             <>
-                              <button
-                                onClick={() => solicitarCambioEstado(tarea, 'BLOQUEADA')}
-                                className="text-[11px] px-2 py-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded"
-                              >
-                                Bloquear
+                              <button onClick={() => solicitarCambioEstado(tarea, 'BLOQUEADA')} className="text-[10px] font-bold px-2 py-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-1">
+                                <Lock size={12} /> Bloquear
                               </button>
-                              <button
-                                onClick={() => solicitarCambioEstado(tarea, 'EN_REVISION')}
-                                className="text-[11px] px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors ml-auto"
-                              >
-                                A Revisión →
+                              <button onClick={() => solicitarCambioEstado(tarea, 'EN_REVISION')} className="text-[10px] font-bold px-3 py-1.5 bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800/50 dark:hover:bg-purple-900/50 rounded-lg transition-colors flex items-center gap-1 ml-auto">
+                                A Revisión <ArrowRight size={12} />
                               </button>
                             </>
                           )}
-
                           {col.id === 'EN_REVISION' && (
                             <>
-                              <button
-                                onClick={() => solicitarCambioEstado(tarea, 'EN_PROGRESO')}
-                                className="text-[11px] px-2 py-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                              >
-                                ← Regresar
+                              <button onClick={() => solicitarCambioEstado(tarea, 'EN_PROGRESO')} className="text-[10px] font-bold px-2 py-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors flex items-center gap-1">
+                                <CornerUpLeft size={12} /> Regresar
                               </button>
-                              <button
-                                onClick={() => solicitarCambioEstado(tarea, 'COMPLETADA')}
-                                className="text-[11px] px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white font-medium rounded-lg transition-colors ml-auto"
-                              >
-                                Completar ✓
+                              <button onClick={() => solicitarCambioEstado(tarea, 'COMPLETADA')} className="text-[10px] font-bold px-3 py-1.5 bg-emerald-500 text-white shadow-sm shadow-emerald-500/20 hover:bg-emerald-600 rounded-lg transition-colors flex items-center gap-1 ml-auto">
+                                <CheckCircle2 size={12} /> Completar
                               </button>
                             </>
                           )}
-
                           {col.id === 'COMPLETADA' && (
-                            <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1 mx-auto">
-                              ✓ Finalizada exitosamente
+                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-800/50 flex items-center gap-1.5 w-full justify-center">
+                              <CheckCircle2 size={12} /> Finalizada
                             </span>
                           )}
                         </div>
@@ -397,7 +358,6 @@ export default function TrabajadorKanban() {
         </div>
       )}
 
-      {/* ── MODAL CAMBIO DE ESTADO ────────────────────────── */}
       <ModalCambioEstado
         abierto={modalTransicion.abierto}
         tarea={modalTransicion.tarea}
@@ -409,7 +369,6 @@ export default function TrabajadorKanban() {
         onSubmit={ejecutarCambioEstado}
       />
 
-      {/* ── MODAL DETALLE, COMENTARIOS E HISTORIAL ───────── */}
       <ModalDetalleTarea
         abierto={modalDetalle.abierto}
         tarea={modalDetalle.tarea}

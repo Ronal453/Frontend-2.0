@@ -107,3 +107,4 @@ export const desactivarZona = (id) => api.patch(`/admin/zonas/${id}/desactivar`)
 export const crearLote = (datos) => api.post('/admin/lotes', datos)
 export const vincularLote = (id, datos) => api.post(`/admin/lotes/${id}/vincular`, datos)
 
+export const getZonaDetalleAdmin = (id) => api.get('/zonas/' + id + '/detalle')
