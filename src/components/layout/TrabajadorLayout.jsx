@@ -16,7 +16,7 @@ export default function TrabajadorLayout() {
   return (
     <div className="flex h-screen p-4 gap-4 overflow-hidden bg-slate-50 dark:bg-[#060A11]">
       {/* Sidebar Operativa */}
-      <aside className="w-64 bg-gradient-to-b from-[#7BD389] to-[#2A9D8F] text-white flex-shrink-0 flex flex-col py-6 px-4 gap-2 rounded-[2rem] shadow-2xl shadow-[#2A9D8F]/30 border border-[#7BD389]/40 transition-all overflow-y-auto z-10 custom-scrollbar">
+      <aside className="w-64 bg-gradient-to-b from-emerald-800 to-teal-950 text-white flex-shrink-0 flex flex-col py-6 px-4 gap-2 rounded-[2rem] shadow-2xl shadow-teal-900/40 border border-emerald-700/30 transition-all overflow-y-auto z-10 custom-scrollbar">
         {/* Cabecera Sidebar */}
         <div className="px-2 mb-6 flex items-center gap-3">
           <div className="w-11 h-11 bg-white/95 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 border border-white/50 p-1">
@@ -26,7 +26,7 @@ export default function TrabajadorLayout() {
             <p className="text-xl font-black tracking-tight text-white leading-none">
               Operativo
             </p>
-            <p className="text-xs font-bold text-[#D0F0DB] mt-1 uppercase tracking-widest truncate max-w-[120px]" title={user?.email}>
+            <p className="text-xs font-bold text-emerald-100/70 mt-1 uppercase tracking-widest truncate max-w-[120px]" title={user?.email}>
               {user?.email || 'Trabajador'}
             </p>
           </div>
@@ -43,8 +43,8 @@ export default function TrabajadorLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group
                    ${isActive
-                     ? 'bg-white/25 text-white shadow-inner border border-white/40'
-                     : 'text-[#D0F0DB] hover:bg-white/20 hover:text-white'}`
+                     ? 'bg-white/20 text-white shadow-inner border border-white/10'
+                     : 'text-emerald-100/70 hover:bg-white/10 hover:text-white'}`
                 }
               >
                 {({ isActive }) => (
@@ -52,7 +52,7 @@ export default function TrabajadorLayout() {
                     <Icon 
                       size={20} 
                       strokeWidth={isActive ? 2.5 : 2} 
-                      className={`transition-transform duration-300 ${isActive ? 'scale-110 drop-shadow-md text-white' : 'text-[#D0F0DB] group-hover:scale-110 group-hover:text-white'}`} 
+                      className={`transition-transform duration-300 ${isActive ? 'scale-110 drop-shadow-md text-emerald-400' : 'text-emerald-100/70 group-hover:scale-110 group-hover:text-emerald-300'}`} 
                     />
                     {link.label}
                   </>
@@ -63,10 +63,10 @@ export default function TrabajadorLayout() {
         </nav>
 
         {/* Pie de sidebar */}
-        <div className="pt-4 mt-auto">
+        <div className="pt-4 mt-auto border-t border-emerald-700/30">
           <NavLink
             to="/catalogo"
-            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-[#D0F0DB] hover:text-white hover:bg-white/20 transition-colors group"
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-emerald-100/70 hover:text-white hover:bg-white/10 transition-colors group mt-2"
           >
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
             Volver a Tienda

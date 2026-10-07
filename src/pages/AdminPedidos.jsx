@@ -1,49 +1,106 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { getPedidosAdmin, actualizarEstadoPedido } from '../api/adminApi'
 import FlashMessage from '../components/ui/FlashMessage'
 import Pagination from '../components/ui/Pagination'
 import DetallePedidoDrawer from './components/DetallePedidoDrawer'
+import { ShoppingBag, Clock, Package, Truck, CheckCircle, XCircle, AlertTriangle, Loader2 } from 'lucide-react'
 
 /**
  * Página de gestión de pedidos — Panel Admin.
  *
- * NUEVO — Detalle de pedido:
- *   Al hacer clic en una fila de la tabla, se abre un panel lateral (drawer)
- *   con el detalle completo del pedido seleccionado:
- *     - Número, fecha y estado
- *     - Datos del cliente (nombre + correo)
- *     - Tabla de productos (imagen, nombre, cantidad, precio, subtotal)
- *     - Dirección de envío
- *     - Información del pago (método, estado, monto)
- *
- *   Los datos ya vienen del listado (detalles y pago incluidos en la response),
- *   así que no se necesita una nueva llamada a la API al abrir el detalle.
- *
+ * Estilo Eco-Tech Minimalista aplicado.
  */
 
+// Mapeo de iconos para cada estado de pedido usando Lucide React en lugar de emojis
+const EstadoIcon = ({ estado, className = "", size = 16 }) => {
+  switch(estado) {
+    case 'PENDIENTE': return <Clock size={size} className={className} />;
+    case 'EN_PREPARACION': return <Package size={size} className={className} />;
+    case 'ENVIADO': return <Truck size={size} className={className} />;
+    case 'ENTREGADO': return <CheckCircle size={size} className={className} />;
+    case 'CANCELADO': return <XCircle size={size} className={className} />;
+    default: return <AlertTriangle size={size} className={className} />;
+  }
+}
+
+// Configuración visual para badges de estado y botones
 const ESTADOS_CONFIG = {
-  PENDIENTE:       { badge: 'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800/50', icono: '⏳', siguientes: ['EN_PREPARACION', 'CANCELADO'] },
-  EN_PREPARACION:  { badge: 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50',     icono: '🌿', siguientes: ['ENVIADO', 'CANCELADO']         },
-  ENVIADO:         { badge: 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50', icono: '🚚', siguientes: ['ENTREGADO', 'CANCELADO']       },
-  ENTREGADO:       { badge: 'bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/50',   icono: '✅', siguientes: []                               },
-  CANCELADO:       { badge: 'bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/50',       icono: '❌', siguientes: []                               },
+  PENDIENTE:       { colorHex: '#ca8a04', textClass: 'text-yellow-600 dark:text-yellow-400', badge: 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800/50', iconColor: 'text-yellow-500', borderColor: 'border-yellow-200 dark:border-yellow-800/50', siguientes: ['EN_PREPARACION', 'CANCELADO'] },
+  EN_PREPARACION:  { colorHex: '#2563eb', textClass: 'text-blue-600 dark:text-blue-400', badge: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50',          iconColor: 'text-blue-500', borderColor: 'border-blue-200 dark:border-blue-800/50', siguientes: ['ENVIADO', 'CANCELADO'] },
+  ENVIADO:         { colorHex: '#9333ea', textClass: 'text-purple-600 dark:text-purple-400', badge: 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50', iconColor: 'text-purple-500', borderColor: 'border-purple-200 dark:border-purple-800/50', siguientes: ['ENTREGADO', 'CANCELADO'] },
+  ENTREGADO:       { colorHex: '#059669', textClass: 'text-emerald-600 dark:text-emerald-400', badge: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50', iconColor: 'text-emerald-500', borderColor: 'border-emerald-200 dark:border-emerald-800/50', siguientes: [] },
+  CANCELADO:       { colorHex: '#dc2626', textClass: 'text-red-600 dark:text-red-400', badge: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50',                iconColor: 'text-red-500', borderColor: 'border-red-200 dark:border-red-800/50', siguientes: [] },
 }
 
 const OPCIONES_FILTRO = [
   { valor: '',               label: 'Todos los estados' },
-  { valor: 'PENDIENTE',      label: '⏳ Pendiente'  },
-  { valor: 'EN_PREPARACION', label: '🌿 Preparando' },
-  { valor: 'ENVIADO',        label: '🚚 Enviado'    },
-  { valor: 'ENTREGADO',      label: '✅ Entregado'  },
-  { valor: 'CANCELADO',      label: '❌ Cancelado'  },
+  { valor: 'PENDIENTE',      label: 'Pendiente' },
+  { valor: 'EN_PREPARACION', label: 'Preparando' },
+  { valor: 'ENVIADO',        label: 'Enviado' },
+  { valor: 'ENTREGADO',      label: 'Entregado' },
+  { valor: 'CANCELADO',      label: 'Cancelado' },
 ]
 
-// Nombres legibles para los métodos de pago
-const NOMBRES_METODO = {
-  TARJETA_CREDITO: 'Tarjeta de Crédito',
-  TARJETA_DEBITO:  'Tarjeta de Débito',
-  TRANSFERENCIA:   'PSE',
-  EFECTIVO:        'Contra entrega',
+const StatusDropdown = ({ valor, opciones, onCambio, disabled, guardando }) => {
+  const [open, setOpen] = useState(false)
+  const dropdownRef = useRef(null)
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  const selectedConfig = valor ? ESTADOS_CONFIG[valor] : null
+  const selectedLabel = valor ? (OPCIONES_FILTRO.find(op => op.valor === valor)?.label || valor) : 'Cambiar a...'
+
+  return (
+    <div className="relative min-w-[150px]" ref={dropdownRef}>
+      <button
+        type="button"
+        disabled={disabled || guardando}
+        onClick={() => setOpen(!open)}
+        className={`flex items-center justify-between w-full gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 border outline-none focus:ring-2 focus:ring-teal-500
+          ${valor 
+            ? `bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 ${selectedConfig?.borderColor} shadow-sm` 
+            : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-teal-400'
+          }
+          ${disabled || guardando ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+        `}
+      >
+        <span className="flex items-center gap-1.5">
+          {valor && <EstadoIcon estado={valor} size={14} className={selectedConfig?.iconColor} />}
+          {selectedLabel}
+        </span>
+        <span className="text-slate-400 text-[10px]">▼</span>
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-0 mt-2 w-full min-w-[160px] bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700/80 overflow-hidden z-50 animate-fade-in origin-top-left">
+          {opciones.map(op => {
+            const labelStr = OPCIONES_FILTRO.find(f => f.valor === op)?.label || op
+            const conf = ESTADOS_CONFIG[op]
+            return (
+              <button
+                key={op}
+                type="button"
+                onClick={() => {
+                  onCambio(op)
+                  setOpen(false)
+                }}
+                className={`w-full flex items-center gap-2 px-4 py-2.5 text-xs font-bold transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-600 dark:text-slate-300`}
+              >
+                <EstadoIcon estado={op} size={14} className={conf?.iconColor} />
+                {labelStr}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function AdminPedidos() {
@@ -70,8 +127,7 @@ export default function AdminPedidos() {
         const init = {}
         lista.forEach(p => { init[p.idPedido] = '' })
         setSeleccion(init)
-        // Si el detalle abierto corresponde a un pedido que se recargó,
-        // actualizar sus datos para que el drawer muestre el estado nuevo
+        // Si el detalle abierto corresponde a un pedido que se recargó, actualizar sus datos
         if (pedidoDetalle) {
           const actualizado = lista.find(p => p.idPedido === pedidoDetalle.idPedido)
           if (actualizado) setPedidoDetalle(actualizado)
@@ -94,7 +150,7 @@ export default function AdminPedidos() {
 
     if (nuevoEstado === 'CANCELADO') {
       const ok = window.confirm(
-        '⚠ ¿Confirmas cancelar este pedido?\n' +
+        '⚠️ ¿Confirmas cancelar este pedido?\n' +
         'El stock de los productos se restaurará automáticamente.'
       )
       if (!ok) return
@@ -147,193 +203,193 @@ export default function AdminPedidos() {
     '$' + Number(val ?? 0).toLocaleString('es-CO')
 
   return (
-    // Contenedor flex: tabla a la izquierda, drawer a la derecha cuando hay detalle
-    <div className="flex h-full">
+    <div className="flex h-full animate-fade-in">
+      <div className={`flex-1 p-4 md:p-8 max-w-7xl mx-auto overflow-auto transition-all duration-300 ${pedidoDetalle ? 'mr-0' : ''}`}>
 
-      {/* ── Panel principal (tabla) ─────────────────────────────────────── */}
-      <div className={`flex-1 p-6 overflow-auto transition-all duration-300
-                       ${pedidoDetalle ? 'mr-0' : ''}`}>
-
-        {/* Encabezado */}
-        <div className="mb-5">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">📦 Gestión de pedidos</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
-            Haz clic en un pedido para ver su detalle completo
-          </p>
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-teal-400 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/30 text-white">
+              <ShoppingBag size={28} strokeWidth={2} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">
+                Gestión de Pedidos
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                Haz clic en un pedido para ver su detalle completo
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Mensaje de feedback */}
         <FlashMessage mensaje={mensaje} />
 
-        {/* Filtros por estado */}
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4
-                        mb-5 flex gap-3 flex-wrap shadow-sm items-center">
-          <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Filtrar:</span>
-          <div className="flex gap-2 flex-wrap">
-            {OPCIONES_FILTRO.map(op => (
-              <button
-                key={op.valor}
-                onClick={() => handleFiltro('estado', op.valor)}
-                className={`text-xs px-3 py-1.5 rounded-full font-medium
-                            transition-colors border
-                            ${filtros.estado === op.valor
-                              ? 'bg-green-700 dark:bg-green-600 text-white border-green-700 dark:border-green-600 shadow-sm'
-                              : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-500'}`}
-              >
-                {op.label}
-              </button>
-            ))}
+        {/* FILTERS */}
+        <div className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-4 md:p-5 mb-8 flex flex-col lg:flex-row gap-4 items-start lg:items-center shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Estado:</span>
           </div>
-          <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
-            {pedidos.length} pedido(s) en esta página
-          </span>
+          <div className="flex flex-wrap gap-2 flex-1">
+            {OPCIONES_FILTRO.map(op => {
+              const borderClass = op.valor !== '' ? (ESTADOS_CONFIG[op.valor]?.borderColor || 'border-slate-200 dark:border-slate-700') : 'border-slate-200 dark:border-slate-700'
+              const iconColor = op.valor !== '' ? (ESTADOS_CONFIG[op.valor]?.iconColor || 'text-slate-400') : 'text-slate-400'
+              return (
+                <button
+                  key={op.valor}
+                  onClick={() => handleFiltro('estado', op.valor)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border
+                    ${filtros.estado === op.valor
+                      ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white border-transparent shadow-md shadow-teal-500/20'
+                      : `bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 ${borderClass} hover:border-teal-400 hover:text-teal-600 dark:hover:border-teal-500`
+                    }`}
+                >
+                  {op.valor !== '' && <EstadoIcon estado={op.valor} size={16} className={filtros.estado === op.valor ? 'text-white' : iconColor} />}
+                  {op.label}
+                </button>
+              )
+            })}
+          </div>
+          <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+            {pedidos.length} pedido(s)
+          </div>
         </div>
 
-        {/* Tabla */}
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
+        {/* TABLE BODY */}
+        <div className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/50 rounded-3xl shadow-sm overflow-hidden">
           {loading ? (
-            <div className="flex justify-center py-16">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-700" />
+            <div className="flex flex-col items-center justify-center py-24">
+              <Loader2 className="w-10 h-10 text-teal-500 animate-spin mb-4" />
+              <p className="text-slate-500 dark:text-slate-400 font-medium">Cargando pedidos...</p>
             </div>
           ) : pedidos.length === 0 ? (
-            <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-              <p className="text-4xl mb-2">📦</p>
-              <p>No hay pedidos con este filtro</p>
+            <div className="flex flex-col items-center justify-center py-24 text-slate-500 dark:text-slate-400">
+              <ShoppingBag size={48} className="mb-4 text-slate-300 dark:text-slate-600" strokeWidth={1} />
+              <p className="font-medium">No hay pedidos con este filtro</p>
             </div>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 dark:bg-gray-900/60 border-b border-gray-100 dark:border-gray-700">
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Pedido</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Cliente</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Fecha</th>
-                  <th className="text-right px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Total</th>
-                  <th className="text-center px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Estado</th>
-                  <th className="text-center px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Cambiar estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pedidos.map(p => {
-                  const config  = ESTADOS_CONFIG[p.estado] ?? ESTADOS_CONFIG.PENDIENTE
-                  const haySig  = config.siguientes.length > 0
-                  const selVal  = seleccion[p.idPedido] ?? ''
-                  // Fila activa: la que está abierta en el drawer
-                  const esActivo = pedidoDetalle?.idPedido === p.idPedido
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-sm text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-200 dark:bg-slate-700/80 border-b-2 border-slate-300 dark:border-slate-600">
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Pedido</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Cliente</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Fecha</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-right">Total</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Estado</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                  {pedidos.map(p => {
+                    const config  = ESTADOS_CONFIG[p.estado] ?? ESTADOS_CONFIG.PENDIENTE
+                    const haySig  = config.siguientes.length > 0
+                    const selVal  = seleccion[p.idPedido] ?? ''
+                    const esActivo = pedidoDetalle?.idPedido === p.idPedido
 
-                  return (
-                    <tr
-                      key={p.idPedido}
-                      onClick={() => setPedidoDetalle(esActivo ? null : p)}
-                      className={`border-b border-gray-50 dark:border-gray-700/60 transition-colors cursor-pointer
-                                  ${esActivo
-                                    ? 'bg-green-50 dark:bg-green-950/40 border-l-4 border-l-green-600 dark:border-l-green-500'
-                                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/40'}`}
-                    >
-                      {/* Número de pedido */}
-                      <td className="px-4 py-3">
-                        <p className="font-mono font-semibold text-gray-800 dark:text-gray-100 text-xs">
-                          {p.numeroPedido}
-                        </p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                          {p.detalles?.length ?? 0} producto(s)
-                        </p>
-                      </td>
-
-                      {/* Cliente: nombre + correo */}
-                      <td className="px-4 py-3 max-w-[180px]">
-                        <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm truncate">
-                          {p.nombreCliente || '—'}
-                        </p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">
-                          {p.emailCliente || ''}
-                        </p>
-                      </td>
-
-                      {/* Fecha */}
-                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
-                        {fmtFecha(p.fechaPedido)}
-                      </td>
-
-                      {/* Total */}
-                      <td className="px-4 py-3 text-right font-semibold text-green-700 dark:text-green-400">
-                        {fmtPrecio(p.total)}
-                      </td>
-
-                      {/* Badge estado */}
-                      <td className="px-4 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1 text-xs
-                                          font-semibold px-2 py-1 rounded-full
-                                          ${config.badge}`}>
-                          {config.icono} {p.estado}
-                        </span>
-                      </td>
-
-                      {/* Selector de estado — detener propagación para no abrir drawer */}
-                      <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                        {!haySig ? (
-                          <span className="text-xs text-gray-400 dark:text-gray-500 italic">Estado final</span>
-                        ) : (
-                          <div className="flex gap-1.5 items-center justify-center">
-                            <select
-                              value={selVal}
-                              onChange={e => setSeleccion(prev => ({
-                                ...prev, [p.idPedido]: e.target.value
-                              }))}
-                              disabled={guardando === p.idPedido}
-                              className="text-xs border border-gray-300 dark:border-gray-600 rounded-lg
-                                         px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none
-                                         focus:ring-2 focus:ring-green-500
-                                         disabled:opacity-50 min-w-[120px]"
-                            >
-                              <option value="">Nuevo estado...</option>
-                              {config.siguientes.map(s => (
-                                <option key={s} value={s}>
-                                  {ESTADOS_CONFIG[s]?.icono} {s}
-                                </option>
-                              ))}
-                            </select>
-
-                            <button
-                              onClick={() => handleCambiarEstado(p.idPedido)}
-                              disabled={!selVal || guardando === p.idPedido}
-                              className="text-xs px-2.5 py-1.5 bg-green-700 text-white
-                                         rounded-lg hover:bg-green-800 disabled:opacity-40
-                                         disabled:cursor-not-allowed transition-colors
-                                         font-medium whitespace-nowrap"
-                            >
-                              {guardando === p.idPedido
-                                ? <span className="inline-block w-3 h-3 border-2
-                                                   border-white border-t-transparent
-                                                   rounded-full animate-spin" />
-                                : 'Aplicar'}
-                            </button>
+                    return (
+                      <tr
+                        key={p.idPedido}
+                        onClick={() => setPedidoDetalle(esActivo ? null : p)}
+                        className={`group transition-all duration-200 cursor-pointer
+                          ${esActivo
+                            ? 'bg-teal-50/50 dark:bg-teal-900/20'
+                            : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/80'
+                          }`}
+                      >
+                        {/* NÚMERO DE PEDIDO */}
+                        <td className="px-6 py-4 relative">
+                          {esActivo && (
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-teal-500 rounded-r-full" />
+                          )}
+                          <div className="flex flex-col">
+                            <span className="font-mono font-bold text-slate-700 dark:text-slate-200">
+                              {p.numeroPedido}
+                            </span>
+                            <span className="text-xs font-medium text-slate-400 mt-1">
+                              {p.detalles?.length ?? 0} producto(s)
+                            </span>
                           </div>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                        </td>
+
+                        {/* CLIENTE */}
+                        <td className="px-6 py-4 max-w-[180px]">
+                          <p className="font-semibold text-slate-700 dark:text-slate-200 truncate">
+                            {p.nombreCliente || '—'}
+                          </p>
+                          <p className="text-xs font-medium text-slate-400 truncate mt-1">
+                            {p.emailCliente || ''}
+                          </p>
+                        </td>
+
+                        {/* FECHA */}
+                        <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">
+                          {fmtFecha(p.fechaPedido)}
+                        </td>
+
+                        {/* TOTAL */}
+                        <td className="px-6 py-4 text-right">
+                          <span className="font-bold text-teal-600 dark:text-teal-400">
+                            {fmtPrecio(p.total)}
+                          </span>
+                        </td>
+
+                        {/* ESTADO */}
+                        <td className="px-6 py-4 text-center">
+                          <span className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide uppercase ${config.badge}`}>
+                            <EstadoIcon estado={p.estado} size={14} />
+                            {p.estado}
+                          </span>
+                        </td>
+
+                        {/* ACCIONES */}
+                        <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
+                          {!haySig ? (
+                            <div className="flex justify-center text-xs font-medium text-slate-400 italic">
+                              Estado final
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center gap-2">
+                              <StatusDropdown
+                                valor={selVal}
+                                opciones={config.siguientes}
+                                guardando={guardando === p.idPedido}
+                                onCambio={val => setSeleccion(prev => ({ ...prev, [p.idPedido]: val }))}
+                              />
+
+                              <button
+                                onClick={() => handleCambiarEstado(p.idPedido)}
+                                disabled={!selVal || guardando === p.idPedido}
+                                className="flex items-center justify-center h-8 px-4 rounded-xl text-xs font-bold text-white
+                                           bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700
+                                           disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-teal-500/20"
+                              >
+                                {guardando === p.idPedido ? <Loader2 size={14} className="animate-spin" /> : 'Aplicar'}
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
-        {/* Nota */}
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 text-center">
-          ℹ Haz clic en una fila para ver el detalle · Al cambiar estado el cliente recibe un email
-        </p>
-
-        {/* Paginación */}
         {totalPages > 1 && (
-          <Pagination
-            currentPage={filtros.page}
-            totalPages={totalPages}
-            onPageChange={page => handleFiltro('page', page)}
-          />
+          <div className="mt-8 flex justify-center">
+            <Pagination
+              currentPage={filtros.page}
+              totalPages={totalPages}
+              onPageChange={page => handleFiltro('page', page)}
+            />
+          </div>
         )}
       </div>
 
-      {/* ── Drawer de detalle del pedido ────────────────────────────────── */}
+      {/* DRAWER */}
       {pedidoDetalle && (
         <DetallePedidoDrawer
           pedido={pedidoDetalle}
@@ -345,5 +401,3 @@ export default function AdminPedidos() {
     </div>
   )
 }
-
-// Componente extraído a components/DetallePedidoDrawer.jsx

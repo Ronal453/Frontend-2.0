@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import {
-  getProductosAdmin, crearProducto,
-  actualizarProducto, activarProducto, desactivarProducto,
+  getProductosAdmin,
+  crearProducto,
+  actualizarProducto,
+  activarProducto,
+  desactivarProducto,
   getProductosStockCritico
 } from '../api/adminApi'
 import { getCategorias, getTipos } from '../api/productosApi'
@@ -9,6 +12,7 @@ import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
 import FlashMessage from '../components/ui/FlashMessage'
 import Pagination from '../components/ui/Pagination'
+import { Package, Search, Plus, Edit2, AlertTriangle, Power, PowerOff, X, Leaf, Sprout, Filter } from 'lucide-react'
 
 export default function AdminProductos() {
   const [productos,  setProductos]  = useState([])
@@ -115,167 +119,232 @@ export default function AdminProductos() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto animate-fade-in">
 
-      <div className="flex justify-between items-center mb-5">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">🌿 Inventario</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
-            Gestión completa de productos (activos + inactivos)
-          </p>
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-gradient-to-br from-teal-400 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/30 text-white">
+            <Package size={28} strokeWidth={2} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">
+              Inventario
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-medium">
+              Gestión completa de productos del catálogo
+            </p>
+          </div>
         </div>
-        <Button onClick={abrirCrear}>+ Nuevo producto</Button>
+        <button 
+          onClick={abrirCrear}
+          className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-0.5 transition-all"
+        >
+          <Plus size={20} strokeWidth={2.5} />
+          Nuevo Producto
+        </button>
       </div>
 
       {totalStockCritico > 0 && (
-        <div className="mb-5 bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 rounded-xl p-3 flex items-center gap-3 text-sm">
-          <span className="text-xl">⚠️</span>
-          <p className="text-orange-800 dark:text-orange-200">
-            <strong>{totalStockCritico}</strong> producto(s) en{' '}
-            <strong>stock crítico</strong> (por debajo del umbral configurado).
-            Están resaltados en naranja en la tabla.
-          </p>
+        <div className="mb-6 bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 backdrop-blur-md rounded-2xl p-4 flex items-center gap-4 shadow-sm">
+          <div className="bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 p-2 rounded-xl">
+            <AlertTriangle size={24} />
+          </div>
+          <div>
+            <h3 className="text-orange-800 dark:text-orange-300 font-bold text-lg leading-tight">Alerta de Stock Crítico</h3>
+            <p className="text-orange-700 dark:text-orange-400 text-sm font-medium">
+              Hay <strong>{totalStockCritico}</strong> producto(s) por debajo de su umbral de seguridad.
+            </p>
+          </div>
         </div>
       )}
 
       <FlashMessage mensaje={mensaje} />
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4 mb-5 flex gap-3 flex-wrap shadow-sm">
-        <input
-          type="text"
-          placeholder="🔍 Buscar por nombre..."
-          value={filtros.nombre}
-          onChange={e => handleFiltro('nombre', e.target.value)}
-          className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 flex-1 min-w-48"
-        />
-        <select
-          value={filtros.idCategoria}
-          onChange={e => handleFiltro('idCategoria', e.target.value)}
-          className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 min-w-44"
-        >
-          <option value="">Todas las categorías</option>
-          {categorias.map(c => (
-            <option key={c.idCategoria} value={c.idCategoria}>{c.nombreCategoria}</option>
-          ))}
-        </select>
-        <select
-          value={filtros.idTipo}
-          onChange={e => handleFiltro('idTipo', e.target.value)}
-          className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 min-w-36"
-        >
-          <option value="">Todos los tipos</option>
-          {tipos.map(t => (
-            <option key={t.idTipo} value={t.idTipo}>{t.nombreTipo}</option>
-          ))}
-        </select>
+      {/* FILTROS */}
+      <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/80 dark:border-slate-700/50 rounded-2xl p-4 mb-6 shadow-lg shadow-slate-200/40 dark:shadow-black/20 flex flex-col md:flex-row gap-4 items-center">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <input
+            type="text"
+            placeholder="Buscar por nombre..."
+            value={filtros.nombre}
+            onChange={e => handleFiltro('nombre', e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700 dark:text-slate-200"
+          />
+        </div>
+        
+        <div className="flex gap-4 w-full md:w-auto">
+          <div className="relative flex-1 md:w-44">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <select
+              value={filtros.idCategoria}
+              onChange={e => handleFiltro('idCategoria', e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700 dark:text-slate-200 appearance-none"
+            >
+              <option value="">Categorías (Todas)</option>
+              {categorias.map(c => (
+                <option key={c.idCategoria} value={c.idCategoria}>{c.nombreCategoria}</option>
+              ))}
+            </select>
+          </div>
+          <div className="relative flex-1 md:w-44">
+            <Sprout className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <select
+              value={filtros.idTipo}
+              onChange={e => handleFiltro('idTipo', e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700 dark:text-slate-200 appearance-none"
+            >
+              <option value="">Tipos (Todos)</option>
+              {tipos.map(t => (
+                <option key={t.idTipo} value={t.idTipo}>{t.nombreTipo}</option>
+              ))}
+            </select>
+          </div>
+          <div className="relative flex-1 md:w-44">
+            <Power className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <select
+              value={filtros.activo}
+              onChange={e => handleFiltro('activo', e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700 dark:text-slate-200 appearance-none"
+            >
+              <option value="">Estado (Todos)</option>
+              <option value="true">Activos</option>
+              <option value="false">Inactivos</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
-
+      {/* TABLA */}
+      <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-2xl border border-white/80 dark:border-slate-700/50 rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-black/40 overflow-hidden">
         {loading ? (
-          <div className="flex justify-center py-16">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-700" />
+          <div className="flex flex-col items-center justify-center py-24 text-teal-600">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-teal-500 mb-4" />
+            <p className="font-semibold text-slate-500">Cargando inventario...</p>
           </div>
         ) : productos.length === 0 ? (
-          <div className="text-center py-16 text-gray-500 dark:text-gray-400">
-            <p className="text-3xl mb-2">🌱</p>
-            <p>No se encontraron productos</p>
+          <div className="text-center py-24 text-slate-500 dark:text-slate-400 flex flex-col items-center">
+            <Package size={48} className="mb-4 opacity-20" />
+            <p className="text-xl font-semibold">No se encontraron productos</p>
+            <p className="text-sm mt-1">Intenta ajustando los filtros de búsqueda</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 dark:bg-gray-900/60 border-b border-gray-100 dark:border-gray-700">
-                <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Producto</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Categoría</th>
-                <th className="text-right px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Precio</th>
-                <th className="text-center px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Stock</th>
-                <th className="text-center px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Estado</th>
-                <th className="text-center px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productos.map(p => (
-                <tr key={p.idProducto}
-                    className={`border-b border-gray-50 dark:border-gray-700/60 transition-colors
-                                ${p.stockCritico ? 'bg-orange-50/60 dark:bg-orange-950/30' : 'hover:bg-gray-50 dark:hover:bg-gray-700/40'}`}>
-
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-gray-800 dark:text-gray-100 max-w-xs truncate">
-                      {p.nombreProducto}
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">{p.tipo}</p>
-                  </td>
-
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
-                    {p.categoria || '—'}
-                  </td>
-
-                  <td className="px-4 py-3 text-right font-medium text-green-700 dark:text-green-400">
-                    ${Number(p.precio).toLocaleString('es-CO')}
-                  </td>
-
-                  <td className="px-4 py-3 text-center">
-                    <span className={`font-semibold inline-flex items-center gap-1
-                                     ${p.stock === 0
-                                       ? 'text-red-500 dark:text-red-400'
-                                       : p.stockCritico
-                                         ? 'text-orange-600 dark:text-orange-400'
-                                         : 'text-gray-700 dark:text-gray-200'}`}>
-                      {p.stockCritico && p.stock > 0 && <span title="Stock crítico">⚠️</span>}
-                      {p.stock}
-                    </span>
-                    {p.stockMinimoAlerta != null && (
-                      <p className="text-[10px] text-gray-400 dark:text-gray-500">
-                        mín. {p.stockMinimoAlerta}
-                      </p>
-                    )}
-                  </td>
-
-                  <td className="px-4 py-3 text-center">
-                    <span className={`text-xs font-semibold px-2 py-1 rounded-full border
-                                      ${p.activo
-                                        ? 'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800/50'
-                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-600'}`}>
-                      {p.activo ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2 justify-center">
-                      <button
-                        onClick={() => abrirEditar(p)}
-                        className="text-xs px-2 py-1 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40 rounded hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors font-medium"
-                      >
-                        ✏ Editar
-                      </button>
-
-                      <button
-                        onClick={() => handleToggleActivo(p)}
-                        disabled={guardando === p.idProducto}
-                        className={`text-xs px-2 py-1 rounded border transition-colors font-medium disabled:opacity-50
-                                    ${p.activo
-                                      ? 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 border-red-200 dark:border-red-800/40 hover:bg-red-100 dark:hover:bg-red-900/60'
-                                      : 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800/40 hover:bg-green-100 dark:hover:bg-green-900/60'}`}
-                      >
-                        {guardando === p.idProducto
-                          ? '...'
-                          : p.activo ? '⊘ Desactivar' : '✓ Activar'}
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-sm text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-200 dark:bg-slate-700/80 border-b-2 border-slate-300 dark:border-slate-600">
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Producto</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Categoría</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-right">Precio</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Stock</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Estado</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                {productos.map(p => (
+                  <tr key={p.idProducto}
+                      className={`transition-colors duration-200
+                                  ${p.stockCritico ? 'bg-orange-50/50 dark:bg-orange-900/20 hover:bg-orange-100/50' : 'hover:bg-slate-50/80 dark:hover:bg-slate-700/30'}`}>
+                    
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        {p.imagenUrl ? (
+                          <img src={p.imagenUrl} alt={p.nombreProducto} className="w-10 h-10 rounded-lg object-cover shadow-sm border border-slate-200" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-200 dark:border-slate-700">
+                            <Leaf size={20} />
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-semibold text-slate-800 dark:text-slate-100 max-w-[200px] truncate">
+                            {p.nombreProducto}
+                          </p>
+                          <p className="text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 inline-block px-2 py-0.5 rounded-md mt-1">
+                            {p.tipo}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4 font-medium text-slate-600 dark:text-slate-300">
+                      {p.categoria || '—'}
+                    </td>
+
+                    <td className="px-6 py-4 text-right font-bold text-slate-700 dark:text-slate-200">
+                      ${Number(p.precio).toLocaleString('es-CO')}
+                    </td>
+
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <span className={`font-bold text-lg inline-flex items-center gap-1.5
+                                        ${p.stock === 0
+                                          ? 'text-red-500 dark:text-red-400'
+                                          : p.stockCritico
+                                            ? 'text-orange-500 dark:text-orange-400'
+                                            : 'text-slate-700 dark:text-slate-200'}`}>
+                          {p.stockCritico && p.stock > 0 && <AlertTriangle size={16} className="text-orange-500" />}
+                          {p.stock}
+                        </span>
+                        {p.stockMinimoAlerta != null && (
+                          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                            Mín. {p.stockMinimoAlerta}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4 text-center">
+                      <span className={`text-xs font-semibold px-3 py-1.5 rounded-full border shadow-sm
+                                        ${p.activo
+                                          ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50'
+                                          : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'}`}>
+                        {p.activo ? 'ACTIVO' : 'INACTIVO'}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2 justify-center">
+                        <button
+                          onClick={() => abrirEditar(p)}
+                          title="Editar"
+                          className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-xl transition-colors border border-blue-100"
+                        >
+                          <Edit2 size={16} strokeWidth={2.5} />
+                        </button>
+
+                        <button
+                          onClick={() => handleToggleActivo(p)}
+                          disabled={guardando === p.idProducto}
+                          title={p.activo ? "Desactivar" : "Activar"}
+                          className={`p-2 rounded-xl transition-colors border disabled:opacity-50
+                                      ${p.activo
+                                        ? 'text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 border-red-100'
+                                        : 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-700 border-emerald-100'}`}
+                        >
+                          {guardando === p.idProducto ? (
+                            <div className="w-4 h-4 rounded-full border-2 border-slate-300 border-t-slate-600 animate-spin" />
+                          ) : p.activo ? <PowerOff size={16} strokeWidth={2.5} /> : <Power size={16} strokeWidth={2.5} />}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
       {totalPages > 1 && (
-        <Pagination
-          currentPage={filtros.page}
-          totalPages={totalPages}
-          onPageChange={page => handleFiltro('page', page)}
-        />
+        <div className="mt-6 flex justify-center">
+          <Pagination
+            currentPage={filtros.page}
+            totalPages={totalPages}
+            onPageChange={page => handleFiltro('page', page)}
+          />
+        </div>
       )}
 
       {modalAbierto && (
@@ -340,20 +409,27 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-white/50 dark:border-slate-700 rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
 
-        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
-          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
-            {producto ? '✏ Editar producto' : '+ Nuevo producto'}
-          </h2>
-          <button onClick={onCerrar} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl">✕</button>
+        <div className="bg-white/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 px-8 py-5 flex justify-between items-center z-10 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 p-2 rounded-xl">
+              {producto ? <Edit2 size={20} /> : <Plus size={20} />}
+            </div>
+            <h2 className="text-xl font-black text-slate-800 dark:text-slate-100">
+              {producto ? 'Editar Producto' : 'Nuevo Producto'}
+            </h2>
+          </div>
+          <button onClick={onCerrar} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full">
+            <X size={24} />
+          </button>
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6">
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="md:col-span-2">
               <Input
                 label="Nombre del producto"
                 name="nombreProducto"
@@ -389,31 +465,33 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
             />
           </div>
 
-          <Input
-            label="Umbral de stock crítico (unidades)"
-            name="stockMinimoAlerta"
-            type="number"
-            min="0"
-            value={form.stockMinimoAlerta}
-            onChange={handleChange}
-            placeholder="5"
-            error={errores.stockMinimoAlerta}
-          />
-          <p className="text-xs text-gray-400 dark:text-gray-500 -mt-2">
-            Cuando el stock caiga a este número o menos, el producto se
-            marcará como "stock crítico" en el inventario.
-          </p>
+          <div className="bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 rounded-2xl p-4">
+            <Input
+              label="Umbral de stock crítico (unidades)"
+              name="stockMinimoAlerta"
+              type="number"
+              min="0"
+              value={form.stockMinimoAlerta}
+              onChange={handleChange}
+              placeholder="5"
+              error={errores.stockMinimoAlerta}
+            />
+            <p className="text-xs font-medium text-orange-600/70 dark:text-orange-400/70 mt-2 flex items-center gap-1.5">
+              <AlertTriangle size={14} />
+              Cuando el stock caiga a este número o menos, alertaremos en el inventario.
+            </p>
+          </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                 Categoría <span className="text-red-500">*</span>
               </label>
               <select
                 name="idCategoria"
                 value={form.idCategoria}
                 onChange={handleChange}
-                className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                className={`border ${errores.idCategoria ? 'border-red-400' : 'border-slate-200 dark:border-slate-600'} rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white/80 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 font-medium transition-all appearance-none`}
               >
                 <option value="">Seleccionar...</option>
                 {categorias.map(c => (
@@ -423,18 +501,18 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
                 ))}
               </select>
               {errores.idCategoria && (
-                <p className="text-xs text-red-600 dark:text-red-400">⚠ {errores.idCategoria}</p>
+                <p className="text-xs font-bold text-red-500 flex items-center gap-1"><X size={12}/> {errores.idCategoria}</p>
               )}
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                 Tipo <span className="text-red-500">*</span>
               </label>
               <select
                 name="idTipo"
                 value={form.idTipo}
                 onChange={handleChange}
-                className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                className={`border ${errores.idTipo ? 'border-red-400' : 'border-slate-200 dark:border-slate-600'} rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white/80 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 font-medium transition-all appearance-none`}
               >
                 <option value="">Seleccionar...</option>
                 {tipos.map(t => (
@@ -442,7 +520,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
                 ))}
               </select>
               {errores.idTipo && (
-                <p className="text-xs text-red-600 dark:text-red-400">⚠ {errores.idTipo}</p>
+                <p className="text-xs font-bold text-red-500 flex items-center gap-1"><X size={12}/> {errores.idTipo}</p>
               )}
             </div>
           </div>
@@ -453,59 +531,68 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
             type="url"
             value={form.imagenUrl}
             onChange={handleChange}
-            placeholder="https://..."
+            placeholder="https://ejemplo.com/imagen.jpg"
           />
 
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Descripción</label>
             <textarea
               name="descripcion"
               rows={3}
               value={form.descripcion}
               onChange={handleChange}
               placeholder="Descripción del producto..."
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+              className="border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none bg-white/80 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 placeholder-slate-400 font-medium transition-all"
             />
           </div>
 
-          <div className="flex items-center gap-3 pt-1">
-            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-            <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
-              Datos de cuidado (opcionales)
+          <div className="flex items-center gap-4 pt-4 pb-2">
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+            <span className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <Leaf size={14} /> Datos de Cuidado
             </span>
-            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <Input label="Luz" name="luz" value={form.luz}
                    onChange={handleChange} placeholder="Ej: Indirecta" />
             <Input label="Riego" name="riego" value={form.riego}
                    onChange={handleChange} placeholder="Ej: Cada 3 días" />
-            <Input label="Tamaño estimado" name="tamanioEstimado"
+            <Input label="Tamaño" name="tamanioEstimado"
                    value={form.tamanioEstimado} onChange={handleChange}
                    placeholder="Ej: 30-50 cm" />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Cuidados</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Instrucciones de Cuidado</label>
             <textarea
               name="cuidados"
               rows={2}
               value={form.cuidados}
               onChange={handleChange}
-              placeholder="Instrucciones de cuidado..."
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+              placeholder="Tips y cuidados específicos..."
+              className="border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none bg-white/80 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 placeholder-slate-400 font-medium transition-all"
             />
           </div>
         </div>
 
-        <div className="sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 px-6 py-4 flex gap-3 justify-end rounded-b-2xl">
-          <Button variant="secondary" onClick={onCerrar}>
+        <div className="bg-slate-50/80 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 px-8 py-5 flex gap-3 justify-end z-10 backdrop-blur-md">
+          <button 
+            onClick={onCerrar}
+            className="px-5 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-200/50 transition-colors"
+          >
             Cancelar
-          </Button>
-          <Button onClick={handleSubmit} loading={guardando}>
-            {producto ? 'Guardar cambios' : 'Crear producto'}
-          </Button>
+          </button>
+          <button 
+            onClick={handleSubmit} 
+            disabled={guardando}
+            className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:transform-none"
+          >
+            {guardando ? (
+              <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            ) : producto ? 'Guardar Cambios' : 'Crear Producto'}
+          </button>
         </div>
       </div>
     </div>
