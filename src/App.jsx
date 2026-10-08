@@ -23,6 +23,7 @@ import TrabajadorLotes   from './pages/trabajador/TrabajadorLotes'
 import TrabajadorMermas  from './pages/trabajador/TrabajadorMermas'
 import TrabajadorZonas   from './pages/trabajador/TrabajadorZonas'
 import AdminZonas        from './pages/AdminZonas'
+import AdminProveedores  from './pages/AdminProveedores'
 
 import Navbar      from './components/layout/Navbar'
 import Footer      from './components/layout/Footer'
@@ -78,6 +79,7 @@ function App() {
                   <Route path="usuarios" element={<AdminUsuarios />} />
                   <Route path="zonas" element={<AdminZonas />} />
                   <Route path="lotes" element={<AdminLotes />} />
+                  <Route path="proveedores" element={<AdminProveedores />} />
                 </Route>
 
                 <Route path="/trabajador" element={<TrabajadorRoute><TrabajadorLayout /></TrabajadorRoute>}>

@@ -108,3 +108,25 @@ export const crearLote = (datos) => api.post('/admin/lotes', datos)
 export const vincularLote = (id, datos) => api.post(`/admin/lotes/${id}/vincular`, datos)
 
 export const getZonaDetalleAdmin = (id) => api.get('/zonas/' + id + '/detalle')
+
+// ════════════════════════════════════════════════════════════════════════════════════════
+// GESTIÓN DE PROVEEDORES
+// ════════════════════════════════════════════════════════════════════════════════════════
+
+export const getProveedoresAdmin = (filtros = {}) => {
+  const params = new URLSearchParams()
+  if (filtros.nombre) params.set('nombre', filtros.nombre)
+  if (filtros.tipoInsumo) params.set('tipoInsumo', filtros.tipoInsumo)
+  if (filtros.activo !== undefined && filtros.activo !== '') params.set('activo', filtros.activo)
+  params.set('page', filtros.page ?? 0)
+  params.set('size', filtros.size ?? 20)
+  return api.get(`/admin/proveedores?${params}`)
+}
+export const getProveedorPorId = (id) => api.get(`/admin/proveedores/${id}`)
+export const crearProveedor = (datos) => api.post('/admin/proveedores', datos)
+export const actualizarProveedor = (id, datos) => api.put(`/admin/proveedores/${id}`, datos)
+export const activarProveedor = (id) => api.patch(`/admin/proveedores/${id}/activar`)
+export const desactivarProveedor = (id) => api.patch(`/admin/proveedores/${id}/desactivar`)
+export const getReporteProveedor = () => api.get(`/admin/proveedores/reporte`)
+
+export const asignarProveedorLote = (id, datos) => api.patch(`/admin/lotes/${id}/proveedor`, datos)

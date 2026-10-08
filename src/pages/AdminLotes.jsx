@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { getLotes, getZonas } from '../api/trabajadorApi'
-import { getProductosAdmin, crearLote, vincularLote } from '../api/adminApi'
+import { getProductosAdmin, crearLote, vincularLote, getProveedoresAdmin } from '../api/adminApi'
 import { 
   Sprout, Search, ArrowUp, ArrowDown, Plus, MapPin, Calendar, 
-  Box, Link as LinkIcon, CheckCircle, AlertTriangle, X, Loader2 
+  Box, Link as LinkIcon, CheckCircle, AlertTriangle, X, Loader2, Truck 
 } from 'lucide-react'
 import Input from '../components/ui/Input'
 
@@ -19,6 +19,7 @@ export default function AdminLotes() {
   const [lotes, setLotes] = useState([])
   const [zonas, setZonas] = useState([])
   const [productos, setProductos] = useState([])
+  const [proveedores, setProveedores] = useState([])
   
   const [filtroZona, setFiltroZona] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
@@ -37,7 +38,8 @@ export default function AdminLotes() {
     fechaSiembra: new Date().toISOString().split('T')[0],
     idZona: '',
     codigoLote: '',
-    estadoLote: 'GERMINANDO'
+    estadoLote: 'GERMINANDO',
+    idProveedor: ''
   })
 
   const [modalVinculacion, setModalVinculacion] = useState({
@@ -49,7 +51,7 @@ export default function AdminLotes() {
   const cargarDatos = async () => {
     setCargando(true)
     try {
-      const [resLotes, resZonas, resProds] = await Promise.all([
+      const [resLotes, resZonas, resProds, resProv] = await Promise.all([
         getLotes({ 
           idZona: filtroZona || undefined, 
           estado: filtroEstado || undefined, 
@@ -60,12 +62,14 @@ export default function AdminLotes() {
           size: 10 
         }),
         getZonas(),
-        getProductosAdmin({ size: 100 })
+        getProductosAdmin({ size: 100 }),
+        getProveedoresAdmin({ activo: 'true', size: 100 })
       ])
       setLotes(resLotes.data.content || [])
       setTotalPaginas(resLotes.data.totalPages || 1)
       setZonas(resZonas.data)
       setProductos(resProds.data.content || [])
+      setProveedores(resProv.data || [])
     } catch (err) {
       console.error(err)
     } finally {
@@ -84,7 +88,8 @@ export default function AdminLotes() {
       await crearLote({
         ...nuevoLote,
         cantidadInicial: Number(nuevoLote.cantidadInicial),
-        idZona: Number(nuevoLote.idZona)
+        idZona: Number(nuevoLote.idZona),
+        idProveedor: nuevoLote.idProveedor ? Number(nuevoLote.idProveedor) : null
       })
       setModalRegistro(false)
       cargarDatos()
@@ -234,6 +239,7 @@ export default function AdminLotes() {
                   <tr className="bg-slate-200 dark:bg-slate-700/80 border-b-2 border-slate-300 dark:border-slate-600">
                     <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Código / Especie</th>
                     <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Zona</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Proveedor</th>
                     <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Fechas (Siembra / Reg)</th>
                     <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Stock</th>
                     <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Estado</th>
@@ -253,6 +259,19 @@ export default function AdminLotes() {
                           <MapPin size={14} className="text-slate-400" />
                           {l.nombreZona}
                         </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {l.nombreProveedor ? (
+                          <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300" title="Proveedor asignado">
+                            <Truck size={14} className="text-indigo-400" />
+                            {l.nombreProveedor}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400 italic">
+                            <Truck size={14} className="text-slate-300 dark:text-slate-600" />
+                            Propio
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 space-y-1">
                         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300" title="Fecha de Siembra">
@@ -391,6 +410,14 @@ export default function AdminLotes() {
                 <select required value={nuevoLote.idZona} onChange={e => setNuevoLote({...nuevoLote, idZona: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow">
                   <option value="" disabled>Seleccione Zona...</option>
                   {zonas.map(z => <option key={z.idZona} value={z.idZona}>{z.nombre}</option>)}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Proveedor</label>
+                <select value={nuevoLote.idProveedor} onChange={e => setNuevoLote({...nuevoLote, idProveedor: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow">
+                  <option value="">Ninguno (Propio / Desconocido)</option>
+                  {proveedores.map(p => <option key={p.idProveedor} value={p.idProveedor}>{p.nombre} ({p.tipoInsumo})</option>)}
                 </select>
               </div>
               
