@@ -130,3 +130,18 @@ export const desactivarProveedor = (id) => api.patch(`/admin/proveedores/${id}/d
 export const getReporteProveedor = () => api.get(`/admin/proveedores/reporte`)
 
 export const asignarProveedorLote = (id, datos) => api.patch(`/admin/lotes/${id}/proveedor`, datos)
+
+// ════════════════════════════════════════════════════════════════════════════════════════
+// GESTIÓN DE BACKUP
+// ════════════════════════════════════════════════════════════════════════════════════════
+
+export const generarBackup = () => api.get('/admin/backup/generar', { responseType: 'blob' })
+export const getResumenBackup = () => api.get('/admin/backup/resumen')
+export const restaurarBackup = (archivo) => {
+  const fd = new FormData()
+  fd.append('archivo', archivo)
+  return api.post('/admin/backup/restaurar', fd, { 
+    timeout: 300000,
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}

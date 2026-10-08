@@ -15,6 +15,7 @@ import AdminProductos from './pages/AdminProductos'
 import AdminPedidos   from './pages/AdminPedidos'
 import AdminUsuarios  from './pages/AdminUsuarios'
 import AdminLotes     from './pages/AdminLotes'
+import AdminBackup    from './pages/AdminBackup'
 
 import TrabajadorLayout  from './components/layout/TrabajadorLayout'
 import TrabajadorRoute   from './components/TrabajadorRoute'
@@ -80,6 +81,7 @@ function App() {
                   <Route path="zonas" element={<AdminZonas />} />
                   <Route path="lotes" element={<AdminLotes />} />
                   <Route path="proveedores" element={<AdminProveedores />} />
+                  <Route path="backup" element={<AdminBackup />} />
                 </Route>
 
                 <Route path="/trabajador" element={<TrabajadorRoute><TrabajadorLayout /></TrabajadorRoute>}>

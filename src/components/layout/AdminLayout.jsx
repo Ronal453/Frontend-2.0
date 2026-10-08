@@ -15,6 +15,11 @@ const VIVERO_LINKS = [
   { to: '/admin/proveedores',icono: Truck,          label: 'Proveedores' },
 ]
 
+import { DatabaseBackup } from 'lucide-react'
+const SISTEMA_LINKS = [
+  { to: '/admin/backup',    icono: DatabaseBackup,  label: 'Copias de Seguridad' },
+]
+
 export default function AdminLayout() {
   return (
     <div className="flex h-screen p-4 gap-4 overflow-hidden bg-slate-50 dark:bg-[#060A11]">
@@ -65,6 +70,34 @@ export default function AdminLayout() {
           <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Operaciones de Vivero</p>
           <nav className="flex flex-col gap-1.5">
             {VIVERO_LINKS.map(link => {
+              const Icon = link.icono
+              return (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group
+                     ${isActive
+                       ? 'bg-cyan-400/20 text-white shadow-lg shadow-cyan-500/20 border border-cyan-400/40'
+                       : 'text-slate-300 hover:bg-white/10 hover:text-white'}`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className={`transition-transform duration-300 ${isActive ? 'scale-110 drop-shadow-md' : 'group-hover:scale-110'}`} />
+                      {link.label}
+                    </>
+                  )}
+                </NavLink>
+              )
+            })}
+          </nav>
+        </div>
+
+        <div className="mb-4">
+          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Sistema</p>
+          <nav className="flex flex-col gap-1.5">
+            {SISTEMA_LINKS.map(link => {
               const Icon = link.icono
               return (
                 <NavLink
