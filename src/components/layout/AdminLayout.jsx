@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
-import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck, AlertTriangle } from 'lucide-react'
 
 const ECOM_LINKS = [
   { to: '/admin/dashboard', icono: LayoutDashboard, label: 'Dashboard' },
@@ -12,6 +12,7 @@ const ECOM_LINKS = [
 const VIVERO_LINKS = [
   { to: '/admin/zonas',     icono: MapPin,          label: 'Gestión de Zonas' },
   { to: '/admin/lotes',     icono: Sprout,          label: 'Lotes de Cultivo' },
+  { to: '/admin/mermas',    icono: AlertTriangle,   label: 'Reporte de Mermas' },
   { to: '/admin/proveedores',icono: Truck,          label: 'Proveedores' },
 ]
 

@@ -57,7 +57,13 @@ export const getCausasMerma = () => api.get('/mermas/causas')
 
 export const registrarMerma = (datos) => api.post('/mermas', datos)
 
-export const getMermasRecientes = (limite = 20) => api.get(`/mermas?limite=${limite}`)
+export const getMermasRecientes = (limite = 20, fechaInicio, fechaFin) => {
+  const params = new URLSearchParams()
+  params.set('limite', limite)
+  if (fechaInicio) params.set('fechaInicio', fechaInicio)
+  if (fechaFin) params.set('fechaFin', fechaFin)
+  return api.get(`/mermas?${params.toString()}`)
+}
 
 
 // ═══════════════════════════════════════════════════════════════

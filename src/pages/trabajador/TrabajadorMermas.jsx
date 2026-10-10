@@ -61,8 +61,8 @@ export default function TrabajadorMermas() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.idLote || !form.idCausa || !form.cantidadPerdida) {
-      alert('Por favor completa los campos requeridos')
+    if (!form.idLote || !form.idCausa || !form.cantidadPerdida || !form.observaciones.trim()) {
+      alert('Por favor completa todos los campos requeridos, incluyendo los detalles de la merma.')
       return
     }
 
@@ -234,15 +234,16 @@ export default function TrabajadorMermas() {
 
               {/* Observaciones */}
               <div className="space-y-1.5">
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
-                  Observaciones (Opcional)
+                <label className="block text-sm font-bold text-red-600 dark:text-red-400">
+                  Descripción (Obligatoria) *
                 </label>
                 <textarea
                   rows="3"
                   value={form.observaciones}
                   onChange={(e) => setForm(prev => ({ ...prev, observaciones: e.target.value }))}
-                  placeholder="Describe el síntoma observado, plaga detectada..."
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none transition-shadow resize-none text-slate-700 dark:text-slate-200"
+                  placeholder="Ej: Infección en hojas basales, tallo roto por el viento, etc."
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-red-200 dark:border-red-900/50 rounded-xl text-sm font-medium focus:ring-2 focus:ring-red-500 outline-none transition-shadow resize-none text-slate-700 dark:text-slate-200"
+                  required
                 />
               </div>
 

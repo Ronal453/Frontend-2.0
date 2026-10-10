@@ -4,10 +4,10 @@ import Navbar from './Navbar'
 import { Kanban, Sprout, AlertTriangle, MapPin, ArrowLeft } from 'lucide-react'
 
 const TRABAJADOR_LINKS = [
-  { to: '/trabajador/tareas', icono: Kanban, label: 'Tablero Kanban' },
-  { to: '/trabajador/lotes',  icono: Sprout, label: 'Lotes de Cultivo' },
+  { to: '/trabajador/tareas', icono: Kanban,        label: 'Tablero Kanban' },
+  { to: '/trabajador/zonas',  icono: MapPin,        label: 'Zonas / Invernaderos' },
+  { to: '/trabajador/lotes',  icono: Sprout,        label: 'Lotes de Cultivo' },
   { to: '/trabajador/mermas', icono: AlertTriangle, label: 'Registro de Mermas' },
-  { to: '/trabajador/zonas', icono: MapPin, label: 'Zonas / Invernaderos' },
 ]
 
 export default function TrabajadorLayout() {
