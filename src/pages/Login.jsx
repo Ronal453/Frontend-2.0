@@ -19,11 +19,32 @@ export default function Login() {
   )
 
   useEffect(() => {
+    let timeoutId;
+
     if (sessionStorage.getItem('sesion_expirada') === 'true') {
       sessionStorage.removeItem('sesion_expirada')
       setSesionExpirada(true)
     }
-  }, [])
+
+    if (sesionExpirada) {
+      // Remover del location.state para que no aparezca si el usuario refresca (F5)
+      if (location.state?.sesionExpirada) {
+        navigate(location.pathname, { 
+          replace: true, 
+          state: { ...location.state, sesionExpirada: false } 
+        })
+      }
+
+      // Quitar el mensaje después de 5 segundos
+      timeoutId = setTimeout(() => {
+        setSesionExpirada(false)
+      }, 5000)
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [sesionExpirada, location, navigate])
 
   const [form, setForm]       = useState({ email: '', password: '', website: '' })
   const [error, setError]     = useState('')

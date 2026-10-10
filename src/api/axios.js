@@ -10,7 +10,7 @@ const api = axios.create({
 api.interceptors.response.use(
   response => response,
   error => {
-    if (error.response && error.response.status === 401) {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       localStorage.removeItem('user')
       // Solo redirigir si no estamos ya en login
       if (window.location.pathname !== '/login') {
