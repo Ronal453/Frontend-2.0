@@ -502,13 +502,14 @@ export default function TrabajadorLotes() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Detalles (Opcional)</label>
+                  <label className="block text-sm font-bold text-red-600 dark:text-red-400">Descripción (Obligatoria) *</label>
                   <textarea
-                    rows="2"
+                    required
+                    rows="3"
                     value={modalMerma.observaciones}
                     onChange={(e) => setModalMerma(prev => ({ ...prev, observaciones: e.target.value }))}
-                    placeholder="Ej: Infección en hojas basales..."
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none transition-shadow resize-none"
+                    placeholder="Ej: Invasión severa de plaga que no respondió al tratamiento..."
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-red-500 outline-none transition-shadow resize-none"
                   />
                 </div>
 
