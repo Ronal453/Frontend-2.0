@@ -13,8 +13,18 @@ import Input  from '../components/ui/Input'
 import FlashMessage from '../components/ui/FlashMessage'
 import Pagination from '../components/ui/Pagination'
 import { Package, Search, Plus, Edit2, AlertTriangle, Power, PowerOff, X, Leaf, Sprout, Filter } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
+/**
+ * Vista de administración de inventario de productos.
+ * Permite filtrar, crear, editar y alternar el estado activo/inactivo
+ * de los productos del catálogo, así como monitorear alertas de stock crítico.
+ *
+ * @component
+ * @returns {JSX.Element} Panel de inventario administrativo
+ */
 export default function AdminProductos() {
+  const { t } = useLanguage()
   const [productos,  setProductos]  = useState([])
   const [categorias, setCategorias] = useState([])
   const [tipos,      setTipos]      = useState([])
@@ -74,7 +84,7 @@ export default function AdminProductos() {
         await activarProducto(producto.idProducto)
       }
       await cargarProductos()
-      mostrarMensaje('ok', `Producto ${producto.activo ? 'desactivado' : 'activado'}`)
+      mostrarMensaje('ok', producto.activo ? t('admin.productDeactivated') : t('admin.productActivated'))
     } catch (e) {
       mostrarMensaje('error', e.response?.data?.mensaje || 'Error al cambiar estado')
     } finally {
@@ -87,10 +97,10 @@ export default function AdminProductos() {
     try {
       if (productoEdit) {
         await actualizarProducto(productoEdit.idProducto, datos)
-        mostrarMensaje('ok', 'Producto actualizado correctamente')
+        mostrarMensaje('ok', t('admin.productUpdated'))
       } else {
         await crearProducto(datos)
-        mostrarMensaje('ok', 'Producto creado correctamente')
+        mostrarMensaje('ok', t('admin.productCreated'))
       }
       setModalAbierto(false)
       setProductoEdit(null)
@@ -129,10 +139,10 @@ export default function AdminProductos() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">
-              Inventario
+              {t('admin.inventory')}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 font-medium">
-              Gestión completa de productos del catálogo
+              {t('admin.inventorySubtitle')}
             </p>
           </div>
         </div>
@@ -141,7 +151,7 @@ export default function AdminProductos() {
           className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-0.5 transition-all"
         >
           <Plus size={20} strokeWidth={2.5} />
-          Nuevo Producto
+          {t('admin.newProduct')}
         </button>
       </div>
 
@@ -151,9 +161,9 @@ export default function AdminProductos() {
             <AlertTriangle size={24} />
           </div>
           <div>
-            <h3 className="text-orange-800 dark:text-orange-300 font-bold text-lg leading-tight">Alerta de Stock Crítico</h3>
+            <h3 className="text-orange-800 dark:text-orange-300 font-bold text-lg leading-tight">{t('admin.stockCriticalTitle')}</h3>
             <p className="text-orange-700 dark:text-orange-400 text-sm font-medium">
-              Hay <strong>{totalStockCritico}</strong> producto(s) por debajo de su umbral de seguridad.
+              {t('admin.criticalStockAlertCount', { count: totalStockCritico })}
             </p>
           </div>
         </div>
@@ -167,7 +177,7 @@ export default function AdminProductos() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
-            placeholder="Buscar por nombre..."
+            placeholder={t('admin.searchByName')}
             value={filtros.nombre}
             onChange={e => handleFiltro('nombre', e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700 dark:text-slate-200"
@@ -182,9 +192,9 @@ export default function AdminProductos() {
               onChange={e => handleFiltro('idCategoria', e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700 dark:text-slate-200 appearance-none"
             >
-              <option value="">Categorías (Todas)</option>
+              <option value="">{t('admin.allCategories')}</option>
               {categorias.map(c => (
-                <option key={c.idCategoria} value={c.idCategoria}>{c.nombreCategoria}</option>
+                <option key={c.idCategoria} value={c.idCategoria}>{t('category.' + c.nombreCategoria, c.nombreCategoria)}</option>
               ))}
             </select>
           </div>
@@ -195,9 +205,9 @@ export default function AdminProductos() {
               onChange={e => handleFiltro('idTipo', e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700 dark:text-slate-200 appearance-none"
             >
-              <option value="">Tipos (Todos)</option>
-              {tipos.map(t => (
-                <option key={t.idTipo} value={t.idTipo}>{t.nombreTipo}</option>
+              <option value="">{t('admin.allTypes')}</option>
+              {tipos.map(tOption => (
+                <option key={tOption.idTipo} value={tOption.idTipo}>{t('plantType.' + tOption.nombreTipo, tOption.nombreTipo)}</option>
               ))}
             </select>
           </div>
@@ -208,9 +218,9 @@ export default function AdminProductos() {
               onChange={e => handleFiltro('activo', e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700 dark:text-slate-200 appearance-none"
             >
-              <option value="">Estado (Todos)</option>
-              <option value="true">Activos</option>
-              <option value="false">Inactivos</option>
+              <option value="">{t('admin.allStatuses')}</option>
+              <option value="true">{t('admin.activeOnly')}</option>
+              <option value="false">{t('admin.inactiveOnly')}</option>
             </select>
           </div>
         </div>
@@ -221,25 +231,25 @@ export default function AdminProductos() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 text-teal-600">
             <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-teal-500 mb-4" />
-            <p className="font-semibold text-slate-500">Cargando inventario...</p>
+            <p className="font-semibold text-slate-500">{t('admin.loadingInventory')}</p>
           </div>
         ) : productos.length === 0 ? (
           <div className="text-center py-24 text-slate-500 dark:text-slate-400 flex flex-col items-center">
             <Package size={48} className="mb-4 opacity-20" />
-            <p className="text-xl font-semibold">No se encontraron productos</p>
-            <p className="text-sm mt-1">Intenta ajustando los filtros de búsqueda</p>
+            <p className="text-xl font-semibold">{t('admin.noProductsFound')}</p>
+            <p className="text-sm mt-1">{t('admin.noProductsSubtitle')}</p>
           </div>
         ) : (
           <div className="overflow-x-auto custom-scrollbar">
             <table className="w-full text-sm text-left border-collapse">
               <thead>
                 <tr className="bg-slate-200 dark:bg-slate-700/80 border-b-2 border-slate-300 dark:border-slate-600">
-                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Producto</th>
-                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Categoría</th>
-                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-right">Precio</th>
-                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Stock</th>
-                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Estado</th>
-                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Acciones</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thProduct')}</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thCategory')}</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-right">{t('admin.thPrice')}</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thStock')}</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thStatus')}</th>
+                  <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thActions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -259,17 +269,17 @@ export default function AdminProductos() {
                         )}
                         <div>
                           <p className="font-semibold text-slate-800 dark:text-slate-100 max-w-[200px] truncate">
-                            {p.nombreProducto}
+                            {t('product.name.' + p.nombreProducto, p.nombreProducto)}
                           </p>
                           <p className="text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 inline-block px-2 py-0.5 rounded-md mt-1">
-                            {p.tipo}
+                            {t('plantType.' + p.tipo, p.tipo)}
                           </p>
                         </div>
                       </div>
                     </td>
 
                     <td className="px-6 py-4 font-medium text-slate-600 dark:text-slate-300">
-                      {p.categoria || '—'}
+                      {p.categoria ? t('category.' + p.categoria, p.categoria) : '—'}
                     </td>
 
                     <td className="px-6 py-4 text-right font-bold text-slate-700 dark:text-slate-200">
@@ -289,7 +299,7 @@ export default function AdminProductos() {
                         </span>
                         {p.stockMinimoAlerta != null && (
                           <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                            Mín. {p.stockMinimoAlerta}
+                            {t('admin.min')} {p.stockMinimoAlerta}
                           </span>
                         )}
                       </div>
@@ -300,7 +310,7 @@ export default function AdminProductos() {
                                         ${p.activo
                                           ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50'
                                           : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'}`}>
-                        {p.activo ? 'ACTIVO' : 'INACTIVO'}
+                        {p.activo ? t('admin.activeStatus').toUpperCase() : t('admin.inactiveStatus').toUpperCase()}
                       </span>
                     </td>
 
@@ -308,7 +318,7 @@ export default function AdminProductos() {
                       <div className="flex gap-2 justify-center">
                         <button
                           onClick={() => abrirEditar(p)}
-                          title="Editar"
+                          title={t('admin.edit')}
                           className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-xl transition-colors border border-blue-100"
                         >
                           <Edit2 size={16} strokeWidth={2.5} />
@@ -317,7 +327,7 @@ export default function AdminProductos() {
                         <button
                           onClick={() => handleToggleActivo(p)}
                           disabled={guardando === p.idProducto}
-                          title={p.activo ? "Desactivar" : "Activar"}
+                          title={p.activo ? t('admin.deactivate') : t('admin.activate')}
                           className={`p-2 rounded-xl transition-colors border disabled:opacity-50
                                       ${p.activo
                                         ? 'text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 border-red-100'
@@ -361,7 +371,16 @@ export default function AdminProductos() {
   )
 }
 
+/**
+ * Modal interactivo para crear y editar productos del catálogo.
+ * Soporta validación de campos, asignación de umbral de stock crítico,
+ * categorías, tipos y ficha botánica de cuidados.
+ *
+ * @component
+ * @param {Object} props Propiedades del modal
+ */
 function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCerrar }) {
+  const { t } = useLanguage()
   const [form, setForm] = useState({
     nombreProducto:  producto?.nombreProducto  ?? '',
     descripcion:     producto?.descripcion     ?? '',
@@ -385,13 +404,13 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
 
   const validar = () => {
     const errs = {}
-    if (!form.nombreProducto.trim()) errs.nombreProducto = 'El nombre es obligatorio'
-    if (!form.precio || Number(form.precio) <= 0) errs.precio = 'El precio debe ser mayor a 0'
+    if (!form.nombreProducto.trim()) errs.nombreProducto = t('cart.requiredField') || 'El nombre es obligatorio'
+    if (!form.precio || Number(form.precio) <= 0) errs.precio = t('cart.invalidPrice') || 'El precio debe ser mayor a 0'
     if (form.stock === '' || Number(form.stock) < 0) errs.stock = 'El stock no puede ser negativo'
     if (form.stockMinimoAlerta === '' || Number(form.stockMinimoAlerta) < 0)
       errs.stockMinimoAlerta = 'El umbral no puede ser negativo'
-    if (!form.idCategoria) errs.idCategoria = 'Selecciona una categoría'
-    if (!form.idTipo) errs.idTipo = 'Selecciona un tipo'
+    if (!form.idCategoria) errs.idCategoria = t('admin.selectOption')
+    if (!form.idTipo) errs.idTipo = t('admin.selectOption')
     setErrores(errs)
     return Object.keys(errs).length === 0
   }
@@ -418,7 +437,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
               {producto ? <Edit2 size={20} /> : <Plus size={20} />}
             </div>
             <h2 className="text-xl font-black text-slate-800 dark:text-slate-100">
-              {producto ? 'Editar Producto' : 'Nuevo Producto'}
+              {producto ? t('admin.editProduct') : t('admin.newProduct')}
             </h2>
           </div>
           <button onClick={onCerrar} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full">
@@ -431,7 +450,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="md:col-span-2">
               <Input
-                label="Nombre del producto"
+                label={t('admin.productName')}
                 name="nombreProducto"
                 value={form.nombreProducto}
                 onChange={handleChange}
@@ -441,7 +460,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
               />
             </div>
             <Input
-              label="Precio (COP)"
+              label={t('admin.priceCOP')}
               name="precio"
               type="number"
               min="0.01"
@@ -453,7 +472,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
               required
             />
             <Input
-              label="Stock (unidades)"
+              label={t('admin.stockUnits')}
               name="stock"
               type="number"
               min="0"
@@ -467,7 +486,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
 
           <div className="bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 rounded-2xl p-4">
             <Input
-              label="Umbral de stock crítico (unidades)"
+              label={t('admin.criticalThreshold')}
               name="stockMinimoAlerta"
               type="number"
               min="0"
@@ -478,14 +497,14 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
             />
             <p className="text-xs font-medium text-orange-600/70 dark:text-orange-400/70 mt-2 flex items-center gap-1.5">
               <AlertTriangle size={14} />
-              Cuando el stock caiga a este número o menos, alertaremos en el inventario.
+              {t('admin.criticalThresholdDesc')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                Categoría <span className="text-red-500">*</span>
+                {t('admin.category')} <span className="text-red-500">*</span>
               </label>
               <select
                 name="idCategoria"
@@ -493,10 +512,10 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
                 onChange={handleChange}
                 className={`border ${errores.idCategoria ? 'border-red-400' : 'border-slate-200 dark:border-slate-600'} rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white/80 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 font-medium transition-all appearance-none`}
               >
-                <option value="">Seleccionar...</option>
+                <option value="">{t('admin.selectOption')}</option>
                 {categorias.map(c => (
                   <option key={c.idCategoria} value={c.idCategoria}>
-                    {c.nombreCategoria}
+                    {t('category.' + c.nombreCategoria, c.nombreCategoria)}
                   </option>
                 ))}
               </select>
@@ -506,7 +525,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                Tipo <span className="text-red-500">*</span>
+                {t('admin.type')} <span className="text-red-500">*</span>
               </label>
               <select
                 name="idTipo"
@@ -514,9 +533,9 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
                 onChange={handleChange}
                 className={`border ${errores.idTipo ? 'border-red-400' : 'border-slate-200 dark:border-slate-600'} rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white/80 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 font-medium transition-all appearance-none`}
               >
-                <option value="">Seleccionar...</option>
-                {tipos.map(t => (
-                  <option key={t.idTipo} value={t.idTipo}>{t.nombreTipo}</option>
+                <option value="">{t('admin.selectOption')}</option>
+                {tipos.map(tOption => (
+                  <option key={tOption.idTipo} value={tOption.idTipo}>{t('plantType.' + tOption.nombreTipo, tOption.nombreTipo)}</option>
                 ))}
               </select>
               {errores.idTipo && (
@@ -526,7 +545,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
           </div>
 
           <Input
-            label="URL de imagen (opcional)"
+            label={t('admin.imageUrlOptional')}
             name="imagenUrl"
             type="url"
             value={form.imagenUrl}
@@ -535,7 +554,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
           />
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Descripción</label>
+            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('admin.description')}</label>
             <textarea
               name="descripcion"
               rows={3}
@@ -549,23 +568,23 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
           <div className="flex items-center gap-4 pt-4 pb-2">
             <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
             <span className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Leaf size={14} /> Datos de Cuidado
+              <Leaf size={14} /> {t('admin.careData')}
             </span>
             <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <Input label="Luz" name="luz" value={form.luz}
+            <Input label={t('admin.light')} name="luz" value={form.luz}
                    onChange={handleChange} placeholder="Ej: Indirecta" />
-            <Input label="Riego" name="riego" value={form.riego}
+            <Input label={t('admin.watering')} name="riego" value={form.riego}
                    onChange={handleChange} placeholder="Ej: Cada 3 días" />
-            <Input label="Tamaño" name="tamanioEstimado"
+            <Input label={t('admin.estimatedSize')} name="tamanioEstimado"
                    value={form.tamanioEstimado} onChange={handleChange}
                    placeholder="Ej: 30-50 cm" />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Instrucciones de Cuidado</label>
+            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('admin.careInstructions')}</label>
             <textarea
               name="cuidados"
               rows={2}
@@ -582,7 +601,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
             onClick={onCerrar}
             className="px-5 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-200/50 transition-colors"
           >
-            Cancelar
+            {t('admin.cancel')}
           </button>
           <button 
             onClick={handleSubmit} 
@@ -591,7 +610,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
           >
             {guardando ? (
               <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-            ) : producto ? 'Guardar Cambios' : 'Crear Producto'}
+            ) : producto ? t('admin.saveChanges') : t('admin.createProduct')}
           </button>
         </div>
       </div>

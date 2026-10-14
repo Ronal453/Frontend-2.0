@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
+import { useLanguage } from '../context/LanguageContext'
 
 const COLORS_ESTADO = {
   PENDIENTE: '#facc15',
@@ -14,30 +15,16 @@ const COLORS_ESTADO = {
   CANCELADO: '#f87171'
 }
 
-const ESTADO_CONFIG = {
-  PENDIENTE:  { color: 'bg-yellow-400', texto: 'text-yellow-700' },
-  PREPARANDO: { color: 'bg-blue-400',   texto: 'text-blue-700'   },
-  ENVIADO:    { color: 'bg-purple-400', texto: 'text-purple-700' },
-  ENTREGADO:  { color: 'bg-green-500',  texto: 'text-green-700'  },
-  CANCELADO:  { color: 'bg-red-400',    texto: 'text-red-700'    },
-}
-
-const FASE_CONFIG = {
-  GERMINANDO:       { color: 'bg-yellow-400', label: 'Germinando' },
-  CRECIENDO:        { color: 'bg-blue-400',   label: 'Creciendo' },
-  LISTO_PARA_VENTA: { color: 'bg-green-500',  label: 'Listo' },
-  DESCARTADO:       { color: 'bg-red-400',    label: 'Descartado' },
-}
-
-const TAREA_CONFIG = {
-  POR_HACER:   { color: 'bg-slate-400', label: 'Por Hacer' },
-  EN_PROGRESO: { color: 'bg-blue-400',  label: 'Progreso' },
-  EN_REVISION: { color: 'bg-purple-400',label: 'Revisión' },
-  COMPLETADA:  { color: 'bg-green-500', label: 'Completada' },
-  BLOQUEADA:   { color: 'bg-red-500',   label: 'Bloqueada' },
-}
-
+/**
+ * Panel de control principal (Dashboard) para administradores.
+ * Muestra KPIs comerciales, gráficos de pedidos, productos más vendidos,
+ * alertas de stock crítico y herramientas para exportación en CSV y PDF.
+ *
+ * @component
+ * @returns {JSX.Element} Vista del dashboard administrativo
+ */
 export default function AdminDashboard() {
+  const { t } = useLanguage()
   const [reporte,  setReporte]  = useState(null)
   const [loading,  setLoading]  = useState(true)
   const [error,    setError]    = useState('')
@@ -61,28 +48,28 @@ export default function AdminDashboard() {
       
       pdf.setFontSize(22)
       pdf.setTextColor(15, 23, 42)
-      pdf.text('Reporte Gerencial - Plantopolis', 14, 20)
+      pdf.text(t('admin.pdfTitle'), 14, 20)
       
       pdf.setFontSize(11)
       pdf.setTextColor(100)
-      const dateStr = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
-      pdf.text(`Fecha de generación: ${dateStr}`, 14, 28)
+      const dateStr = new Date().toLocaleDateString(t('catalog.currency') ? 'en-US' : 'es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
+      pdf.text(t('admin.pdfGenerated', { date: dateStr }), 14, 28)
       if (fechaInicio || fechaFin) {
-        pdf.text(`PerÃ­odo: ${fechaInicio || 'Inicio'} a ${fechaFin || 'Hoy'}`, 14, 34)
+        pdf.text(t('admin.pdfPeriod', { start: fechaInicio || 'Inicio', end: fechaFin || 'Hoy' }), 14, 34)
       }
 
       pdf.setFontSize(14)
       pdf.setTextColor(15, 23, 42)
-      pdf.text('Indicadores Principales', 14, 45)
+      pdf.text(t('admin.pdfKeyMetrics'), 14, 45)
       
       pdf.autoTable({
         startY: 50,
-        head: [['Métrica', 'Valor', 'Descripción']],
+        head: [[t('admin.pdfColMetric'), t('admin.pdfColValue'), t('admin.pdfColDescription')]],
         body: [
-          ['Ingresos', localFmt(reporte?.totalIngresos), 'Total de ventas procesadas'],
-          ['Total Pedidos', (reporte?.totalPedidos ?? 0).toString(), 'Pedidos en el sistema'],
-          ['Productos Activos', (reporte?.totalProductosActivos ?? 0).toString(), 'Plantas/Productos en catálogo'],
-          ['Ticket Promedio', localFmt(reporte?.promedioOrden), 'Promedio de venta por orden']
+          [t('admin.revenue'), localFmt(reporte?.totalIngresos), t('admin.pdfDescRevenue')],
+          [t('admin.orders'), (reporte?.totalPedidos ?? 0).toString(), t('admin.pdfDescOrders')],
+          [t('admin.inventory'), (reporte?.totalProductosActivos ?? 0).toString(), t('admin.pdfDescProducts')],
+          [t('admin.avgTicket'), localFmt(reporte?.promedioOrden), t('admin.pdfDescTicket')]
         ],
         theme: 'grid',
         headStyles: { fillColor: [15, 23, 42] }
@@ -93,11 +80,11 @@ export default function AdminDashboard() {
       if (reporte?.topProductos && reporte.topProductos.length > 0) {
         if (finalY > 230) { pdf.addPage(); finalY = 20; }
         pdf.setFontSize(14)
-        pdf.text('Top Productos Más Vendidos', 14, finalY)
+        pdf.text(t('admin.pdfTopSelling'), 14, finalY)
         
         pdf.autoTable({
           startY: finalY + 5,
-          head: [['Producto', 'Cantidad Vendida', 'Total Recaudado']],
+          head: [[t('admin.pdfColProduct'), t('admin.pdfColQtySold'), t('admin.pdfColTotalEarned')]],
           body: reporte.topProductos.map(p => [
             p.nombreProducto, 
             (p.totalVendido ?? 0).toString(),
@@ -112,12 +99,12 @@ export default function AdminDashboard() {
       if (reporte?.pedidosPorEstado) {
          if (finalY > 230) { pdf.addPage(); finalY = 20; }
          pdf.setFontSize(14)
-         pdf.text('Desglose de Pedidos por Estado', 14, finalY)
+         pdf.text(t('admin.pdfOrdersByStatus'), 14, finalY)
          
          pdf.autoTable({
             startY: finalY + 5,
-            head: [['Estado', 'Cantidad']],
-            body: Object.entries(reporte.pedidosPorEstado).map(([estado, cantidad]) => [estado, cantidad.toString()]),
+            head: [[t('admin.pdfColStatus'), t('admin.pdfColQty')]],
+            body: Object.entries(reporte.pedidosPorEstado).map(([estado, cantidad]) => [t('orderStatus.' + estado, estado), cantidad.toString()]),
             theme: 'grid',
             headStyles: { fillColor: [59, 130, 246] }
          })
@@ -194,21 +181,21 @@ export default function AdminDashboard() {
       {/* --- ENCABEZADO LOCAL --- */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
         <div>
-          <h1 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Dashboard Ejecutivo</h1>
-          <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-1">Análisis de E-Commerce y Ventas</p>
+          <h1 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">{t('admin.executiveDashboard')}</h1>
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-1">{t('admin.ecommerceAnalysis')}</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="flex items-center gap-2">
-              <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Desde</label>
+              <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('admin.from')}</label>
               <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)} className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500 transition-all" />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Hasta</label>
+              <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('admin.to')}</label>
               <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)} className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500 transition-all" />
             </div>
             {(fechaInicio || fechaFin) && (
-              <button onClick={() => { setFechaInicio(''); setFechaFin('') }} className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors">Limpiar</button>
+              <button onClick={() => { setFechaInicio(''); setFechaFin('') }} className="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors">{t('admin.clearDates')}</button>
             )}
           </div>
           <button
@@ -221,24 +208,24 @@ export default function AdminDashboard() {
           ) : (
             <FileText size={18} />
           )}
-          {exportandoPdf ? 'Generando PDF...' : 'Exportar a PDF'}
+          {exportandoPdf ? t('admin.generatingPDF') : t('admin.exportPDFBtn')}
         </button>
       </div>
 
       {/* --- SECCIÓN E-COMMERCE --- */}
       <div>
         <h2 className="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-          <TrendingUp size={16} /> E-Commerce & Ventas
+          <TrendingUp size={16} /> {t('admin.ecommerceAndSales')}
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          <KpiCard icon={DollarSign} titulo="Ingresos" valor={fmt(reporte?.totalIngresos)}
-                   sub="Pagos aprobados" color="purple" />
-          <KpiCard icon={Package} titulo="Pedidos" valor={reporte?.totalPedidos ?? 0}
-                   sub="En el sistema" color="blue" />
-          <KpiCard icon={Sprout} titulo="Productos" valor={reporte?.totalProductosActivos ?? 0}
-                   sub="En catálogo" color="green" />
-          <KpiCard icon={Target} titulo="Ticket Promedio" valor={fmt(reporte?.promedioOrden)}
-                   sub="Valor por orden" color="pink" />
+          <KpiCard icon={DollarSign} titulo={t('admin.revenue')} valor={fmt(reporte?.totalIngresos)}
+                   sub={t('admin.approvedPayments')} color="purple" />
+          <KpiCard icon={Package} titulo={t('admin.orders')} valor={reporte?.totalPedidos ?? 0}
+                   sub={t('admin.inSystem')} color="blue" />
+          <KpiCard icon={Sprout} titulo={t('admin.inventory')} valor={reporte?.totalProductosActivos ?? 0}
+                   sub={t('admin.inCatalog')} color="green" />
+          <KpiCard icon={Target} titulo={t('admin.avgTicket')} valor={fmt(reporte?.promedioOrden)}
+                   sub={t('admin.valuePerOrder')} color="pink" />
         </div>
       </div>
 
@@ -246,7 +233,7 @@ export default function AdminDashboard() {
         {/* Chart Panel Pedidos */}
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col">
           <h2 className="font-bold text-slate-800 dark:text-white text-lg mb-4">
-            Pedidos por Estado
+            {t('admin.ordersByStatus')}
           </h2>
 
           <div className="flex-1 min-h-[250px]">
@@ -254,7 +241,7 @@ export default function AdminDashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={Object.entries(reporte.pedidosPorEstado).map(([name, value]) => ({ name, value }))}
+                    data={Object.entries(reporte.pedidosPorEstado).map(([name, value]) => ({ name: t('orderStatus.' + name, name), value }))}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -275,7 +262,7 @@ export default function AdminDashboard() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-slate-400">Sin datos</div>
+              <div className="h-full flex items-center justify-center text-slate-400">{t('admin.noData')}</div>
             )}
           </div>
 
@@ -283,7 +270,7 @@ export default function AdminDashboard() {
              {reporte?.pedidosPorEstado && Object.keys(reporte.pedidosPorEstado).map(estado => (
                <div key={estado} className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-slate-600 dark:text-slate-300">
                   <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: COLORS_ESTADO[estado] || '#94a3b8' }}></span>
-                  {estado.substring(0, 3)}
+                  {t('orderStatus.' + estado, estado)}
                </div>
              ))}
           </div>
@@ -292,12 +279,12 @@ export default function AdminDashboard() {
         {/* Top Products Panel */}
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col">
           <h2 className="font-bold text-slate-800 dark:text-white text-lg mb-4 flex items-center gap-2">
-            Top productos vendidos
+            {t('admin.topSelling')}
           </h2>
 
           <div className="flex-1 min-h-[250px]">
             {(!reporte?.topProductos || reporte.topProductos.length === 0) ? (
-              <div className="h-full flex items-center justify-center text-slate-400">AÃºn no hay ventas</div>
+              <div className="h-full flex items-center justify-center text-slate-400">{t('admin.noSalesYet')}</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={reporte.topProductos} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }}>
@@ -308,7 +295,7 @@ export default function AdminDashboard() {
                     cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }} 
                     contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderRadius: '12px', border: 'none', color: '#fff' }}
                     itemStyle={{ color: '#10b981', fontWeight: 'bold' }}
-                    formatter={(value, name) => [value + ' uds.', 'Vendido']}
+                    formatter={(value) => [t('admin.unitsSold', { count: value }), t('admin.sold')]}
                   />
                   <Bar dataKey="totalVendido" fill="#10b981" radius={[0, 4, 4, 0]} barSize={24}>
                       <LabelList dataKey="totalVendido" position="right" fill="#64748b" fontSize={11} fontWeight="bold" />
@@ -320,7 +307,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* --- SECCIÓN ALERTAS Y EXPORTACIÃ“N --- */}
+      {/* --- SECCIÓN ALERTAS Y EXPORTACIÓN --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
         
         {/* Alerts Panel */}
@@ -329,11 +316,11 @@ export default function AdminDashboard() {
           
           <div className="flex items-center justify-between mb-6 relative z-10">
             <h2 className="font-bold text-slate-800 dark:text-white text-lg flex items-center gap-2">
-              <AlertTriangle className="text-orange-500" /> Alerta de Stock Crítico
+              <AlertTriangle className="text-orange-500" /> {t('admin.stockCriticalTitle')}
             </h2>
             {stockCritico.length > 0 && (
               <span className="text-xs font-black bg-orange-500 text-white px-3 py-1.5 rounded-xl shadow-md">
-                {stockCritico.length} crÃ­tico
+                {stockCritico.length} {t('admin.critical')}
               </span>
             )}
           </div>
@@ -345,7 +332,7 @@ export default function AdminDashboard() {
             </div>
           ) : stockCritico.length === 0 ? (
             <p className="text-emerald-600 dark:text-emerald-400 text-sm font-bold text-center py-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-200 dark:border-emerald-800/50">
-              Ningún producto está por debajo de su umbral
+              {t('admin.noCriticalStock')}
             </p>
           ) : (
             <div className="space-y-3 max-h-64 overflow-y-auto relative z-10 pr-2 custom-scrollbar">
@@ -357,12 +344,12 @@ export default function AdminDashboard() {
                       {p.nombreProducto}
                     </p>
                     <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                      Umbral de alerta: {p.stockMinimoAlerta} ud.
+                      {t('admin.alertThreshold', { count: p.stockMinimoAlerta })}
                     </p>
                   </div>
                   <span className={`text-sm font-black flex-shrink-0 ml-3 px-3 py-1.5 rounded-xl
                                     ${p.stock === 0 ? 'bg-red-500 text-white' : 'bg-orange-500 text-white'}`}>
-                    {p.stock} ud.
+                    {p.stock} {t('admin.units')}
                   </span>
                 </div>
               ))}
@@ -373,10 +360,10 @@ export default function AdminDashboard() {
         {/* Export Panel */}
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col">
           <h2 className="font-bold text-slate-800 dark:text-white text-lg mb-2 flex items-center gap-2">
-            <Download className="text-blue-500" /> Exportar Ventas
+            <Download className="text-blue-500" /> {t('admin.exportSales')}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-xs mb-6 font-medium leading-relaxed">
-            Descarga el historial de pedidos en CSV para análisis en Excel/Sheets. Deja vacío para exportar todo el histórico.
+            {t('admin.exportSalesDesc')}
           </p>
 
           <div className="mt-auto flex justify-end">
@@ -388,10 +375,10 @@ export default function AdminDashboard() {
               {exportando ? (
                 <>
                   <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Generando...
+                  {t('admin.generating')}
                 </>
               ) : (
-                <>Descargar CSV</>
+                <>{t('admin.downloadCSV')}</>
               )}
             </button>
           </div>

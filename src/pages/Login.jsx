@@ -6,9 +6,14 @@ import { login as loginApi, loginGoogle as loginGoogleApi } from '../api/authApi
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
 import { LogIn, CheckCircle2, Clock } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
+/**
+ * Customer and staff login page with internationalized texts and Google Auth.
+ */
 export default function Login() {
   const { login }    = useAuth()
+  const { t }        = useLanguage()
   const navigate     = useNavigate()
   const location     = useLocation()
 
@@ -127,10 +132,10 @@ export default function Login() {
           </Link>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center justify-center gap-2">
             <LogIn className="text-green-600 dark:text-green-500" size={28} />
-            Iniciar sesión
+            {t('auth.loginTitle')}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium mt-2">
-            Bienvenido de vuelta a Plantopolis
+            {t('auth.loginSubtitle')}
           </p>
         </div>
 
@@ -138,7 +143,7 @@ export default function Login() {
         {registradoExitoso && (
           <div className="bg-green-50/80 dark:bg-green-900/30 border border-green-200/80 dark:border-green-800/50 text-green-700 dark:text-green-400 font-medium
                           rounded-xl p-4 mb-6 text-sm flex items-center justify-center gap-2 animate-in fade-in backdrop-blur-sm">
-            <CheckCircle2 size={18} /> ¡Cuenta creada! Ya puedes iniciar sesión
+            <CheckCircle2 size={18} /> {t('auth.registeredSuccess')}
           </div>
         )}
 
@@ -146,13 +151,13 @@ export default function Login() {
         {sesionExpirada && (
           <div className="bg-amber-50/80 dark:bg-amber-900/30 border border-amber-200/80 dark:border-amber-800/50 text-amber-700 dark:text-amber-400 font-medium
                           rounded-xl p-4 mb-6 text-sm flex items-center justify-center gap-2 animate-in fade-in backdrop-blur-sm">
-            <Clock size={18} /> Tu sesión expiró por inactividad.
+            <Clock size={18} /> {t('auth.sessionExpired')}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
-            label="Correo electrónico"
+            label={t('auth.email')}
             name="email"
             type="email"
             required
@@ -178,7 +183,7 @@ export default function Login() {
           </div>
 
           <Input
-            label="Contraseña"
+            label={t('auth.password')}
             name="password"
             type="password"
             required
@@ -196,14 +201,14 @@ export default function Login() {
 
           <div className="pt-2">
             <Button type="submit" fullWidth loading={loading} className="py-3 text-lg font-bold shadow-lg shadow-green-600/20">
-              Ingresar
+              {t('auth.loginButton')}
             </Button>
           </div>
         </form>
 
         <div className="flex items-center my-8">
           <div className="flex-1 border-t border-slate-200 dark:border-slate-700"></div>
-          <span className="px-4 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">o continuar con</span>
+          <span className="px-4 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t('auth.orContinueWith')}</span>
           <div className="flex-1 border-t border-slate-200 dark:border-slate-700"></div>
         </div>
 
@@ -211,7 +216,7 @@ export default function Login() {
           <div className="hover:scale-105 transition-transform duration-200">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => setError('Falló la autenticación con Google')}
+              onError={() => setError(t('auth.googleError'))}
               useOneTap
               shape="pill"
               theme="outline"
@@ -221,10 +226,10 @@ export default function Login() {
         </div>
 
         <p className="text-center text-sm font-medium text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-200/60 dark:border-slate-700/50">
-          ¿No tienes cuenta?{' '}
+          {t('auth.noAccount')}{' '}
           <Link to="/registro"
                 className="text-green-700 dark:text-green-400 font-bold hover:underline">
-            Regístrate aquí
+            {t('auth.registerHere')}
           </Link>
         </p>
       </div>

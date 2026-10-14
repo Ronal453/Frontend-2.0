@@ -7,11 +7,21 @@ import {
   vaciarCarrito
 } from '../api/carritoApi'
 import { useCart } from '../context/CartContext'
+import { useLanguage } from '../context/LanguageContext'
 import { ShoppingBag, Trash2, ArrowLeft, Plus, Minus, CreditCard, Leaf } from 'lucide-react'
 
+/**
+ * Componente principal de la página de Carrito de Compras.
+ * Permite a los clientes revisar, modificar cantidades, eliminar productos
+ * y avanzar al checkout con soporte para internacionalización dinámica.
+ *
+ * @component
+ * @returns {JSX.Element} Vista del carrito de compras
+ */
 export default function Cart() {
   const navigate = useNavigate()
   const { refreshCart, clearCart } = useCart()
+  const { t } = useLanguage()
 
   const [carrito,     setCarrito]     = useState(null)
   const [loading,     setLoading]     = useState(true)
@@ -33,7 +43,7 @@ export default function Cart() {
         refreshCart()
       }
     } catch {
-      setError('No se pudo cargar el carrito')
+      setError(t('cart.errorLoad'))
       clearCart()
     } finally {
       setLoading(false)
@@ -53,7 +63,7 @@ export default function Cart() {
         refreshCart()
       }
     } catch (e) {
-      setError(e.response?.data?.mensaje || 'Error al actualizar cantidad')
+      setError(e.response?.data?.mensaje || t('cart.errorUpdate'))
       setTimeout(() => setError(''), 3000)
     } finally {
       setActualizando(null)
@@ -72,7 +82,7 @@ export default function Cart() {
         refreshCart()
       }
     } catch {
-      setError('Error al eliminar el producto')
+      setError(t('cart.errorDelete'))
       setTimeout(() => setError(''), 3000)
     } finally {
       setActualizando(null)
@@ -80,13 +90,13 @@ export default function Cart() {
   }
 
   const handleVaciar = async () => {
-    if (!confirm('¿Estás seguro de vaciar tu carrito?')) return
+    if (!confirm(t('cart.confirmClear'))) return
     try {
       await vaciarCarrito()
       clearCart()
       await cargarCarrito()
     } catch {
-      setError('Error al vaciar el carrito')
+      setError(t('cart.errorClear'))
     }
   }
 
@@ -111,15 +121,15 @@ export default function Cart() {
           <ShoppingBag className="text-green-400 dark:text-green-500/50" size={48} />
         </div>
         <h2 className="text-3xl font-black text-emerald-950 dark:text-white mb-3">
-          Tu carrito está vacío
+          {t('cart.emptyTitle')}
         </h2>
         <p className="text-emerald-700/70 dark:text-slate-400 mb-8 font-medium">
-          Agrega plantas desde el catálogo para darle vida a este espacio.
+          {t('cart.emptyNotice')}
         </p>
         <Link to="/catalogo"
               className="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 dark:bg-green-600/90 dark:hover:bg-green-500 text-white px-8 py-3.5 rounded-2xl
                          font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-green-600/30">
-          <Leaf size={20} strokeWidth={2.5} /> Ir al catálogo
+          <Leaf size={20} strokeWidth={2.5} /> {t('cart.goToCatalog')}
         </Link>
       </div>
     </div>
@@ -142,10 +152,10 @@ export default function Cart() {
           </div>
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight drop-shadow-sm">
-              Mi Carrito
+              {t('cart.myCart')}
             </h1>
             <p className="text-emerald-700/80 dark:text-slate-400 text-sm md:text-base mt-1 font-medium">
-              Revisa tus plantas antes de proceder al pago.
+              {t('cart.reviewBeforeCheckout')}
             </p>
           </div>
         </div>
@@ -165,14 +175,14 @@ export default function Cart() {
             
             <div className="flex justify-between items-center mb-2 px-2">
               <span className="font-bold text-emerald-800/60 dark:text-slate-400 uppercase tracking-widest text-xs">
-                {carrito.totalItems} producto(s) en tu bolsa
+                {t('cart.productsInBag', { count: carrito.totalItems })}
               </span>
               <button
                 onClick={handleVaciar}
                 className="text-sm font-bold text-red-500/80 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300
                            transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
               >
-                <Trash2 size={16} /> Vaciar carrito
+                <Trash2 size={16} /> {t('cart.clear')}
               </button>
             </div>
 
@@ -194,10 +204,10 @@ export default function Cart() {
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <h3 className="font-black text-lg text-emerald-950 dark:text-white leading-tight mb-1">
-                        {item.nombreProducto}
+                        {t('product.name.' + item.nombreProducto, item.nombreProducto)}
                       </h3>
                       <p className="text-emerald-700/80 dark:text-emerald-400 font-bold text-sm">
-                        ${item.precioUnitario?.toLocaleString('es-CO')} c/u
+                        ${item.precioUnitario?.toLocaleString('es-CO')} {t('cart.each')}
                       </p>
                     </div>
 
@@ -235,7 +245,7 @@ export default function Cart() {
                           disabled={actualizando === item.idItem}
                           className="w-10 h-10 flex items-center justify-center rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400
                                      hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white disabled:opacity-50 transition-all shadow-sm"
-                          title="Eliminar del carrito"
+                          title={t('cart.remove')}
                         ><Trash2 size={18} strokeWidth={2.5} /></button>
                       </div>
                     </div>
@@ -251,14 +261,14 @@ export default function Cart() {
             <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white dark:border-slate-800 rounded-3xl
                             p-6 shadow-xl shadow-green-900/5 sticky top-24">
               <h2 className="font-black text-emerald-950 dark:text-white text-xl mb-6 flex items-center gap-2">
-                Resumen de Compra
+                {t('cart.orderSummary')}
               </h2>
 
               <div className="space-y-3 text-sm text-slate-600 dark:text-slate-400 mb-6 max-h-64 overflow-y-auto custom-scrollbar pr-2">
                 {carrito.items.map(item => (
                   <div key={item.idItem} className="flex justify-between font-medium items-start gap-4">
                     <span className="truncate">
-                      {item.cantidad}x {item.nombreProducto}
+                      {item.cantidad}x {t('product.name.' + item.nombreProducto, item.nombreProducto)}
                     </span>
                     <span className="flex-shrink-0 font-bold text-slate-800 dark:text-slate-300">
                       ${item.subtotal?.toLocaleString('es-CO')}
@@ -269,7 +279,7 @@ export default function Cart() {
 
               <div className="border-t-2 border-dashed border-slate-200 dark:border-slate-700 pt-5 mb-6">
                 <div className="flex justify-between items-end">
-                  <span className="font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-sm">Total a pagar</span>
+                  <span className="font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-sm">{t('cart.totalToPay')}</span>
                   <span className="font-black text-3xl text-green-600 dark:text-green-400">
                     ${carrito.total?.toLocaleString('es-CO')}
                   </span>
@@ -285,12 +295,12 @@ export default function Cart() {
                 {/* Destello de luz animado */}
                 <div className="absolute inset-0 w-1/4 h-full bg-white/30 skew-x-12 -translate-x-full group-hover:animate-[shine_1s_ease-in-out]" />
                 <CreditCard size={22} strokeWidth={2.5} />
-                Proceder al Pago
+                {t('cart.proceedToCheckout')}
               </button>
 
               <Link to="/catalogo"
                     className="flex items-center justify-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 mt-5 transition-colors">
-                <ArrowLeft size={16} /> Seguir explorando plantas
+                <ArrowLeft size={16} /> {t('cart.continueShopping')}
               </Link>
             </div>
           </div>

@@ -1,21 +1,23 @@
 import { useTheme } from '../../context/ThemeContext'
+import { useLanguage } from '../../context/LanguageContext'
 
 /**
  * Botón interactivo para alternar entre tema claro y tema oscuro.
- * Incluye iconos vectoriales SVG, microanimaciones y accesibilidad.
+ * Incluye iconos vectoriales SVG, microanimaciones y accesibilidad bilingüe.
  *
- * Uso: <ThemeToggle />
+ * @returns {JSX.Element} Botón de alternancia de tema.
  */
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
+  const { t } = useLanguage()
   const esOscuro = theme === 'dark'
 
   return (
     <button
       type="button"
       onClick={toggleTheme}
-      title={esOscuro ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
-      aria-label={esOscuro ? 'Activar tema claro' : 'Activar tema oscuro'}
+      title={esOscuro ? t('common.switchToLight', 'Cambiar a tema claro') : t('common.switchToDark', 'Cambiar a tema oscuro')}
+      aria-label={esOscuro ? t('common.activateLight', 'Activar tema claro') : t('common.activateDark', 'Activar tema oscuro')}
       className="relative p-2 rounded-full transition-all duration-300
                  bg-white/20 hover:bg-white/30 active:scale-95
                  dark:bg-slate-800 dark:hover:bg-slate-700

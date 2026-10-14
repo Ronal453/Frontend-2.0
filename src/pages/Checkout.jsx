@@ -2,22 +2,27 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { checkout as checkoutApi } from '../api/pedidosApi'
 import { useCart } from '../context/CartContext'
+import { useLanguage } from '../context/LanguageContext'
 import Button from '../components/ui/Button'
 import { 
   CreditCard, Landmark, Truck, Wallet, MapPin, ArrowLeft, 
   AlertCircle, ShoppingBag, ShieldCheck, X 
 } from 'lucide-react'
 
-const METODOS_PAGO = [
-  { id: 1, nombre: 'Tarjeta de Crédito', icono: CreditCard },
-  { id: 2, nombre: 'Tarjeta de Débito',  icono: Wallet },
-  { id: 3, nombre: 'PSE',                icono: Landmark },
-  { id: 4, nombre: 'Contra entrega',     icono: Truck },
-]
-
+/**
+ * Checkout page with address collection, payment method selection, confirmation modal and i18n support.
+ */
 export default function Checkout() {
   const navigate = useNavigate()
   const { clearCart } = useCart()
+  const { t } = useLanguage()
+
+  const METODOS_PAGO = [
+    { id: 1, nombre: t('checkout.paymentCredit'), icono: CreditCard },
+    { id: 2, nombre: t('checkout.paymentDebit'),  icono: Wallet },
+    { id: 3, nombre: t('checkout.paymentPSE'),    icono: Landmark },
+    { id: 4, nombre: t('checkout.paymentCashOnDelivery'), icono: Truck },
+  ]
 
   const [metodoPago,  setMetodoPago]  = useState(null)
   
@@ -77,13 +82,13 @@ export default function Checkout() {
       <div className="mb-8">
         <Link to="/catalogo"
               className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 mb-4 transition-colors">
-          <ArrowLeft size={16} /> Volver al catálogo
+          <ArrowLeft size={16} /> {t('checkout.backToCatalog')}
         </Link>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Checkout
+          {t('checkout.title')}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 mt-2">
-          Completa tu información para finalizar la compra de manera segura.
+          {t('checkout.subtitle')}
         </p>
       </div>
 
@@ -104,78 +109,78 @@ export default function Checkout() {
             <div className="w-10 h-10 bg-green-50 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
               <MapPin className="text-green-600 dark:text-green-500" size={20} />
             </div>
-            <h2 className="font-bold text-slate-900 dark:text-white text-xl">Dirección de Envío</h2>
+            <h2 className="font-bold text-slate-900 dark:text-white text-xl">{t('checkout.stepAddress')}</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             
             <div className="sm:col-span-2">
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Dirección / Vía principal *</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">{t('checkout.street')} *</label>
               <input
                 type="text"
                 value={dir.calle}
                 onChange={e => setDir({...dir, calle: e.target.value})}
-                placeholder="Ej: Calle 123, Carrera 45, Transversal..."
+                placeholder={t('checkout.streetPlaceholder')}
                 className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 
                            text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Número *</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">{t('checkout.number')} *</label>
               <input
                 type="text"
                 value={dir.numero}
                 onChange={e => setDir({...dir, numero: e.target.value})}
-                placeholder="Ej: # 45 - 67"
+                placeholder={t('checkout.numberPlaceholder')}
                 className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 
                            text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Barrio</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">{t('checkout.neighborhood')}</label>
               <input
                 type="text"
                 value={dir.barrio}
                 onChange={e => setDir({...dir, barrio: e.target.value})}
-                placeholder="Nombre del barrio"
+                placeholder={t('checkout.neighborhood')}
                 className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 
                            text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Ciudad *</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">{t('checkout.city')} *</label>
               <input
                 type="text"
                 value={dir.ciudad}
                 onChange={e => setDir({...dir, ciudad: e.target.value})}
-                placeholder="Ciudad / Municipio"
+                placeholder={t('checkout.city')}
                 className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 
                            text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Departamento *</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">{t('checkout.department')} *</label>
               <input
                 type="text"
                 value={dir.departamento}
                 onChange={e => setDir({...dir, departamento: e.target.value})}
-                placeholder="Departamento / Estado"
+                placeholder={t('checkout.department')}
                 className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 
                            text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-colors"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Detalles Adicionales</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">{t('checkout.details')}</label>
               <input
                 type="text"
                 value={dir.detalles}
                 onChange={e => setDir({...dir, detalles: e.target.value})}
-                placeholder="Apto, Casa, Torre, Conjunto cerrado..."
+                placeholder="Apto, Casa, Torre..."
                 className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 
                            text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-colors"
               />
@@ -191,7 +196,7 @@ export default function Checkout() {
               <div className="w-10 h-10 bg-green-50 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
                 <ShieldCheck className="text-green-600 dark:text-green-500" size={20} />
               </div>
-              <h2 className="font-bold text-slate-900 dark:text-white text-xl">Método de Pago</h2>
+              <h2 className="font-bold text-slate-900 dark:text-white text-xl">{t('checkout.stepPayment')}</h2>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -219,12 +224,12 @@ export default function Checkout() {
           <div>
             <Button fullWidth size="lg" onClick={handlePreSubmit} className="py-4 rounded-2xl shadow-lg shadow-green-600/20 text-lg">
               <span className="flex items-center justify-center gap-2">
-                <ShoppingBag size={22} /> Confirmar Compra
+                <ShoppingBag size={22} /> {t('checkout.placeOrder')}
               </span>
             </Button>
 
             <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-4 font-medium flex items-center justify-center gap-1.5">
-              <ShieldCheck size={16} /> Tus datos están protegidos y encriptados en nuestro servidor.
+              <ShieldCheck size={16} /> {t('checkout.securePurchase')}
             </p>
           </div>
         </div>
@@ -246,10 +251,10 @@ export default function Checkout() {
             </div>
             
             <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white text-center mb-2">
-              Confirma tu envío
+              {t('checkout.confirmModalTitle')}
             </h3>
             <p className="text-slate-500 dark:text-slate-400 text-center mb-8 text-sm sm:text-base">
-              Verifica detalladamente que tu dirección de entrega sea correcta.
+              {t('checkout.confirmModalDesc')}
             </p>
 
             <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 mb-8 text-center">
@@ -260,10 +265,10 @@ export default function Checkout() {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Button variant="secondary" fullWidth size="lg" onClick={() => setShowModal(false)} disabled={loading}>
-                Corregir datos
+                {t('checkout.modify')}
               </Button>
               <Button fullWidth size="lg" onClick={handleConfirmSubmit} loading={loading}>
-                Procesar Pago
+                {t('checkout.confirmAndPay')}
               </Button>
             </div>
           </div>

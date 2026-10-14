@@ -5,11 +5,14 @@ import { useCart } from '../../context/CartContext'
 import { useLayoutContext } from '../../context/LayoutContext'
 import { Bot, LayoutGrid, Package, Sprout, Wrench, ShoppingCart, LogOut } from 'lucide-react'
 import ThemeToggle from '../ui/ThemeToggle'
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { useLanguage } from '../../context/LanguageContext'
 
 export default function Navbar({ layoutMode = 'public' }) {
   const { isAuth, user, logout } = useAuth()
   const { totalItems, refreshCart, clearCart, openCart } = useCart()
   const { pageTitle, pageSubtitle } = useLayoutContext()
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   // Estado para la visibilidad del navbar al hacer scroll (solo para layout público)
@@ -111,7 +114,7 @@ export default function Navbar({ layoutMode = 'public' }) {
         {!pageTitle && (
           <NavLink to="/catalogo" className={({ isActive }) => getNavLinkClass(isActive)}>
             <LayoutGrid size={18} strokeWidth={2.5} />
-            <span className="hidden sm:inline">Catálogo</span>
+            <span className="hidden sm:inline">{t('nav.catalogo')}</span>
           </NavLink>
         )}
 
@@ -120,28 +123,28 @@ export default function Navbar({ layoutMode = 'public' }) {
             {esCliente && (
               <Link to="/pedidos" className={getActionClass()}>
                 <Package size={18} strokeWidth={2.5} />
-                <span className="hidden sm:inline">Mis pedidos</span>
+                <span className="hidden sm:inline">{t('nav.misPedidos')}</span>
               </Link>
             )}
 
             {(esTrabajador || esAdmin) && (
               <NavLink to="/trabajador" className={({ isActive }) => getNavLinkClass(isActive)}>
                 <Sprout size={18} strokeWidth={2.5} />
-                <span className="hidden md:inline">Panel Operativo</span>
+                <span className="hidden md:inline">{t('nav.panelOperativo')}</span>
               </NavLink>
             )}
 
             {esAdmin && (
               <NavLink to="/admin" className={({ isActive }) => getNavLinkClass(isActive)}>
                 <Wrench size={18} strokeWidth={2.5} />
-                <span className="hidden md:inline">Panel Admin</span>
+                <span className="hidden md:inline">{t('nav.panelAdmin')}</span>
               </NavLink>
             )}
 
             {esCliente && (
               <button onClick={openCart} className={`relative ${getActionClass()}`}>
                 <ShoppingCart size={18} strokeWidth={2.5} />
-                <span className="hidden sm:inline">Carrito</span>
+                <span className="hidden sm:inline">{t('nav.carrito')}</span>
                 {totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-black shadow-md border border-white dark:border-slate-800">
                     {totalItems > 9 ? '9+' : totalItems}
@@ -157,7 +160,7 @@ export default function Navbar({ layoutMode = 'public' }) {
               <button onClick={handleLogout}
                       className={`flex items-center gap-1 text-xs font-black transition-colors p-2 rounded-lg ${isDashboard ? 'text-slate-400 hover:text-red-400 hover:bg-red-500/10' : 'text-slate-500 hover:text-red-500 dark:text-slate-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'}`}>
                 <LogOut size={16} strokeWidth={2.5} />
-                Salir
+                {t('nav.salir')}
               </button>
             </div>
           </>
@@ -165,16 +168,17 @@ export default function Navbar({ layoutMode = 'public' }) {
           <div className="flex items-center gap-2 ml-2">
             <Link to="/login"
                   className="px-4 py-2 rounded-xl text-emerald-50 hover:bg-white/10 hover:text-white transition-colors font-bold text-sm">
-              Ingresar
+              {t('nav.ingresar')}
             </Link>
             <Link to="/registro"
                   className="px-4 py-2 bg-white hover:bg-emerald-50 text-emerald-600 rounded-xl shadow-md transition-colors font-bold text-sm">
-              Registrarse
+              {t('nav.registrarse')}
             </Link>
           </div>
         )}
 
-        <div className={`ml-2 pl-2 border-l ${isDashboard ? 'border-slate-700/50' : 'border-gray-200/50 dark:border-slate-700/50'}`}>
+        <div className={`ml-2 pl-2 border-l flex items-center gap-2 ${isDashboard ? 'border-slate-700/50' : 'border-gray-200/50 dark:border-slate-700/50'}`}>
+          <LanguageSwitcher />
           <ThemeToggle />
         </div>
       </div>

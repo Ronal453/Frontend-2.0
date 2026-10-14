@@ -1,9 +1,14 @@
 import { useState } from 'react'
 import { Leaf, ShieldCheck, X } from 'lucide-react'
 import PoliticaDatos from '../../pages/PoliticaDatos'
+import { useLanguage } from '../../context/LanguageContext'
 
+/**
+ * Global footer component with privacy modal and multilingual text support.
+ */
 export default function Footer() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { t } = useLanguage()
 
   return (
     <>
@@ -17,7 +22,7 @@ export default function Footer() {
             <Leaf className="text-green-600 dark:text-green-500" size={18} strokeWidth={2.5} />
             <span className="font-black text-slate-900 dark:text-white tracking-tight">Plantopolis</span>
             <span className="hidden sm:inline text-slate-300 dark:text-slate-700 mx-1">|</span>
-            <span className="text-sm">Plantas para tu ecosistema &copy; {new Date().getFullYear()}</span>
+            <span className="text-sm">{t('footer.tagline')} &copy; {new Date().getFullYear()}</span>
           </div>
 
           <div className="flex items-center gap-6 text-sm font-bold">
@@ -26,7 +31,7 @@ export default function Footer() {
               className="flex items-center gap-1.5 text-slate-500 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 transition-colors"
             >
               <ShieldCheck size={16} strokeWidth={2.5} />
-              Política de Tratamiento de Datos
+              {t('footer.policy')}
             </button>
           </div>
 
@@ -48,7 +53,7 @@ export default function Footer() {
                 <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
                   <ShieldCheck className="text-green-600 dark:text-green-400" size={20} />
                 </div>
-                <h2 className="text-xl font-black">Política de Tratamiento de Datos</h2>
+                <h2 className="text-xl font-black">{t('footer.policy')}</h2>
               </div>
               <button 
                 onClick={() => setIsModalOpen(false)}
@@ -69,7 +74,7 @@ export default function Footer() {
                 onClick={() => setIsModalOpen(false)}
                 className="px-6 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl transition-colors"
               >
-                Cerrar
+                {t('footer.close')}
               </button>
             </div>
           </div>

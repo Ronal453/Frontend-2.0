@@ -1,27 +1,32 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, Link } from 'react-router-dom'
 import Navbar from './Navbar'
-import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck, AlertTriangle } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck, AlertTriangle, DatabaseBackup } from 'lucide-react'
+import { useLanguage } from '../../context/LanguageContext'
 
-const ECOM_LINKS = [
-  { to: '/admin/dashboard', icono: LayoutDashboard, label: 'Dashboard' },
-  { to: '/admin/productos', icono: Package,         label: 'Inventario Catálogo' },
-  { to: '/admin/pedidos',   icono: ShoppingBag,     label: 'Pedidos' },
-  { to: '/admin/usuarios',  icono: Users,           label: 'Usuarios y Roles' },
-]
-
-const VIVERO_LINKS = [
-  { to: '/admin/zonas',     icono: MapPin,          label: 'Gestión de Zonas' },
-  { to: '/admin/lotes',     icono: Sprout,          label: 'Lotes de Cultivo' },
-  { to: '/admin/mermas',    icono: AlertTriangle,   label: 'Reporte de Mermas' },
-  { to: '/admin/proveedores',icono: Truck,          label: 'Proveedores' },
-]
-
-import { DatabaseBackup } from 'lucide-react'
-const SISTEMA_LINKS = [
-  { to: '/admin/backup',    icono: DatabaseBackup,  label: 'Copias de Seguridad' },
-]
-
+/**
+ * Admin dashboard layout with translated sidebar navigation and header navbar.
+ */
 export default function AdminLayout() {
+  const { t } = useLanguage()
+
+  const ECOM_LINKS = [
+    { to: '/admin/dashboard', icono: LayoutDashboard, label: t('admin.dashboard') },
+    { to: '/admin/productos', icono: Package,         label: t('admin.inventory') },
+    { to: '/admin/pedidos',   icono: ShoppingBag,     label: t('admin.orders') },
+    { to: '/admin/usuarios',  icono: Users,           label: t('admin.users') },
+  ]
+
+  const VIVERO_LINKS = [
+    { to: '/admin/zonas',      icono: MapPin,        label: t('admin.zones') },
+    { to: '/admin/lotes',      icono: Sprout,        label: t('admin.batches') },
+    { to: '/admin/mermas',     icono: AlertTriangle, label: t('admin.waste') },
+    { to: '/admin/proveedores',icono: Truck,         label: t('admin.suppliers') },
+  ]
+
+  const SISTEMA_LINKS = [
+    { to: '/admin/backup',     icono: DatabaseBackup, label: t('admin.backup') },
+  ]
+
   return (
     <div className="flex h-screen p-4 gap-4 overflow-hidden bg-slate-50 dark:bg-[#060A11]">
       <aside className="w-64 bg-gradient-to-b from-teal-700 via-teal-800 to-cyan-900 text-white flex-shrink-0 flex flex-col py-6 px-4 gap-2 rounded-[2rem] shadow-2xl shadow-teal-900/30 border border-teal-600/40 transition-all overflow-y-auto z-10 custom-scrollbar">
@@ -40,7 +45,9 @@ export default function AdminLayout() {
         </div>
 
         <div className="mb-4">
-          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">E-Commerce</p>
+          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+            {t('admin.ecommerceSection')}
+          </p>
           <nav className="flex flex-col gap-1.5">
             {ECOM_LINKS.map(link => {
               const Icon = link.icono
@@ -68,7 +75,9 @@ export default function AdminLayout() {
         </div>
 
         <div className="mb-4">
-          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Operaciones de Vivero</p>
+          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+            {t('admin.greenhouseSection')}
+          </p>
           <nav className="flex flex-col gap-1.5">
             {VIVERO_LINKS.map(link => {
               const Icon = link.icono
@@ -96,7 +105,9 @@ export default function AdminLayout() {
         </div>
 
         <div className="mb-4">
-          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Sistema</p>
+          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+            {t('admin.systemSection')}
+          </p>
           <nav className="flex flex-col gap-1.5">
             {SISTEMA_LINKS.map(link => {
               const Icon = link.icono
@@ -124,11 +135,11 @@ export default function AdminLayout() {
         </div>
 
         <div className="mt-auto pt-6 border-t border-slate-700/50">
-          <a href="/catalogo"
+          <Link to="/catalogo"
              className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold text-slate-400 hover:text-cyan-300 hover:bg-white/5 transition-colors">
             <ArrowLeft size={16} strokeWidth={2.5} />
-            Volver al Catálogo
-          </a>
+            {t('admin.backToCatalog')}
+          </Link>
         </div>
       </aside>
 

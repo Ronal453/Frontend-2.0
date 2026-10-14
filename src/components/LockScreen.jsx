@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { login as loginApi } from '../api/authApi'
 import { useAuth } from '../hooks/useAuth'
+import { useLanguage } from '../context/LanguageContext'
 import Button from './ui/Button'
 import Input from './ui/Input'
 
@@ -13,6 +14,7 @@ import Input from './ui/Input'
  */
 export default function LockScreen({ onUnlock, onForceLogout }) {
   const { user, login } = useAuth()
+  const { t } = useLanguage()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -29,7 +31,7 @@ export default function LockScreen({ onUnlock, onForceLogout }) {
       setPassword('')
       onUnlock()
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Contraseña incorrecta')
+      setError(err.response?.data?.mensaje || t('lock.errorPass'))
     } finally {
       setLoading(false)
     }
@@ -42,17 +44,16 @@ export default function LockScreen({ onUnlock, onForceLogout }) {
         <div className="text-center mb-6">
           <p className="text-4xl mb-2">🔒</p>
           <h1 className="text-xl font-bold text-green-800 dark:text-green-400">
-            Sesión bloqueada por inactividad
+            {t('lock.title')}
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            Ingresa la contraseña de{' '}
-            <strong className="text-gray-700 dark:text-gray-200">{user?.email || 'tu cuenta'}</strong> para continuar
+            {t('lock.desc', { email: user?.email || 'tu cuenta' })}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Contraseña"
+            label={t('auth.password')}
             name="password"
             type="password"
             autoFocus
@@ -64,7 +65,7 @@ export default function LockScreen({ onUnlock, onForceLogout }) {
           />
 
           <Button type="submit" fullWidth loading={loading}>
-            Desbloquear
+            {t('lock.unlock')}
           </Button>
         </form>
 
@@ -73,7 +74,7 @@ export default function LockScreen({ onUnlock, onForceLogout }) {
           className="w-full text-center text-xs text-gray-400 dark:text-gray-500
                      hover:text-red-500 dark:hover:text-red-400 transition-colors mt-4"
         >
-          ¿No eres tú? Cerrar sesión
+          {t('lock.switchUser')}
         </button>
       </div>
     </div>

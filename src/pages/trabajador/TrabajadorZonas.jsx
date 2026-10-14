@@ -4,6 +4,7 @@ import {
   MapPin, AlertTriangle, RefreshCw, Sprout, Box, 
   Search, X, ExternalLink, Sun, Cloud, Thermometer, Layers, Loader2 
 } from 'lucide-react'
+import { useLanguage } from '../../context/LanguageContext'
 
 const ESTADO_BADGES = {
   GERMINANDO: 'bg-transparent border-amber-300 dark:border-amber-700/50 text-amber-600 dark:text-amber-400',
@@ -12,7 +13,15 @@ const ESTADO_BADGES = {
   DESCARTADO: 'bg-transparent border-red-300 dark:border-red-700/50 text-red-600 dark:text-red-400',
 }
 
+/**
+ * Vista operativa para el monitoreo de ocupación espacial, microclima y lotes
+ * asignados en las distintas zonas e invernaderos del vivero.
+ *
+ * @component
+ * @returns {JSX.Element} Panel de ocupación de zonas
+ */
 export default function TrabajadorZonas() {
+  const { t } = useLanguage()
   const [zonas, setZonas] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
@@ -110,10 +119,10 @@ export default function TrabajadorZonas() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                Ocupación de Zonas
+                {t('zones.title')}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-0.5">
-                Supervisa la distribución de lotes, plantas y capacidad instalada
+                {t('zones.subtitle')}
               </p>
             </div>
           </div>
@@ -121,7 +130,7 @@ export default function TrabajadorZonas() {
             onClick={cargarZonas}
             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold rounded-xl shadow-md shadow-teal-500/20 transition-all duration-200"
           >
-            <RefreshCw size={18} /> Actualizar Datos
+            <RefreshCw size={18} /> {t('common.save')}
           </button>
         </div>
 
@@ -134,12 +143,9 @@ export default function TrabajadorZonas() {
               </div>
               <div className="flex-1">
                 <h4 className="font-black text-red-900 dark:text-red-300 text-lg">
-                  Alerta de Capacidad: {zonasCriticas90.length} zona(s) superan el 90% de ocupación
+                  {t('zones.criticalAlert', { count: zonasCriticas90.length })}
                 </h4>
-                <p className="text-sm font-medium text-red-700 dark:text-red-400 mt-1 mb-2">
-                  Evita asignar nuevos lotes a estas zonas para prevenir sobrepoblación y estrés en las plantas:
-                </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {zonasCriticas90.map(z => (
                     <span key={z.idZona} className="inline-flex items-center gap-1.5 font-bold bg-white/60 dark:bg-slate-900/40 border border-red-200 dark:border-red-800 px-3 py-1 rounded-lg text-xs text-red-800 dark:text-red-300">
                       {z.nombre} <span className="text-red-500 dark:text-red-400">({z.porcentajeOcupacion}%)</span>
@@ -157,38 +163,34 @@ export default function TrabajadorZonas() {
             <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <MapPin size={80} />
             </div>
-            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Zonas de Cultivo</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">{t('zones.title')}</p>
             <p className="text-3xl font-black text-slate-800 dark:text-slate-100">{totalZonas}</p>
-            <p className="text-[11px] font-medium text-slate-400 mt-1">Espacios disponibles</p>
           </div>
 
           <div className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-md p-5 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
             <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <Box size={80} />
             </div>
-            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Capacidad Total</p>
-            <p className="text-3xl font-black text-slate-800 dark:text-slate-100">{capacidadTotal} <span className="text-sm font-bold text-slate-400">lotes</span></p>
-            <p className="text-[11px] font-medium text-slate-400 mt-1">Espacio físico total</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">{t('zones.totalCapacity')}</p>
+            <p className="text-3xl font-black text-slate-800 dark:text-slate-100">{capacidadTotal} <span className="text-sm font-bold text-slate-400">{t('worker.batch')}</span></p>
           </div>
 
           <div className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-md p-5 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
             <div className="absolute -right-4 -bottom-4 opacity-5 text-emerald-500 group-hover:opacity-10 transition-opacity">
               <Sprout size={80} />
             </div>
-            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Lotes Asignados</p>
-            <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{lotesActivosTotal} <span className="text-sm font-bold opacity-60">lotes</span></p>
-            <p className="text-[11px] font-medium text-slate-400 mt-1">En producción activa ({plantasTotal} plantas)</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">{t('zones.activeBatches')}</p>
+            <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{lotesActivosTotal} <span className="text-sm font-bold opacity-60">{t('worker.batch')}</span></p>
           </div>
 
           <div className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-md p-5 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
             <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <Layers size={80} />
             </div>
-            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Ocupación Global</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">{t('zones.avgOccupancy')}</p>
             <p className={`text-3xl font-black ${ocupacionPromedio >= 90 ? 'text-red-500' : 'text-teal-600 dark:text-teal-400'}`}>
               {ocupacionPromedio}%
             </p>
-            <p className="text-[11px] font-medium text-slate-400 mt-1">Uso de infraestructura</p>
           </div>
         </div>
 
@@ -198,7 +200,7 @@ export default function TrabajadorZonas() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
               type="text"
-              placeholder="Buscar zona por nombre..."
+              placeholder={t('zones.searchPlaceholder')}
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow text-slate-700 dark:text-slate-200"
@@ -210,7 +212,7 @@ export default function TrabajadorZonas() {
             onChange={(e) => setFiltroCondicion(e.target.value)}
             className="w-full md:w-48 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none"
           >
-            <option value="">Todas las condiciones</option>
+            <option value="">{t('zones.allConditions')}</option>
             <option value="INTERIOR">Interior</option>
             <option value="EXTERIOR">Exterior</option>
             <option value="INVERNADERO">Invernadero</option>
@@ -223,7 +225,7 @@ export default function TrabajadorZonas() {
             onChange={(e) => setFiltroSolar(e.target.value)}
             className="w-full md:w-56 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none"
           >
-            <option value="">Toda exposición solar</option>
+            <option value="">{t('zones.allSun')}</option>
             <option value="PLENO_SOL">Pleno Sol</option>
             <option value="SOMBRA_TOTAL">Sombra Total</option>
             <option value="MEDIA_SOMBRA">Media Sombra</option>
@@ -234,7 +236,7 @@ export default function TrabajadorZonas() {
               onClick={() => { setBusqueda(''); setFiltroCondicion(''); setFiltroSolar('') }}
               className="px-4 py-2.5 text-xs font-bold text-slate-500 hover:text-red-500 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
             >
-              Limpiar filtros
+              {t('common.clearFilters')}
             </button>
           )}
         </div>
@@ -249,12 +251,12 @@ export default function TrabajadorZonas() {
         {cargando ? (
           <div className="flex flex-col items-center justify-center py-24 flex-1">
             <Loader2 className="w-10 h-10 text-teal-500 animate-spin mb-4" />
-            <p className="text-slate-500 dark:text-slate-400 font-medium">Cargando información de zonas...</p>
+            <p className="text-slate-500 dark:text-slate-400 font-medium">{t('common.loading')}</p>
           </div>
         ) : zonasFiltradas.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-800/30 rounded-3xl border border-slate-200/50 dark:border-slate-700/50 flex-1">
             <MapPin size={48} className="mb-4 text-slate-300 dark:text-slate-600" strokeWidth={1} />
-            <p className="font-medium text-sm">No se encontraron zonas que coincidan con los filtros.</p>
+            <p className="font-medium text-sm">{t('common.noResults')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -286,7 +288,7 @@ export default function TrabajadorZonas() {
                           ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/50' 
                           : 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900/30 dark:text-teal-400 dark:border-teal-800/50'
                       }`}>
-                        {porcentaje}% Ocup.
+                        {porcentaje}% {t('zones.occupancy')}
                       </div>
                     </div>
 
@@ -303,21 +305,21 @@ export default function TrabajadorZonas() {
                     {/* Alerta si es 90% */}
                     {alerta90 && (
                       <div className="mb-4 bg-red-50 dark:bg-red-900/20 text-[11px] font-bold text-red-600 dark:text-red-400 px-3 py-2 rounded-xl flex items-center gap-1.5 border border-red-100 dark:border-red-800/30">
-                        <AlertTriangle size={14} /> Capacidad crítica ({porcentaje}%)
+                        <AlertTriangle size={14} /> {porcentaje}% {t('zones.occupancy')}
                       </div>
                     )}
 
                     {/* Stats de Lotes y Plantas */}
                     <div className="grid grid-cols-2 gap-3 mb-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-2xl">
                       <div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Lotes</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">{t('worker.batch')}</span>
                         <div className="flex items-end gap-1">
                           <strong className="text-lg leading-none text-slate-800 dark:text-slate-100">{zona.lotesActivos || 0}</strong>
                           <span className="text-xs font-medium text-slate-400 mb-0.5">/ {zona.capacidadMaxima}</span>
                         </div>
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Plantas Vivas</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">{t('zones.totalPlants')}</span>
                         <strong className="text-lg leading-none text-emerald-600 dark:text-emerald-400">{zona.totalPlantas || 0}</strong>
                       </div>
                     </div>
@@ -331,8 +333,8 @@ export default function TrabajadorZonas() {
                         />
                       </div>
                       <div className="flex justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                        <span>{libre} espacio(s) libres</span>
-                        <span className={alerta90 ? 'text-red-500' : ''}>{alerta90 ? 'Saturada' : 'Disponible'}</span>
+                        <span>{libre} {t('common.units')}</span>
+                        <span className={alerta90 ? 'text-red-500' : ''}>{porcentaje}%</span>
                       </div>
                     </div>
                   </div>
@@ -342,7 +344,7 @@ export default function TrabajadorZonas() {
                     className="w-full py-2.5 px-4 bg-slate-50 dark:bg-slate-900/50 hover:bg-teal-50 dark:hover:bg-teal-900/30 text-slate-600 hover:text-teal-700 dark:text-slate-300 dark:hover:text-teal-400 border border-slate-200 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-800/50 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 group-hover:bg-teal-50 dark:group-hover:bg-teal-900/20 group-hover:border-teal-200 dark:group-hover:border-teal-800/50"
                   >
                     <ExternalLink size={16} className="text-slate-400 group-hover:text-teal-500 transition-colors" /> 
-                    Ver {zona.lotesActivos || 0} Lotes
+                    {t('zones.details')} ({zona.lotesActivos || 0})
                   </button>
                 </div>
               )
@@ -366,9 +368,9 @@ export default function TrabajadorZonas() {
                     {modalDetalle.zona?.nombre}
                   </h3>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-                    <span>Condición: <strong className="text-slate-700 dark:text-slate-300">{modalDetalle.zona?.tipoCondicion}</strong></span>
-                    <span>Luz: <strong className="text-slate-700 dark:text-slate-300">{modalDetalle.zona?.exposicionSolar}</strong></span>
-                    <span>Capacidad: <strong className="text-teal-600 dark:text-teal-400">{modalDetalle.zona?.capacidadMaxima} lotes</strong></span>
+                    <span>{t('zones.filterCondition')}: <strong className="text-slate-700 dark:text-slate-300">{modalDetalle.zona?.tipoCondicion}</strong></span>
+                    <span>{t('zones.filterSolar')}: <strong className="text-slate-700 dark:text-slate-300">{modalDetalle.zona?.exposicionSolar}</strong></span>
+                    <span>{t('zones.capacity')}: <strong className="text-teal-600 dark:text-teal-400">{modalDetalle.zona?.capacidadMaxima}</strong></span>
                   </div>
                 </div>
               </div>
@@ -384,7 +386,7 @@ export default function TrabajadorZonas() {
               {modalDetalle.cargando ? (
                 <div className="py-16 flex flex-col items-center justify-center text-slate-400">
                   <Loader2 className="w-10 h-10 animate-spin mb-4 text-teal-500" />
-                  <p className="font-bold text-sm">Consultando lotes asignados...</p>
+                  <p className="font-bold text-sm">{t('common.loading')}</p>
                 </div>
               ) : modalDetalle.error ? (
                 <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 rounded-2xl text-sm font-bold flex items-center gap-2">
@@ -393,17 +395,16 @@ export default function TrabajadorZonas() {
               ) : modalDetalle.lotes.length === 0 ? (
                 <div className="py-16 text-center text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
                   <Box size={48} className="mx-auto mb-4 text-slate-300 dark:text-slate-600" strokeWidth={1} />
-                  <p className="font-bold text-slate-600 dark:text-slate-300 mb-1">No hay lotes activos en esta zona.</p>
-                  <p className="text-xs">Espacio libre para asignar nuevos cultivos.</p>
+                  <p className="font-bold text-slate-600 dark:text-slate-300 mb-1">{t('zones.noBatchesInZone')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between px-2">
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                      Lotes activos ({modalDetalle.lotes.length})
+                      {t('zones.batchesInZone')} ({modalDetalle.lotes.length})
                     </span>
                     <span className="text-[10px] font-black bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 px-3 py-1 rounded-lg border border-teal-200/50 dark:border-teal-800/50">
-                      Ocupación: {Math.round((modalDetalle.lotes.length / (modalDetalle.zona?.capacidadMaxima || 1)) * 100)}%
+                      {t('zones.occupancy')}: {Math.round((modalDetalle.lotes.length / (modalDetalle.zona?.capacidadMaxima || 1)) * 100)}%
                     </span>
                   </div>
 
@@ -411,10 +412,10 @@ export default function TrabajadorZonas() {
                     <table className="w-full text-left text-sm">
                       <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
                         <tr>
-                          <th className="py-3 px-4">Código / Especie</th>
-                          <th className="py-3 px-4">Estado</th>
-                          <th className="py-3 px-4 text-center">Plantas Vivas</th>
-                          <th className="py-3 px-4">Fecha Siembra</th>
+                          <th className="py-3 px-4">{t('lots.code')} / {t('lots.species')}</th>
+                          <th className="py-3 px-4">{t('common.status')}</th>
+                          <th className="py-3 px-4 text-center">{t('zones.totalPlants')}</th>
+                          <th className="py-3 px-4">{t('lots.plantedDate')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 bg-white dark:bg-slate-900">
@@ -426,7 +427,7 @@ export default function TrabajadorZonas() {
                             </td>
                             <td className="py-3 px-4">
                               <span className={`inline-flex text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border ${ESTADO_BADGES[lote.estadoLote] || 'bg-slate-100 border-slate-200'}`}>
-                                {lote.estadoLote === 'LISTO_PARA_VENTA' ? 'LISTO PARA VENTA' : lote.estadoLote}
+                                {t(`lotPhase.${lote.estadoLote}`) !== `lotPhase.${lote.estadoLote}` ? t(`lotPhase.${lote.estadoLote}`) : lote.estadoLote}
                               </span>
                             </td>
                             <td className="py-3 px-4 text-center">
@@ -451,7 +452,7 @@ export default function TrabajadorZonas() {
                 onClick={() => setModalDetalle({ abierto: false, zona: null, lotes: [], cargando: false, error: '' })}
                 className="px-6 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors"
               >
-                Cerrar Panel
+                {t('common.close')}
               </button>
             </div>
           </div>

@@ -14,7 +14,13 @@ import {
   Map, ThermometerSun, AlertTriangle, LayoutGrid, List, CheckCircle, 
   XCircle, Cloud, Sun, Edit, Play, Square, Loader2, X, ExternalLink, Box, MapPin 
 } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
+/**
+ * Componente administrativo para administración de infraestructura de cultivo.
+ * Permite gestionar invernaderos, túneles y áreas de cultivo, monitoreando
+ * capacidad máxima, lotes vivos asignados, microclimas y alertas de sobrepoblación.
+ */
 const CONDICIONES_OPTIONS = [
   { value: 'INTERIOR', label: 'Interior', icon: <ThermometerSun size={14} /> },
   { value: 'EXTERIOR', label: 'Exterior', icon: <Sun size={14} /> },
@@ -37,6 +43,7 @@ const ESTADO_BADGES = {
 }
 
 export default function AdminZonas() {
+  const { t } = useLanguage()
   const [zonas, setZonas] = useState([])
   const [loading, setLoading] = useState(true)
   const [guardando, setGuardando] = useState(null)
@@ -80,7 +87,7 @@ export default function AdminZonas() {
       setModalDetalle(prev => ({
         ...prev,
         cargando: false,
-        error: err.response?.data?.mensaje || 'Error al consultar los lotes de la zona',
+        error: err.response?.data?.mensaje || t('admin.errorLoadingBatchesInZone', 'Error al consultar los lotes de la zona'),
       }))
     }
   }
@@ -91,7 +98,7 @@ export default function AdminZonas() {
       const res = await getZonasAdmin()
       setZonas(res.data || [])
     } catch (err) {
-      mostrarMensaje('error', err.response?.data?.mensaje || 'Error al cargar las zonas')
+      mostrarMensaje('error', err.response?.data?.mensaje || t('admin.errorLoadingZones', 'Error al cargar las zonas'))
     } finally {
       setLoading(false)
     }
@@ -108,7 +115,7 @@ export default function AdminZonas() {
 
   const handleToggleActivo = async (zona) => {
     if (zona.activo && zona.lotesActivos > 0) {
-      mostrarMensaje('error', `No se puede desactivar "${zona.nombre}" porque tiene ${zona.lotesActivos} lotes activos asignados. Reubica o finaliza los lotes primero.`)
+      mostrarMensaje('error', t('admin.cannotDeactivateZoneWithBatches', { name: zona.nombre, count: zona.lotesActivos }))
       return
     }
 
@@ -116,14 +123,14 @@ export default function AdminZonas() {
     try {
       if (zona.activo) {
         await desactivarZona(zona.idZona)
-        mostrarMensaje('ok', `Zona "${zona.nombre}" desactivada. Su historial de lotes permanece intacto.`)
+        mostrarMensaje('ok', t('admin.zoneDeactivatedMsg', { name: zona.nombre }))
       } else {
         await activarZona(zona.idZona)
-        mostrarMensaje('ok', `Zona "${zona.nombre}" activada exitosamente`)
+        mostrarMensaje('ok', t('admin.zoneActivatedMsg', { name: zona.nombre }))
       }
       await cargarZonas()
     } catch (err) {
-      mostrarMensaje('error', err.response?.data?.mensaje || 'Error al cambiar estado de la zona')
+      mostrarMensaje('error', err.response?.data?.mensaje || t('admin.errorChangingZoneStatus', 'Error al cambiar estado de la zona'))
     } finally {
       setGuardando(null)
     }
@@ -134,16 +141,16 @@ export default function AdminZonas() {
     try {
       if (zonaEdit) {
         await actualizarZona(zonaEdit.idZona, datos)
-        mostrarMensaje('ok', 'Zona actualizada correctamente')
+        mostrarMensaje('ok', t('admin.zoneUpdatedMsg'))
       } else {
         await crearZona(datos)
-        mostrarMensaje('ok', 'Zona registrada exitosamente')
+        mostrarMensaje('ok', t('admin.zoneCreatedMsg'))
       }
       setModalAbierto(false)
       setZonaEdit(null)
       await cargarZonas()
     } catch (err) {
-      const msg = err.response?.data?.mensaje || 'Error al guardar la zona'
+      const msg = err.response?.data?.mensaje || t('admin.errorSavingZone', 'Error al guardar la zona')
       mostrarMensaje('error', msg)
     } finally {
       setGuardando(null)
@@ -188,10 +195,10 @@ export default function AdminZonas() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">
-                Gestión de Zonas
+                {t('admin.zonesTitle')}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
-                Control de infraestructura, condiciones y ocupación.
+                {t('admin.zonesDesc')}
               </p>
             </div>
           </div>
@@ -207,7 +214,7 @@ export default function AdminZonas() {
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
               >
-                <List size={16} /> Lista
+                <List size={16} /> {t('admin.viewList')}
               </button>
               <button
                 onClick={() => setVista('ocupacion')}
@@ -217,7 +224,7 @@ export default function AdminZonas() {
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
               >
-                <LayoutGrid size={16} /> Ocupación
+                <LayoutGrid size={16} /> {t('admin.viewOccupancy')}
                 {zonasCriticas90.length > 0 && (
                   <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
                 )}
@@ -229,7 +236,7 @@ export default function AdminZonas() {
               className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md shadow-teal-500/20 transition-all duration-200"
             >
               <Map size={18} />
-              <span>Nueva Zona</span>
+              <span>{t('admin.newZone')}</span>
             </button>
           </div>
         </div>
@@ -245,10 +252,10 @@ export default function AdminZonas() {
               </div>
               <div className="flex-1">
                 <h4 className="font-bold text-red-800 dark:text-red-300 text-lg">
-                  ¡Alerta de Sobrepoblación! {zonasCriticas90.length} zona(s) superan el 90% de su capacidad
+                  {t('admin.overpopulationAlert', { count: zonasCriticas90.length })}
                 </h4>
                 <p className="text-sm font-medium text-red-700/80 dark:text-red-400 mt-1">
-                  Las siguientes zonas están en riesgo de saturación y no admiten nuevas siembras óptimas:
+                  {t('admin.overpopulationNotice')}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {zonasCriticas90.map(z => (
@@ -265,25 +272,25 @@ export default function AdminZonas() {
         {/* KPI CARDS */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl p-5 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm">
-            <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Zonas Activas</p>
+            <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('admin.kpiActiveZones')}</p>
             <p className="text-3xl font-bold text-slate-800 dark:text-slate-100 mt-2">
-              {zonas.filter(z => z.activo).length} <span className="text-sm text-slate-400 font-medium">/ {zonas.length} totales</span>
+              {zonas.filter(z => z.activo).length} <span className="text-sm text-slate-400 font-medium">/ {zonas.length}</span>
             </p>
           </div>
           <div className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl p-5 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm">
-            <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Capacidad Total</p>
+            <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('admin.kpiTotalCapacity')}</p>
             <p className="text-3xl font-bold text-slate-800 dark:text-slate-100 mt-2">
-              {capacidadTotal} <span className="text-sm text-slate-400 font-medium">lotes max</span>
+              {capacidadTotal} <span className="text-sm text-slate-400 font-medium">{t('admin.kpiMaxBatches')}</span>
             </p>
           </div>
           <div className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl p-5 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm">
-            <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Lotes / Plantas</p>
+            <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('admin.kpiBatchesPlants')}</p>
             <p className="text-3xl font-bold text-teal-600 dark:text-teal-400 mt-2">
               {lotesActivosTotal} <span className="text-sm text-slate-400 font-medium">({plantasTotal} pl)</span>
             </p>
           </div>
           <div className="bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl p-5 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm">
-            <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Ocupación Global</p>
+            <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('admin.kpiGlobalOccupancy')}</p>
             <p className={`text-3xl font-bold mt-2 ${ocupacionPromedio >= 90 ? 'text-red-600 dark:text-red-400' : ocupacionPromedio >= 70 ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-500 dark:text-emerald-400'}`}>
               {ocupacionPromedio}%
             </p>
@@ -295,7 +302,7 @@ export default function AdminZonas() {
           <div className="relative flex-1 w-full">
             <input
               type="text"
-              placeholder="Buscar zona..."
+              placeholder={t('admin.searchZonePlaceholder')}
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-shadow text-slate-700 dark:text-slate-200"
@@ -306,17 +313,17 @@ export default function AdminZonas() {
             onChange={e => setFiltroActivo(e.target.value)}
             className="w-full md:w-48 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none transition-shadow"
           >
-            <option value="">Todas las zonas</option>
-            <option value="true">Solo Activas</option>
-            <option value="false">Solo Inactivas</option>
+            <option value="">{t('admin.allZonesFilter')}</option>
+            <option value="true">{t('admin.onlyActiveZones')}</option>
+            <option value="false">{t('admin.onlyInactiveZones')}</option>
           </select>
           <select
             value={filtroCondicion}
             onChange={e => setFiltroCondicion(e.target.value)}
             className="w-full md:w-56 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none transition-shadow"
           >
-            <option value="">Todas las condiciones</option>
-            {CONDICIONES_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+            <option value="">{t('admin.allConditionsFilter')}</option>
+            {CONDICIONES_OPTIONS.map(c => <option key={c.value} value={c.value}>{t('zoneCondition.' + c.value, c.label)}</option>)}
           </select>
         </div>
 
@@ -328,18 +335,18 @@ export default function AdminZonas() {
                 <Loader2 className="w-10 h-10 animate-spin text-teal-500" />
               </div>
             ) : zonasFiltradas.length === 0 ? (
-              <div className="text-center py-24 text-slate-500">No se encontraron zonas.</div>
+              <div className="text-center py-24 text-slate-500">{t('admin.noZonesFound')}</div>
             ) : (
               <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-sm text-left">
                   <thead>
                     <tr className="bg-slate-200 dark:bg-slate-700/80 border-b-2 border-slate-300 dark:border-slate-600">
-                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Zona</th>
-                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Condición</th>
-                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Capacidad</th>
-                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 w-48">Ocupación</th>
-                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Estado</th>
-                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Acciones</th>
+                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thZoneCol')}</th>
+                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thConditionCol')}</th>
+                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thCapacityCol')}</th>
+                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 w-48">{t('admin.thOccupancyCol')}</th>
+                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thStatus')}</th>
+                      <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thActions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -360,11 +367,11 @@ export default function AdminZonas() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <p className="font-bold text-slate-700 dark:text-slate-300">{zona.tipoCondicion}</p>
-                            <p className="text-xs text-slate-500 mt-0.5">{zona.exposicionSolar}</p>
+                            <p className="font-bold text-slate-700 dark:text-slate-300">{t('zoneCondition.' + zona.tipoCondicion, zona.tipoCondicion)}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">{t('zoneExposure.' + zona.exposicionSolar, zona.exposicionSolar)}</p>
                           </td>
                           <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
-                            {zona.capacidadMaxima} lotes
+                            {t('admin.batchesUnits', { count: zona.capacidadMaxima })}
                           </td>
                           <td className="px-6 py-4">
                             <div className="w-full">
@@ -385,19 +392,19 @@ export default function AdminZonas() {
                               }`}
                             >
                               {zona.activo ? <CheckCircle size={14} /> : <XCircle size={14} />}
-                              {zona.activo ? 'Activa' : 'Inactiva'}
+                              {zona.activo ? t('admin.zoneActive') : t('admin.zoneInactive')}
                             </span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex justify-center gap-2">
                               <button onClick={() => abrirEditar(zona)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400 transition-colors text-xs font-bold">
-                                <Edit size={14} /> Editar
+                                <Edit size={14} /> {t('admin.editZone')}
                               </button>
                               <button onClick={() => handleToggleActivo(zona)} disabled={guardando === zona.idZona}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-colors text-xs font-bold disabled:opacity-50
                                 ${zona.activo ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400' : 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100 dark:bg-teal-900/30 dark:text-teal-400'}`}>
                                 {guardando === zona.idZona ? <Loader2 size={14} className="animate-spin" /> : (zona.activo ? <XCircle size={14} /> : <CheckCircle size={14} />)}
-                                {zona.activo ? 'Desactivar' : 'Activar'}
+                                {zona.activo ? t('admin.deactivate') : t('admin.activate')}
                               </button>
                             </div>
                           </td>
@@ -431,7 +438,7 @@ export default function AdminZonas() {
                       <div>
                         <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">{zona.nombre}</h3>
                         <p className="text-xs font-medium text-slate-500 flex items-center gap-1">
-                          {zona.tipoCondicion} • {zona.exposicionSolar}
+                          {t('zoneCondition.' + zona.tipoCondicion, zona.tipoCondicion)} • {t('zoneExposure.' + zona.exposicionSolar, zona.exposicionSolar)}
                         </p>
                       </div>
                     </div>
@@ -440,38 +447,38 @@ export default function AdminZonas() {
                   {isAlert && zona.activo && (
                     <div className="mb-5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-bold p-3 rounded-xl flex gap-2">
                       <AlertTriangle size={16} className="shrink-0" />
-                      <span>Capacidad crítica alcanzada. Evite planificar nuevas siembras aquí.</span>
+                      <span>{t('admin.criticalCapacityReached')}</span>
                     </div>
                   )}
 
                   <div className="grid grid-cols-2 gap-3 mb-5">
                     <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Lotes Activos</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{t('admin.activeBatchesCard')}</p>
                       <p className="text-xl font-bold text-slate-800 dark:text-slate-100">{zona.lotesActivos} <span className="text-sm text-slate-400">/ {zona.capacidadMaxima}</span></p>
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Plantas Vivas</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{t('admin.livingPlants')}</p>
                       <p className="text-xl font-bold text-teal-600 dark:text-teal-400">{zona.totalPlantas || 0}</p>
                     </div>
                   </div>
 
                   <div className="mb-6">
                     <div className="flex justify-between text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
-                      <span>Ocupación</span>
+                      <span>{t('admin.viewOccupancy')}</span>
                       <span className={isAlert && zona.activo ? 'text-red-500' : ''}>{pct}%</span>
                     </div>
                     <div className="w-full h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div className={`h-full rounded-full transition-all duration-700 ${isAlert && zona.activo ? 'bg-red-500' : pct >= 70 ? 'bg-amber-400' : 'bg-emerald-500'}`} style={{ width: `${Math.min(100, pct)}%` }} />
                     </div>
-                    <p className="text-xs font-medium text-slate-500 text-right mt-2">{libre} espacio(s) libres</p>
+                    <p className="text-xs font-medium text-slate-500 text-right mt-2">{t('admin.freeSpaces', { count: libre })}</p>
                   </div>
 
                   <div className="flex gap-2">
                     <button onClick={() => abrirEditar(zona)} className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5">
-                      <Edit size={16} /> Editar
+                      <Edit size={16} /> {t('admin.editZone')}
                     </button>
                     <button onClick={() => abrirDetalleZona(zona)} className="flex-[1.5] py-2.5 rounded-xl border border-teal-200 dark:border-teal-800/50 bg-teal-50 dark:bg-teal-900/30 text-sm font-bold text-teal-700 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors flex items-center justify-center gap-1.5">
-                      <ExternalLink size={16} /> Ver Lotes
+                      <ExternalLink size={16} /> {t('admin.viewBatches')}
                     </button>
                   </div>
                 </div>
@@ -497,9 +504,9 @@ export default function AdminZonas() {
                     {modalDetalle.zona?.nombre}
                   </h3>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-                    <span>Condición: <strong className="text-slate-700 dark:text-slate-300">{modalDetalle.zona?.tipoCondicion}</strong></span>
-                    <span>Luz: <strong className="text-slate-700 dark:text-slate-300">{modalDetalle.zona?.exposicionSolar}</strong></span>
-                    <span>Capacidad: <strong className="text-teal-600 dark:text-teal-400">{modalDetalle.zona?.capacidadMaxima} lotes</strong></span>
+                    <span>{t('admin.zoneConditionLabel')} <strong className="text-slate-700 dark:text-slate-300">{t('zoneCondition.' + modalDetalle.zona?.tipoCondicion, modalDetalle.zona?.tipoCondicion)}</strong></span>
+                    <span>{t('admin.zoneLightLabel')} <strong className="text-slate-700 dark:text-slate-300">{t('zoneExposure.' + modalDetalle.zona?.exposicionSolar, modalDetalle.zona?.exposicionSolar)}</strong></span>
+                    <span>{t('admin.zoneCapacityLabel')} <strong className="text-teal-600 dark:text-teal-400">{t('admin.batchesUnits', { count: modalDetalle.zona?.capacidadMaxima })}</strong></span>
                   </div>
                 </div>
               </div>
@@ -515,7 +522,7 @@ export default function AdminZonas() {
               {modalDetalle.cargando ? (
                 <div className="py-16 flex flex-col items-center justify-center text-slate-400">
                   <Loader2 className="w-10 h-10 animate-spin mb-4 text-teal-500" />
-                  <p className="font-bold text-sm">Consultando lotes asignados...</p>
+                  <p className="font-bold text-sm">{t('admin.queryingAssignedBatches')}</p>
                 </div>
               ) : modalDetalle.error ? (
                 <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 rounded-2xl text-sm font-bold flex items-center gap-2">
@@ -524,17 +531,17 @@ export default function AdminZonas() {
               ) : modalDetalle.lotes.length === 0 ? (
                 <div className="py-16 text-center text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
                   <Box size={48} className="mx-auto mb-4 text-slate-300 dark:text-slate-600" strokeWidth={1} />
-                  <p className="font-bold text-slate-600 dark:text-slate-300 mb-1">No hay lotes activos en esta zona.</p>
-                  <p className="text-xs">Espacio libre para asignar nuevos cultivos.</p>
+                  <p className="font-bold text-slate-600 dark:text-slate-300 mb-1">{t('admin.noBatchesInZone')}</p>
+                  <p className="text-xs">{t('admin.freeSpaceNotice')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between px-2">
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                      Lotes activos ({modalDetalle.lotes.length})
+                      {t('admin.activeBatchesCount', { count: modalDetalle.lotes.length })}
                     </span>
                     <span className="text-[10px] font-black bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 px-3 py-1 rounded-lg border border-teal-200/50 dark:border-teal-800/50">
-                      Ocupación: {Math.round((modalDetalle.lotes.length / (modalDetalle.zona?.capacidadMaxima || 1)) * 100)}%
+                      {t('admin.occupancyPct', { pct: Math.round((modalDetalle.lotes.length / (modalDetalle.zona?.capacidadMaxima || 1)) * 100) })}
                     </span>
                   </div>
 
@@ -542,10 +549,10 @@ export default function AdminZonas() {
                     <table className="w-full text-left text-sm">
                       <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
                         <tr>
-                          <th className="py-3 px-4">Código / Especie</th>
-                          <th className="py-3 px-4">Estado</th>
-                          <th className="py-3 px-4 text-center">Plantas Vivas</th>
-                          <th className="py-3 px-4">Fecha Siembra</th>
+                          <th className="py-3 px-4">{t('admin.thCodeSpecies')}</th>
+                          <th className="py-3 px-4">{t('admin.thStatus')}</th>
+                          <th className="py-3 px-4 text-center">{t('admin.thLivingPlants')}</th>
+                          <th className="py-3 px-4">{t('admin.thSowingDate')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 bg-white dark:bg-slate-900">
@@ -557,7 +564,7 @@ export default function AdminZonas() {
                             </td>
                             <td className="py-3 px-4">
                               <span className={`inline-flex text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border ${ESTADO_BADGES[lote.estadoLote] || 'bg-slate-100 border-slate-200'}`}>
-                                {lote.estadoLote === 'LISTO_PARA_VENTA' ? 'LISTO PARA VENTA' : lote.estadoLote}
+                                {t('lotPhase.' + lote.estadoLote, lote.estadoLote === 'LISTO_PARA_VENTA' ? 'LISTO PARA VENTA' : lote.estadoLote)}
                               </span>
                             </td>
                             <td className="py-3 px-4 text-center">
@@ -582,7 +589,7 @@ export default function AdminZonas() {
                 onClick={() => setModalDetalle({ abierto: false, zona: null, lotes: [], cargando: false, error: '' })}
                 className="px-6 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors"
               >
-                Cerrar Panel
+                {t('admin.closePanel')}
               </button>
             </div>
           </div>
@@ -602,7 +609,13 @@ export default function AdminZonas() {
   )
 }
 
+/**
+ * Modal para creación y edición de zonas e infraestructura de cultivo.
+ * Valida capacidad mínima, condiciones ambientales y exige confirmación
+ * si el administrador intenta reducir la capacidad por debajo de los lotes actualmente ocupados.
+ */
 function ZonaModal({ zona, guardando, onGuardar, onCerrar }) {
+  const { t } = useLanguage()
   const [form, setForm] = useState({
     nombre: zona?.nombre ?? '',
     capacidadMaxima: zona?.capacidadMaxima ?? '',
@@ -622,13 +635,13 @@ function ZonaModal({ zona, guardando, onGuardar, onCerrar }) {
 
   const validar = () => {
     const errs = {}
-    if (!form.nombre.trim()) errs.nombre = 'El nombre de la zona es obligatorio'
-    if (!form.capacidadMaxima || Number(form.capacidadMaxima) < 1) errs.capacidadMaxima = 'La capacidad máxima debe ser al menos 1 lote'
-    if (!form.tipoCondicion) errs.tipoCondicion = 'Selecciona el tipo de condición'
-    if (!form.exposicionSolar) errs.exposicionSolar = 'Selecciona la exposición solar'
+    if (!form.nombre.trim()) errs.nombre = t('admin.nameRequired')
+    if (!form.capacidadMaxima || Number(form.capacidadMaxima) < 1) errs.capacidadMaxima = t('admin.capacityMin1')
+    if (!form.tipoCondicion) errs.tipoCondicion = t('admin.conditionRequired')
+    if (!form.exposicionSolar) errs.exposicionSolar = t('admin.exposureRequired')
 
     if (reduciendoPorDebajoDeOcupacion && !form.confirmarReduccionCapacidad) {
-      errs.confirmacion = 'Debes confirmar la reducción por debajo de la ocupación.'
+      errs.confirmacion = t('admin.confirmReductionRequired')
     }
 
     setErrores(errs)
@@ -657,7 +670,7 @@ function ZonaModal({ zona, guardando, onGuardar, onCerrar }) {
               {zona ? <Edit size={20} /> : <Map size={20} />}
             </div>
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-              {zona ? 'Editar Zona' : 'Nueva Zona'}
+              {zona ? t('admin.editZoneTitle') : t('admin.newZoneTitle')}
             </h2>
           </div>
           <button onClick={onCerrar} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-full p-2 transition-colors">
@@ -667,38 +680,38 @@ function ZonaModal({ zona, guardando, onGuardar, onCerrar }) {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <Input
-            label="Nombre de la zona *"
+            label={t('admin.zoneNameLabel')}
             name="nombre"
             value={form.nombre}
             onChange={handleChange}
-            placeholder="Ej: Invernadero 1"
+            placeholder={t('admin.zoneNamePlaceholder')}
             error={errores.nombre}
           />
 
           <Input
-            label="Capacidad máxima (lotes) *"
+            label={t('admin.maxCapacityBatches')}
             name="capacidadMaxima"
             type="number"
             min="1"
             value={form.capacidadMaxima}
             onChange={handleChange}
-            placeholder="Ej: 20"
+            placeholder={t('admin.maxCapacityPlaceholder')}
             error={errores.capacidadMaxima}
           />
 
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Condición Climática</label>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">{t('admin.climateCondition')}</label>
             <select name="tipoCondicion" value={form.tipoCondicion} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none">
-              <option value="">Selecciona...</option>
-              {CONDICIONES_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+              <option value="">{t('admin.selectOption')}</option>
+              {CONDICIONES_OPTIONS.map(c => <option key={c.value} value={c.value}>{t('zoneCondition.' + c.value, c.label)}</option>)}
             </select>
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Exposición Solar</label>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">{t('admin.solarExposure')}</label>
             <select name="exposicionSolar" value={form.exposicionSolar} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none">
-              <option value="">Selecciona...</option>
-              {EXPOSICION_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+              <option value="">{t('admin.selectOption')}</option>
+              {EXPOSICION_OPTIONS.map(c => <option key={c.value} value={c.value}>{t('zoneExposure.' + c.value, c.label)}</option>)}
             </select>
           </div>
 
@@ -706,14 +719,14 @@ function ZonaModal({ zona, guardando, onGuardar, onCerrar }) {
             <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-300 dark:border-amber-700/50 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
                 <AlertTriangle size={18} />
-                <span>Advertencia de Capacidad</span>
+                <span>{t('admin.capacityWarningTitle')}</span>
               </div>
               <p className="text-xs text-amber-700 dark:text-amber-400 font-medium leading-relaxed">
-                Estás reduciendo la capacidad máxima a <strong>{form.capacidadMaxima}</strong> lotes, pero actualmente hay <strong>{lotesActuales}</strong> lotes activos en esta zona.
+                {t('admin.capacityReductionWarning', { cap: form.capacidadMaxima, current: lotesActuales })}
               </p>
               <label className="flex items-start gap-2 pt-2 cursor-pointer font-bold text-sm text-amber-900 dark:text-amber-200">
                 <input type="checkbox" name="confirmarReduccionCapacidad" checked={form.confirmarReduccionCapacidad} onChange={handleChange} className="mt-1" />
-                <span>Confirmo reducir la capacidad por debajo del uso actual.</span>
+                <span>{t('admin.confirmReductionCheck')}</span>
               </label>
               {errores.confirmacion && <p className="text-red-500 text-xs font-bold">{errores.confirmacion}</p>}
             </div>
@@ -721,11 +734,11 @@ function ZonaModal({ zona, guardando, onGuardar, onCerrar }) {
 
           <div className="pt-4 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
             <button type="button" onClick={onCerrar} disabled={guardando} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition-colors">
-              Cancelar
+              {t('admin.cancel')}
             </button>
             <button type="submit" disabled={guardando} className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 transition-all shadow-md shadow-teal-500/20 disabled:opacity-50">
               {guardando ? <Loader2 size={16} className="animate-spin" /> : <Map size={16} />}
-              {guardando ? 'Guardando...' : 'Guardar Zona'}
+              {guardando ? t('admin.savingZone') : t('admin.saveZoneBtn')}
             </button>
           </div>
         </form>

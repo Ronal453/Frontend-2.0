@@ -2,11 +2,16 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCarrito, actualizarCantidad, eliminarItem, vaciarCarrito } from '../../api/carritoApi'
 import { useCart } from '../../context/CartContext'
+import { useLanguage } from '../../context/LanguageContext'
 import { X, ShoppingBag, Trash2, ArrowRight, Minus, Plus, CreditCard, Leaf } from 'lucide-react'
 
+/**
+ * Slide-over shopping cart drawer with internationalized text and item management.
+ */
 export default function CartDrawer() {
   const navigate = useNavigate()
   const { isCartOpen, closeCart, refreshCart, clearCart } = useCart()
+  const { t } = useLanguage()
 
   const [carrito, setCarrito] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -89,7 +94,7 @@ export default function CartDrawer() {
         <div className="px-6 py-5 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between bg-white/50 dark:bg-slate-900/50">
           <div className="flex items-center gap-3 text-emerald-950 dark:text-white">
             <ShoppingBag className="text-green-600 dark:text-green-400" size={24} strokeWidth={2.5} />
-            <h2 className="text-xl font-black tracking-tight">Tu Carrito</h2>
+            <h2 className="text-xl font-black tracking-tight">{t('cart.title')}</h2>
             {!estaVacio && (
               <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-black px-2.5 py-0.5 rounded-full border border-green-200 dark:border-green-800/50">
                 {carrito.totalItems}
@@ -121,15 +126,15 @@ export default function CartDrawer() {
               <div className="w-24 h-24 bg-green-50/50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4 shadow-inner">
                 <ShoppingBag size={48} className="text-green-300 dark:text-slate-600" />
               </div>
-              <h3 className="text-xl font-black text-emerald-950 dark:text-white">Tu carrito está vacío</h3>
+              <h3 className="text-xl font-black text-emerald-950 dark:text-white">{t('cart.emptyTitle')}</h3>
               <p className="text-emerald-700/70 dark:text-slate-400 text-sm max-w-[250px] font-medium">
-                Agrega plantas increíbles desde nuestro catálogo para darle vida a tu espacio.
+                {t('cart.emptyDesc')}
               </p>
               <button 
                 onClick={() => { closeCart(); navigate('/catalogo'); }}
                 className="mt-6 flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-green-600/20 transition-transform active:scale-95"
               >
-                <Leaf size={18} /> Explorar Catálogo
+                <Leaf size={18} /> {t('cart.exploreCatalog')}
               </button>
             </div>
           ) : (
@@ -147,7 +152,9 @@ export default function CartDrawer() {
                   <div className="flex-1 flex flex-col justify-between py-1">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h4 className="font-black text-emerald-950 dark:text-white text-sm line-clamp-2 pr-2 leading-tight mb-1">{item.nombreProducto}</h4>
+                        <h4 className="font-black text-emerald-950 dark:text-white text-sm line-clamp-2 pr-2 leading-tight mb-1">
+                          {t('product.name.' + item.nombreProducto, item.nombreProducto)}
+                        </h4>
                         <p className="text-emerald-600 dark:text-emerald-400 font-bold text-xs">
                           ${item.precioUnitario?.toLocaleString('es-CO')}
                         </p>
@@ -192,7 +199,7 @@ export default function CartDrawer() {
         {!estaVacio && !loading && (
           <div className="p-6 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-t border-slate-200/50 dark:border-slate-800/50">
             <div className="flex justify-between items-end mb-6">
-              <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">Subtotal</span>
+              <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">{t('cart.subtotal')}</span>
               <span className="text-3xl font-black text-green-600 dark:text-green-400">
                 ${carrito?.total?.toLocaleString('es-CO')}
               </span>
@@ -206,7 +213,7 @@ export default function CartDrawer() {
             >
               <div className="absolute inset-0 w-1/4 h-full bg-white/30 skew-x-12 -translate-x-full group-hover:animate-[shine_1s_ease-in-out]" />
               <CreditCard size={22} strokeWidth={2.5} />
-              Proceder al Pago
+              {t('cart.checkout')}
             </button>
           </div>
         )}

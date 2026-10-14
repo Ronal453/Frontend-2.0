@@ -2,8 +2,19 @@ import { useState, useEffect } from 'react'
 import { generarBackup, getResumenBackup, restaurarBackup } from '../api/adminApi'
 import { DatabaseBackup, Download, UploadCloud, AlertTriangle, ShieldCheck, RefreshCcw } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { useLanguage } from '../context/LanguageContext'
 
+/**
+ * Componente administrativo para la gestión de copias de seguridad y restauración del sistema.
+ * 
+ * Permite descargar un volcado SQL consistente de la base de datos de Plantopolis (24 tablas)
+ * y restaurar la base de datos a partir de un archivo .sql con validaciones estrictas
+ * de integridad y confirmación explícita para evitar pérdida de datos accidental.
+ * 
+ * @returns {JSX.Element} Vista de copias de seguridad del panel administrativo.
+ */
 export default function AdminBackup() {
+  const { t } = useLanguage()
   const [generando, setGenerando] = useState(false)
   const [restaurando, setRestaurando] = useState(false)
   const [resumenBD, setResumenBD] = useState([])
@@ -66,14 +77,14 @@ export default function AdminBackup() {
 
     } catch (error) {
       console.error('Error al generar backup', error)
-      alert('Hubo un error al generar la copia de seguridad.')
+      alert(t('admin.generateBackupError', 'Hubo un error al generar la copia de seguridad.'))
     } finally {
       setGenerando(false)
     }
   }
 
   const handleRestaurar = async () => {
-    if (confirmacion !== 'RESTAURAR' || !archivo) return
+    if (confirmacion !== t('admin.confirmWord', 'RESTAURAR') || !archivo) return
     
     setShowModal(false)
     setRestaurando(true)
@@ -90,14 +101,14 @@ export default function AdminBackup() {
     } catch (error) {
       console.error('Error al restaurar', error)
       if (error.response?.status === 413) {
-        alert('El archivo supera el tamaño máximo permitido (50 MB).')
+        alert(t('admin.restoreMaxSizeError', 'El archivo supera el tamaño máximo permitido (50 MB).'))
       } else if (error.response?.status === 400) {
-        alert('Archivo inválido o corrupto: ' + error.response.data?.mensaje)
+        alert(t('admin.restoreCorruptError', { msg: error.response.data?.mensaje || '' }, 'Archivo inválido o corrupto: ' + error.response.data?.mensaje))
       } else if (error.response?.status === 401 || error.response?.status === 403) {
-        alert('Tu sesión ya no es válida tras la restauración. Inicia sesión con una cuenta del backup.')
+        alert(t('admin.restoreSessionExpired', 'Tu sesión ya no es válida tras la restauración. Inicia sesión con una cuenta del backup.'))
         logout()
       } else {
-        alert('Error al restaurar la base de datos.')
+        alert(t('admin.restoreError', 'Error al restaurar la base de datos.'))
       }
     } finally {
       setRestaurando(false)
@@ -111,8 +122,8 @@ export default function AdminBackup() {
           <DatabaseBackup size={28} />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-slate-800 dark:text-white">Copias de Seguridad</h1>
-          <p className="text-slate-500 text-sm">Respalda y restaura toda la base de datos.</p>
+          <h1 className="text-2xl font-black text-slate-800 dark:text-white">{t('admin.backupHeaderTitle', 'Copias de Seguridad')}</h1>
+          <p className="text-slate-500 text-sm">{t('admin.backupHeaderDesc', 'Respalda y restaura toda la base de datos.')}</p>
         </div>
       </div>
 
@@ -121,11 +132,10 @@ export default function AdminBackup() {
         <div className="bg-white dark:bg-[#111827] rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2 mb-4 text-emerald-500">
             <Download size={24} />
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white">Generar Backup</h2>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">{t('admin.generateBackupCard', 'Generar Backup')}</h2>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-            Descarga un archivo <code>.sql</code> con todos los datos actuales (24 tablas). 
-            La estructura se mantiene, solo se exportan los datos en una transacción consistente.
+            {t('admin.generateBackupExplanation', 'Descarga un archivo .sql con todos los datos actuales (24 tablas). La estructura se mantiene, solo se exportan los datos en una transacción consistente.')}
           </p>
           <button 
             onClick={handleGenerarBackup}
@@ -133,14 +143,14 @@ export default function AdminBackup() {
             className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold transition-colors flex justify-center items-center gap-2 disabled:opacity-50"
           >
             {generando ? <RefreshCcw className="animate-spin" size={20} /> : <DatabaseBackup size={20} />}
-            {generando ? 'Generando...' : 'Generar Copia de Seguridad'}
+            {generando ? t('admin.generatingBackup', 'Generando...') : t('admin.generateBackupBtn', 'Generar Copia de Seguridad')}
           </button>
 
           {reporteGenerado && (
             <div className="mt-6 p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20">
               <h3 className="font-bold text-emerald-700 dark:text-emerald-400 mb-2 flex justify-between">
-                <span>Backup generado con éxito</span>
-                <span>{reporteGenerado.totalFilas} filas totales</span>
+                <span>{t('admin.backupGeneratedSuccess', 'Backup generado con éxito')}</span>
+                <span>{t('admin.totalRowsCount', { count: reporteGenerado.totalFilas }, `${reporteGenerado.totalFilas} filas totales`)}</span>
               </h3>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400 max-h-40 overflow-y-auto custom-scrollbar">
                 {reporteGenerado.tablas.map(t => (
@@ -161,17 +171,17 @@ export default function AdminBackup() {
           
           <div className="flex items-center gap-2 mb-4 text-red-500">
             <UploadCloud size={24} />
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white">Restaurar Base de Datos</h2>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">{t('admin.restoreDatabaseCard', 'Restaurar Base de Datos')}</h2>
           </div>
           
           <div className="p-3 bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 text-sm rounded-xl mb-6 font-medium">
-            <strong>Advertencia crítica:</strong> Esta acción borrará todos los datos actuales y los reemplazará por los del archivo <code>.sql</code>. Se generará un backup automático de seguridad antes de proceder.
+            <strong>{t('admin.criticalWarningLabel', 'Advertencia crítica:')}</strong> {t('admin.restoreDatabaseWarning', 'Esta acción borrará todos los datos actuales y los reemplazará por los del archivo .sql. Se generará un backup automático de seguridad antes de proceder.')}
           </div>
 
           <div className="space-y-4 relative z-10">
             <div>
               <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Archivo de Backup (.sql)
+                {t('admin.backupFileLabel', 'Archivo de Backup (.sql)')}
               </label>
               <input 
                 type="file" 
@@ -193,15 +203,15 @@ export default function AdminBackup() {
               className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors flex justify-center items-center gap-2 disabled:opacity-50"
             >
               {restaurando ? <RefreshCcw className="animate-spin" size={20} /> : <AlertTriangle size={20} />}
-              {restaurando ? 'Restaurando y validando...' : 'Iniciar Restauración'}
+              {restaurando ? t('admin.restoringValidating', 'Restaurando y validando...') : t('admin.startRestoreBtn', 'Iniciar Restauración')}
             </button>
           </div>
 
           {reporteRestaurado && (
             <div className="mt-6 p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20">
               <h3 className="font-bold text-emerald-700 dark:text-emerald-400 mb-2 flex justify-between">
-                <span>Restauración completada en {reporteRestaurado.duracionMs}ms</span>
-                <span>{reporteRestaurado.totalFilas} filas</span>
+                <span>{t('admin.restoreCompletedIn', { ms: reporteRestaurado.duracionMs }, `Restauración completada en ${reporteRestaurado.duracionMs}ms`)}</span>
+                <span>{t('admin.rowsCount', { count: reporteRestaurado.totalFilas }, `${reporteRestaurado.totalFilas} filas`)}</span>
               </h3>
               
               {reporteRestaurado.advertencias?.length > 0 && (
@@ -226,7 +236,7 @@ export default function AdminBackup() {
       <div className="bg-white dark:bg-[#111827] rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
         <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
           <ShieldCheck className="text-cyan-500" />
-          Estado actual (Filas por tabla)
+          {t('admin.currentStateRowsPerTable', 'Estado actual (Filas por tabla)')}
         </h2>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -246,10 +256,10 @@ export default function AdminBackup() {
               <AlertTriangle size={48} />
             </div>
             <h3 className="text-xl font-black text-center text-slate-800 dark:text-white mb-2">
-              ¿Estás seguro?
+              {t('admin.areYouSureTitle', '¿Estás seguro?')}
             </h3>
             <p className="text-slate-600 dark:text-slate-400 text-sm text-center mb-6">
-              Todos los datos actuales se perderán. Escribe la palabra <strong className="text-red-500">RESTAURAR</strong> para confirmar la restauración del archivo:
+              {t('admin.restoreConfirmPrompt', 'Todos los datos actuales se perderán. Escribe la palabra RESTAURAR para confirmar la restauración del archivo:')}
               <strong className="text-cyan-600 dark:text-cyan-400 font-mono mt-2 block bg-cyan-50 dark:bg-cyan-900/20 p-2 rounded-lg border border-cyan-100 dark:border-cyan-800">
                 {archivo?.name} ({(archivo?.size / 1024 / 1024).toFixed(2)} MB)
               </strong>
@@ -259,7 +269,7 @@ export default function AdminBackup() {
               type="text"
               value={confirmacion}
               onChange={e => setConfirmacion(e.target.value)}
-              placeholder="RESTAURAR"
+              placeholder={t('admin.confirmWord', 'RESTAURAR')}
               className="w-full text-center p-3 mb-6 bg-slate-50 dark:bg-[#060A11] border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-slate-800 dark:text-white font-bold"
             />
 
@@ -268,14 +278,14 @@ export default function AdminBackup() {
                 onClick={() => { setShowModal(false); setConfirmacion(''); }}
                 className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold transition-colors"
               >
-                Cancelar
+                {t('admin.cancel', 'Cancelar')}
               </button>
               <button 
                 onClick={handleRestaurar}
-                disabled={confirmacion !== 'RESTAURAR'}
+                disabled={confirmacion !== t('admin.confirmWord', 'RESTAURAR')}
                 className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors disabled:opacity-50"
               >
-                Confirmar
+                {t('admin.confirmBtn', 'Confirmar')}
               </button>
             </div>
           </div>

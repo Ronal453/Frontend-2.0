@@ -39,16 +39,18 @@ import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { LayoutProvider } from './context/LayoutContext'
+import { LanguageProvider } from './context/LanguageContext'
 import PublicLayout from './components/layout/PublicLayout'
 
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <CartProvider>
-          <LayoutProvider>
-            <BrowserRouter>
-              <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans relative overflow-x-hidden">
+      <LanguageProvider>
+        <AuthProvider>
+          <CartProvider>
+            <LayoutProvider>
+              <BrowserRouter>
+                <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans relative overflow-x-hidden">
               
 
               <InactivityGuard />
@@ -104,6 +106,7 @@ function App() {
           </LayoutProvider>
         </CartProvider>
       </AuthProvider>
+      </LanguageProvider>
     </ThemeProvider>
   )
 }

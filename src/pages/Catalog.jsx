@@ -5,10 +5,15 @@ import { agregarItem } from '../api/carritoApi'
 import { getImagenProducto } from '../utils/imageUtils'
 import { useAuth } from '../hooks/useAuth'
 import { useCart } from '../context/CartContext'
+import { useLanguage } from '../context/LanguageContext'
 import Pagination from '../components/ui/Pagination'
 import { Search, Droplets, Leaf, Sun, ChevronDown, ShoppingBag, Filter, FilterX, Home, Trees, Package, Flower2 } from 'lucide-react'
 
+/**
+ * Botanical e-commerce catalog page with multi-criteria filtering and i18n support.
+ */
 export default function Catalog() {
+  const { t } = useLanguage()
   const [productos,  setProductos]  = useState([])
   const [categorias, setCategorias] = useState([])
   const [tipos,      setTipos]      = useState([])
@@ -106,25 +111,25 @@ export default function Catalog() {
               <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-2xl shadow-sm">
                 <Leaf className="text-green-600 dark:text-green-400" size={36} strokeWidth={2.5} />
               </div>
-              Catálogo
+              {t('catalog.title')}
             </h1>
             <p className="text-emerald-700/80 dark:text-slate-400 mt-3 font-medium text-lg">
-              Encuentra la planta perfecta para tu ecosistema
+              {t('catalog.subtitle')}
             </p>
           </div>
           
           <div className="flex items-center gap-4">
             <p className="hidden md:block text-sm font-bold text-emerald-600 dark:text-slate-500 bg-white/60 dark:bg-slate-800 px-3 py-1 rounded-full shadow-sm">
-              {productos.length} resultados
+              {t('common.resultsCount', { count: productos.length })}
             </p>
             <button 
               onClick={() => setMostrarFiltros(!mostrarFiltros)}
               className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold shadow-md transition-all active:scale-95 border border-green-500"
             >
               {mostrarFiltros ? (
-                <><FilterX size={18} /> Ocultar Filtros</>
+                <><FilterX size={18} /> {t('catalog.hideFilters')}</>
               ) : (
-                <><Filter size={18} /> Mostrar Filtros</>
+                <><Filter size={18} /> {t('catalog.showFilters')}</>
               )}
             </button>
           </div>
@@ -140,11 +145,11 @@ export default function Catalog() {
                 {/* Search */}
                 <div className="w-full md:flex-1">
                   <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider flex items-center gap-1">
-                    <Search size={14} className="text-green-600 dark:text-green-500" /> Nombre
+                    <Search size={14} className="text-green-600 dark:text-green-500" /> {t('common.search')}
                   </label>
                   <input
                     type="text"
-                    placeholder="Ej: Monstera..."
+                    placeholder={t('catalog.searchPlaceholder')}
                     value={filtros.nombre}
                     onChange={e => handleFiltro('nombre', e.target.value)}
                     className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
@@ -154,7 +159,7 @@ export default function Catalog() {
 
                 {/* Categories */}
                 <div className="w-full md:flex-1">
-                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">Categoría</label>
+                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">{t('catalog.category')}</label>
                   <div className="relative">
                     <select
                       value={filtros.idCategoria}
@@ -162,10 +167,10 @@ export default function Catalog() {
                       className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
                                  text-slate-900 dark:text-slate-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all cursor-pointer shadow-sm font-medium"
                     >
-                      <option value="">Todas las categorías</option>
+                      <option value="">{t('catalog.allCategories')}</option>
                       {categorias.map(c => (
                         <option key={c.idCategoria} value={c.idCategoria}>
-                          {c.nombreCategoria}
+                          {t('category.' + c.nombreCategoria, c.nombreCategoria)}
                         </option>
                       ))}
                     </select>
@@ -174,7 +179,7 @@ export default function Catalog() {
                 </div>
 
                 <div className="w-full md:flex-1">
-                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">Tipo</label>
+                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">{t('catalog.type')}</label>
                   <div className="relative">
                     <select
                       value={filtros.idTipo}
@@ -182,10 +187,10 @@ export default function Catalog() {
                       className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
                                  text-slate-900 dark:text-slate-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all cursor-pointer shadow-sm font-medium"
                     >
-                      <option value="">Todos los tipos</option>
-                      {tipos.map(t => (
-                        <option key={t.idTipo} value={t.idTipo}>
-                          {t.nombreTipo}
+                      <option value="">{t('catalog.allTypes')}</option>
+                      {tipos.map(tItem => (
+                        <option key={tItem.idTipo} value={tItem.idTipo}>
+                          {t('plantType.' + tItem.nombreTipo, tItem.nombreTipo)}
                         </option>
                       ))}
                     </select>
@@ -195,11 +200,11 @@ export default function Catalog() {
 
                 {/* Price Range */}
                 <div className="w-full md:flex-1">
-                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">Precio</label>
+                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">{t('catalog.priceRange')}</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
-                      placeholder="Min"
+                      placeholder={t('catalog.minPrice')}
                       min="0"
                       value={filtros.precioMin}
                       onChange={e => handleFiltro('precioMin', e.target.value)}
@@ -209,7 +214,7 @@ export default function Catalog() {
                     <span className="text-green-300 font-bold">-</span>
                     <input
                       type="number"
-                      placeholder="Max"
+                      placeholder={t('catalog.maxPrice')}
                       min="0"
                       value={filtros.precioMax}
                       onChange={e => handleFiltro('precioMax', e.target.value)}
@@ -225,7 +230,7 @@ export default function Catalog() {
                       onClick={limpiarFiltros}
                       className="w-full md:w-auto px-6 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50 rounded-xl text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors shadow-sm whitespace-nowrap"
                     >
-                      Limpiar
+                      {t('catalog.clearFilters')}
                     </button>
                   </div>
                 )}
@@ -242,11 +247,11 @@ export default function Catalog() {
           ) : productos.length === 0 ? (
             <div className="text-center py-20 bg-white dark:bg-slate-900 border border-dashed border-gray-300 dark:border-slate-700 rounded-3xl">
               <Leaf className="mx-auto text-slate-300 dark:text-slate-700 mb-4" size={48} />
-              <p className="font-bold text-lg text-slate-700 dark:text-slate-300">No se encontraron plantas</p>
-              <p className="text-slate-500 dark:text-slate-500 mt-1 text-sm">Prueba ajustando o limpiando los filtros.</p>
+              <p className="font-bold text-lg text-slate-700 dark:text-slate-300">{t('catalog.noProducts')}</p>
+              <p className="text-slate-500 dark:text-slate-500 mt-1 text-sm">{t('catalog.noProductsDesc')}</p>
               {hayFiltros && (
                 <button onClick={limpiarFiltros} className="mt-4 px-4 py-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-bold text-sm">
-                  Limpiar filtros
+                  {t('catalog.clearFilters')}
                 </button>
               )}
             </div>
@@ -281,6 +286,7 @@ function ProductoCard({ producto: p }) {
   const navigate          = useNavigate()
   const { isAuth }        = useAuth()
   const { refreshCart, openCart } = useCart()
+  const { t }             = useLanguage()
 
   const [agregando, setAgregando] = useState(false)
   const [mensaje,   setMensaje]   = useState(null)
@@ -351,7 +357,7 @@ function ProductoCard({ producto: p }) {
         {sinStock && (
           <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
             <span className="bg-red-500 text-white text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full shadow-lg">
-              Agotado
+              {t('catalog.outOfStock')}
             </span>
           </div>
         )}
@@ -361,7 +367,7 @@ function ProductoCard({ producto: p }) {
         
         <div className="flex justify-between items-start gap-2 mb-2">
           <h3 className="font-extrabold text-slate-800 dark:text-white text-lg leading-tight line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-            {p.nombreProducto}
+            {t('product.name.' + p.nombreProducto, p.nombreProducto)}
           </h3>
           <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 whitespace-nowrap bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-lg">
             ${p.precio?.toLocaleString('es-CO')}
@@ -369,14 +375,14 @@ function ProductoCard({ producto: p }) {
         </div>
         
         <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-4">
-          {p.tipo || 'Planta'}
+          {t('plantType.' + p.tipo, p.tipo || 'Planta')}
         </p>
 
         <div className="mt-auto flex items-center justify-between">
           <div className="flex flex-wrap gap-2">
             {p.categoria && (
               <span className="bg-slate-100/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700 text-[10px] font-bold tracking-wider px-2 py-1 rounded-md">
-                {p.categoria}
+                {t('category.' + p.categoria, p.categoria)}
               </span>
             )}
           </div>
@@ -385,7 +391,7 @@ function ProductoCard({ producto: p }) {
             onClick={handleAgregar}
             disabled={sinStock || agregando}
             className="flex items-center justify-center w-12 h-12 rounded-full bg-green-600 hover:bg-green-500 text-white shadow-md shadow-green-600/30 hover:shadow-lg hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95 group-hover:rotate-12"
-            title="Agregar al carrito"
+            title={t('catalog.addToCart')}
           >
             {agregando ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

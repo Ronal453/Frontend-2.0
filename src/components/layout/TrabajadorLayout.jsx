@@ -2,16 +2,21 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import Navbar from './Navbar'
 import { Kanban, Sprout, AlertTriangle, MapPin, ArrowLeft } from 'lucide-react'
+import { useLanguage } from '../../context/LanguageContext'
 
-const TRABAJADOR_LINKS = [
-  { to: '/trabajador/tareas', icono: Kanban,        label: 'Tablero Kanban' },
-  { to: '/trabajador/zonas',  icono: MapPin,        label: 'Zonas / Invernaderos' },
-  { to: '/trabajador/lotes',  icono: Sprout,        label: 'Lotes de Cultivo' },
-  { to: '/trabajador/mermas', icono: AlertTriangle, label: 'Registro de Mermas' },
-]
-
+/**
+ * Worker operations layout with dynamic translations for sidebar and workspace.
+ */
 export default function TrabajadorLayout() {
   const { user } = useAuth()
+  const { t } = useLanguage()
+
+  const TRABAJADOR_LINKS = [
+    { to: '/trabajador/tareas', icono: Kanban,        label: t('worker.kanban') },
+    { to: '/trabajador/zonas',  icono: MapPin,        label: t('worker.zones') },
+    { to: '/trabajador/lotes',  icono: Sprout,        label: t('worker.batches') },
+    { to: '/trabajador/mermas', icono: AlertTriangle, label: t('worker.waste') },
+  ]
 
   return (
     <div className="flex h-screen p-4 gap-4 overflow-hidden bg-slate-50 dark:bg-[#060A11]">
@@ -24,7 +29,7 @@ export default function TrabajadorLayout() {
           </div>
           <div>
             <p className="text-xl font-black tracking-tight text-white leading-none">
-              Operativo
+              {t('worker.title')}
             </p>
             <p className="text-xs font-bold text-emerald-100/70 mt-1 uppercase tracking-widest truncate max-w-[120px]" title={user?.email}>
               {user?.email || 'Trabajador'}
@@ -69,7 +74,7 @@ export default function TrabajadorLayout() {
             className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-emerald-100/70 hover:text-white hover:bg-white/10 transition-colors group mt-2"
           >
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            Volver a Tienda
+            {t('worker.backToStore')}
           </NavLink>
         </div>
       </aside>

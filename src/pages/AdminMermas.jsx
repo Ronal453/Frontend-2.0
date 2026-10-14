@@ -2,8 +2,15 @@ import { useState, useEffect, useMemo } from 'react'
 import { getMermasRecientes } from '../api/trabajadorApi'
 import { Bug, ClipboardList, Loader2, ArrowDownRight, User, Calendar, Filter, BarChart3 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
+import { useLanguage } from '../context/LanguageContext'
 
+/**
+ * Componente administrativo para análisis de mermas y descarte biológico.
+ * Proporciona filtros por rango de fechas, gráfico de barras por causas principales
+ * y tabla detallada de auditoría de pérdidas por lote y operador.
+ */
 export default function AdminMermas() {
+  const { t } = useLanguage()
   const [mermas, setMermas] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
@@ -18,7 +25,7 @@ export default function AdminMermas() {
       const resMermas = await getMermasRecientes(200, fechaInicio, fechaFin)
       setMermas(resMermas.data || [])
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al cargar el reporte de mermas')
+      setError(err.response?.data?.mensaje || t('admin.loadReportError'))
     } finally {
       setCargando(false)
     }
@@ -46,9 +53,13 @@ export default function AdminMermas() {
 
     // Convertir a array de objetos para Recharts
     return Object.entries(agrupado)
-      .map(([name, cantidad]) => ({ name, cantidad }))
+      .map(([name, cantidad]) => ({
+        name: t('wasteCause.' + name, name),
+        rawName: name,
+        cantidad
+      }))
       .sort((a, b) => b.cantidad - a.cantidad) // Ordenar de mayor a menor
-  }, [mermas])
+  }, [mermas, t])
 
   const COLORS = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#14b8a6', '#3b82f6', '#8b5cf6', '#d946ef']
 
@@ -64,10 +75,10 @@ export default function AdminMermas() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                Reporte de Mermas y Causas
+                {t('admin.wasteReportTitle')}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-0.5">
-                Análisis de pérdidas para identificar patrones y prevenir incidencias
+                {t('admin.wasteReportSubtitle')}
               </p>
             </div>
           </div>
@@ -84,11 +95,11 @@ export default function AdminMermas() {
           <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl p-5 rounded-3xl shadow-sm border border-slate-200/60 dark:border-slate-700/50 flex flex-col h-full">
             <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-4">
               <Filter size={18} className="text-slate-400" />
-              Filtrar por Periodo
+              {t('admin.filterByPeriod')}
             </h2>
             <form onSubmit={handleFilter} className="space-y-4 flex-1 flex flex-col">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Inicio</label>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('admin.startDate')}</label>
                 <input 
                   type="date" 
                   value={fechaInicio}
@@ -97,7 +108,7 @@ export default function AdminMermas() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Fin</label>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('admin.endDate')}</label>
                 <input 
                   type="date" 
                   value={fechaFin}
@@ -107,7 +118,7 @@ export default function AdminMermas() {
               </div>
               <div className="mt-auto pt-2">
                 <button type="submit" className="w-full py-2.5 bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
-                  Aplicar Filtro
+                  {t('admin.applyFilter')}
                 </button>
               </div>
             </form>
@@ -117,17 +128,17 @@ export default function AdminMermas() {
           <div className="lg:col-span-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl p-5 rounded-3xl shadow-sm border border-slate-200/60 dark:border-slate-700/50 flex flex-col min-h-[300px]">
             <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-4">
               <BarChart3 size={18} className="text-slate-400" />
-              Mermas por Causa Principal (Plantas Perdidas)
+              {t('admin.wasteByMainCause')}
             </h2>
             
             {cargando ? (
               <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
                 <Loader2 className="w-8 h-8 text-teal-500 animate-spin mb-2" />
-                <p className="font-bold text-xs">Cargando gráfica...</p>
+                <p className="font-bold text-xs">{t('admin.loadingChart')}</p>
               </div>
             ) : datosGrafica.length === 0 ? (
               <div className="flex-1 flex items-center justify-center text-slate-500 text-sm font-bold">
-                No hay datos en el periodo seleccionado.
+                {t('admin.noDataInPeriod')}
               </div>
             ) : (
               <div className="flex-1 w-full min-h-[250px]">
@@ -153,7 +164,7 @@ export default function AdminMermas() {
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                       labelStyle={{ fontWeight: 'bold', color: '#334155', marginBottom: '4px' }}
                     />
-                    <Bar dataKey="cantidad" name="Plantas Perdidas" radius={[6, 6, 0, 0]}>
+                    <Bar dataKey="cantidad" name={t('admin.lostPlants')} radius={[6, 6, 0, 0]}>
                       {datosGrafica.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
@@ -170,33 +181,33 @@ export default function AdminMermas() {
           <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
               <ClipboardList size={20} className="text-slate-400" />
-              Detalle de Registros
+              {t('admin.recordsDetail')}
             </h2>
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-              Mostrando {mermas.length} registros
+              {t('admin.showingRecordsCount', { count: mermas.length })}
             </span>
           </div>
 
           {cargando ? (
             <div className="py-24 flex flex-col items-center justify-center text-slate-400">
               <Loader2 className="w-10 h-10 text-teal-500 animate-spin mb-4" />
-              <p className="font-bold text-sm">Cargando reporte...</p>
+              <p className="font-bold text-sm">{t('admin.loadingReport')}</p>
             </div>
           ) : mermas.length === 0 ? (
             <div className="py-24 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
               <Bug size={48} className="mb-4 text-slate-300 dark:text-slate-600" strokeWidth={1} />
-              <p className="font-bold text-sm text-slate-600 dark:text-slate-300">No hay mermas registradas en este periodo.</p>
+              <p className="font-bold text-sm text-slate-600 dark:text-slate-300">{t('admin.noWasteInPeriod')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto w-full custom-scrollbar">
               <table className="w-full text-left text-sm border-collapse">
                 <thead className="bg-slate-200 dark:bg-slate-700/80 border-b-2 border-slate-300 dark:border-slate-600">
                   <tr>
-                    <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 whitespace-nowrap">Fecha</th>
-                    <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Lote / Especie</th>
-                    <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Causa</th>
-                    <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Pérdida</th>
-                    <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Operador</th>
+                    <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 whitespace-nowrap">{t('admin.thWasteDate')}</th>
+                    <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thBatchSpecies')}</th>
+                    <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thCause')}</th>
+                    <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thLoss')}</th>
+                    <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thOperator')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -214,17 +225,23 @@ export default function AdminMermas() {
                         </div>
                         {m.especieLote && (
                           <div className="text-[11px] font-bold text-teal-600 dark:text-teal-400 mt-0.5">
-                            {m.especieLote}
+                            {/* Traduce la especie botánica del lote */}
+                            {t('plantSpecies.' + m.especieLote, m.especieLote)}
                           </div>
                         )}
                       </td>
                       <td className="px-5 py-4">
                         <span className="inline-flex text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border bg-transparent border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-400">
-                          {m.nombreCausa}
+                          {/* Traduce dinámicamente la causa de merma reportada */}
+                          {t('wasteCause.' + m.nombreCausa, m.nombreCausa)}
                         </span>
                         {m.observaciones && (
-                          <p className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 italic max-w-[300px] truncate" title={m.observaciones}>
-                            "{m.observaciones}"
+                          <p 
+                            className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 italic max-w-[300px] truncate" 
+                            title={t('wasteObservation.' + (m.observaciones || '').trim(), m.observaciones)}
+                          >
+                            {/* Traduce las observaciones detalladas de la pérdida */}
+                            "{t('wasteObservation.' + (m.observaciones || '').trim(), m.observaciones)}"
                           </p>
                         )}
                       </td>
@@ -237,7 +254,8 @@ export default function AdminMermas() {
                       <td className="px-5 py-4">
                         <span className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300">
                           <User size={14} className="text-slate-400" />
-                          {m.nombreUsuario || 'Usuario'}
+                          {/* Traduce el nombre del operador o rol visible */}
+                          {t('operatorName.' + (m.nombreUsuario || ''), m.nombreUsuario || t('admin.user'))}
                         </span>
                       </td>
                     </tr>

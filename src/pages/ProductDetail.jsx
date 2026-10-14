@@ -7,17 +7,22 @@ import { agregarItem } from '../api/carritoApi'
 
 import { useAuth } from '../hooks/useAuth'
 import { useCart } from '../context/CartContext'
+import { useLanguage } from '../context/LanguageContext'
 import Button from '../components/ui/Button'
 
 // Iconos lucide-react
 import { Sun, Droplets, Ruler, Package, Leaf, ChevronLeft, ShoppingCart, Info } from 'lucide-react'
 
+/**
+ * Botanical technical sheet and product detail page with dynamic translations.
+ */
 export default function ProductDetail() {
   const { id }     = useParams()
   const navigate   = useNavigate()
 
   const { isAuth }      = useAuth()
   const { refreshCart, openCart } = useCart()
+  const { t }           = useLanguage()
 
   const [producto,  setProducto]  = useState(null)
   const [cantidad,  setCantidad]  = useState(1)
@@ -81,10 +86,10 @@ export default function ProductDetail() {
           className="flex items-center gap-1 hover:text-green-600 dark:hover:text-green-400 transition-colors"
         >
           <ChevronLeft size={16} />
-          Catálogo
+          {t('catalog.title')}
         </button>
         <span className="text-slate-300 dark:text-slate-600">/</span>
-        <span className="text-slate-900 dark:text-white truncate">{producto.nombreProducto}</span>
+        <span className="text-slate-900 dark:text-white truncate">{t('product.name.' + producto.nombreProducto, producto.nombreProducto)}</span>
       </nav>
 
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 transition-all duration-700 ease-out transform ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
@@ -97,7 +102,7 @@ export default function ProductDetail() {
             {producto.imagenUrl ? (
               <img
                 src={getImagenProducto(producto.imagenUrl, producto.categoria)}
-                alt={producto.nombreProducto}
+                alt={t('product.name.' + producto.nombreProducto, producto.nombreProducto)}
                 className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal"
                 onError={e => {
                   e.target.onerror = null
@@ -111,7 +116,7 @@ export default function ProductDetail() {
             {sinStock && (
               <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
                 <span className="bg-white text-slate-900 text-sm uppercase tracking-wider font-bold px-6 py-2 rounded-full shadow-lg">
-                  Agotado
+                  {t('catalog.outOfStock')}
                 </span>
               </div>
             )}
@@ -125,19 +130,19 @@ export default function ProductDetail() {
             {producto.categoria && (
               <span className="text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400
                                px-3 py-1 rounded-full font-bold uppercase tracking-wide border border-green-200/50 dark:border-green-800/50">
-                {producto.categoria}
+                {t('category.' + producto.categoria, producto.categoria)}
               </span>
             )}
             {producto.tipo && (
               <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300
                                px-3 py-1 rounded-full font-bold uppercase tracking-wide border border-slate-200 dark:border-slate-700">
-                {producto.tipo}
+                {t('plantType.' + producto.tipo, producto.tipo)}
               </span>
             )}
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">
-            {producto.nombreProducto}
+            {t('product.name.' + producto.nombreProducto, producto.nombreProducto)}
           </h1>
 
           <p className="text-2xl sm:text-3xl font-black text-green-600 dark:text-green-400 mb-6">
@@ -146,7 +151,7 @@ export default function ProductDetail() {
 
           {producto.descripcion && (
             <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed text-lg">
-              {producto.descripcion}
+              {t('product.desc.' + producto.nombreProducto, producto.descripcion)}
             </p>
           )}
 
@@ -156,8 +161,8 @@ export default function ProductDetail() {
               <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
                 <Sun className="text-amber-500 mt-0.5" size={20} />
                 <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">Luz</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{producto.luz}</p>
+                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">{t('catalog.light')}</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{t('care.light.' + producto.luz, producto.luz)}</p>
                 </div>
               </div>
             )}
@@ -166,8 +171,8 @@ export default function ProductDetail() {
               <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
                 <Droplets className="text-blue-500 mt-0.5" size={20} />
                 <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">Riego</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{producto.riego}</p>
+                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">{t('catalog.water')}</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{t('care.water.' + producto.riego, producto.riego)}</p>
                 </div>
               </div>
             )}
@@ -176,7 +181,7 @@ export default function ProductDetail() {
               <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
                 <Ruler className="text-indigo-500 mt-0.5" size={20} />
                 <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">Tamaño</p>
+                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">{t('product.sizeDimension')}</p>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{producto.tamanioEstimado}</p>
                 </div>
               </div>
@@ -186,8 +191,8 @@ export default function ProductDetail() {
               <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
                 <Package className="text-emerald-500 mt-0.5" size={20} />
                 <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">Stock</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{producto.stock} uds.</p>
+                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">{t('catalog.inStock')}</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{producto.stock} {t('common.units')}</p>
                 </div>
               </div>
             )}
@@ -197,8 +202,8 @@ export default function ProductDetail() {
             <div className="flex items-start gap-3 bg-green-50/50 dark:bg-green-900/10 p-5 rounded-2xl mb-8 border border-green-100 dark:border-green-900/30">
               <Info className="text-green-600 dark:text-green-500 shrink-0 mt-0.5" size={20} />
               <div>
-                <p className="font-bold text-green-800 dark:text-green-400 mb-1">Cuidados adicionales</p>
-                <p className="text-green-700 dark:text-green-300/80 text-sm leading-relaxed">{producto.cuidados}</p>
+                <p className="font-bold text-green-800 dark:text-green-400 mb-1">{t('product.careGuide')}</p>
+                <p className="text-green-700 dark:text-green-300/80 text-sm leading-relaxed">{t('product.care.' + producto.nombreProducto, producto.cuidados)}</p>
               </div>
             </div>
           )}
@@ -231,7 +236,7 @@ export default function ProductDetail() {
                 >
                   <span className="flex items-center justify-center gap-2">
                     <ShoppingCart size={18} />
-                    Agregar al carrito
+                    {t('product.addToCart')}
                   </span>
                 </Button>
               </div>

@@ -6,10 +6,15 @@ import { registro as registroApi, loginGoogle as loginGoogleApi } from '../api/a
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
 import { UserPlus, ShieldCheck } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
+/**
+ * User registration page with form validation and internationalized content.
+ */
 export default function Register() {
   const navigate = useNavigate()
   const { login } = useAuth()
+  const { t } = useLanguage()
 
   const [form, setForm] = useState({
     nombre:    '',
@@ -120,28 +125,28 @@ export default function Register() {
           </Link>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center justify-center gap-2">
             <UserPlus className="text-green-600 dark:text-green-500" size={28} />
-            Crear cuenta
+            {t('auth.registerTitle')}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium mt-2">
-            Únete a Plantopolis y empieza tu experiencia
+            {t('auth.registerSubtitle')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
 
           <Input
-            label="Nombre completo"
+            label={t('auth.fullName')}
             name="nombre"
             type="text"
             required
             value={form.nombre}
             onChange={handleChange}
-            placeholder="Tu nombre completo"
+            placeholder={t('auth.fullName')}
             error={errors.nombre}
           />
 
           <Input
-            label="Correo electrónico"
+            label={t('auth.email')}
             name="email"
             type="email"
             required
@@ -152,26 +157,26 @@ export default function Register() {
           />
 
           <Input
-            label="Contraseña"
+            label={t('auth.password')}
             name="password"
             type="password"
             required
             value={form.password}
             onChange={handleChange}
-            placeholder="Mín. 8 caracteres, 1 mayúscula y 1 especial"
+            placeholder="••••••••"
             error={errors.password}
           />
 
           <div className="flex items-center gap-3 pt-4 pb-2">
             <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 whitespace-nowrap">
-              Datos adicionales
+              {t('auth.additionalData')}
             </span>
             <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
           </div>
 
           <Input
-            label="Teléfono (Opcional)"
+            label={t('auth.phone')}
             name="telefono"
             type="tel"
             value={form.telefono}
@@ -181,7 +186,7 @@ export default function Register() {
           />
 
           <Input
-            label="Dirección (Opcional)"
+            label={t('auth.address')}
             name="direccion"
             type="text"
             value={form.direccion}
@@ -210,7 +215,7 @@ export default function Register() {
                 <ShieldCheck className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" size={14} strokeWidth={3} />
               </div>
               <span className="leading-relaxed">
-                He leído y acepto la <Link to="/politica-datos" target="_blank" className="font-bold text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 hover:underline transition-colors">política de tratamiento de datos</Link>
+                {t('auth.acceptPolicyPre')} <Link to="/politica-datos" target="_blank" className="font-bold text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 hover:underline transition-colors">{t('auth.acceptPolicyLink')}</Link>
               </span>
             </label>
             {errors.aceptaPolitica && (
@@ -220,14 +225,14 @@ export default function Register() {
 
           <div className="pt-2">
             <Button type="submit" fullWidth loading={loading} className="py-3 text-lg font-bold shadow-lg shadow-green-600/20">
-              Crear cuenta
+              {t('auth.registerButton')}
             </Button>
           </div>
         </form>
 
         <div className="flex items-center my-8">
           <div className="flex-1 border-t border-slate-200 dark:border-slate-700"></div>
-          <span className="px-4 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">o continuar con</span>
+          <span className="px-4 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t('auth.orContinueWith')}</span>
           <div className="flex-1 border-t border-slate-200 dark:border-slate-700"></div>
         </div>
 
@@ -235,7 +240,7 @@ export default function Register() {
           <div className="hover:scale-105 transition-transform duration-200">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => setError('Falló el registro con Google')}
+              onError={() => setError(t('auth.googleError'))}
               useOneTap
               shape="pill"
               theme="outline"
@@ -245,10 +250,10 @@ export default function Register() {
         </div>
 
         <p className="text-center text-sm font-medium text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-200/60 dark:border-slate-700/50">
-          ¿Ya tienes cuenta?{' '}
+          {t('auth.haveAccount')}{' '}
           <Link to="/login"
                 className="text-green-700 dark:text-green-400 font-bold hover:underline">
-            Inicia sesión aquí
+            {t('auth.loginHere')}
           </Link>
         </p>
       </div>

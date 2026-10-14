@@ -1,5 +1,6 @@
 import React from 'react'
 import { X, User, MapPin, CreditCard, Package, Clock, Truck, CheckCircle, XCircle, AlertTriangle, Image as ImageIcon } from 'lucide-react'
+import { useLanguage } from '../../context/LanguageContext'
 
 // Icon mapping component to make it easy to render
 const EstadoIcon = ({ estado, className = "", size = 16 }) => {
@@ -21,18 +22,26 @@ const ESTADOS_CONFIG = {
   CANCELADO: { badge: 'bg-red-500 text-white shadow-sm shadow-red-500/30 border-transparent' },
 }
 
-const NOMBRES_METODO = {
-  'TARJETA_CREDITO': 'Tarjeta de Crédito',
-  'TRANSFERENCIA_BANCARIA': 'Transferencia',
-  'CONTRA_ENTREGA': 'Pago Contra Entrega',
-  'PAYPAL': 'PayPal',
-}
-
+/**
+ * Drawer lateral que muestra el desglose exhaustivo de un pedido seleccionado:
+ * cliente, lista de productos y subtotales, dirección de entrega e información de pago.
+ *
+ * @component
+ * @param {Object} props Propiedades del componente
+ */
 export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFechaHora }) {
-  const config  = ESTADOS_CONFIG[pedido.estado] ?? ESTADOS_CONFIG.PENDIENTE
+  const { t } = useLanguage()
+  const config = ESTADOS_CONFIG[pedido.estado] ?? ESTADOS_CONFIG.PENDIENTE
+
+  const nombresMetodo = {
+    'TARJETA_CREDITO': t('checkout.method_credit_card') || 'Tarjeta de Crédito',
+    'TRANSFERENCIA_BANCARIA': t('checkout.method_bank_transfer') || 'Transferencia',
+    'CONTRA_ENTREGA': t('checkout.method_cod') || 'Pago Contra Entrega',
+    'PAYPAL': 'PayPal',
+  }
 
   const nombreMetodo = pedido.pago?.metodoPago
-    ? (NOMBRES_METODO[pedido.pago.metodoPago?.toUpperCase()]
+    ? (nombresMetodo[pedido.pago.metodoPago?.toUpperCase()]
        || pedido.pago.metodoPago.replace(/_/g, ' '))
     : '—'
 
@@ -45,7 +54,6 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
 
       {/* HEADER DRAWER */}
       <div className="bg-gradient-to-br from-teal-500 to-cyan-700 px-6 py-5 flex items-start justify-between flex-shrink-0 shadow-md relative overflow-hidden">
-        {/* Subtle decorative pattern */}
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent pointer-events-none"></div>
 
         <div className="relative z-10">
@@ -58,7 +66,7 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
           <span className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide
                             px-3 py-1 rounded-xl mt-3 border ${config.badge}`}>
             <EstadoIcon estado={pedido.estado} size={14} />
-            {pedido.estado}
+            {t('orderStatus.' + pedido.estado, pedido.estado)}
           </span>
         </div>
         <button
@@ -74,7 +82,7 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
         <section>
           <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
             <User size={14} className="text-teal-500" />
-            <h3>Cliente</h3>
+            <h3>{t('admin.thCustomer')}</h3>
           </div>
           <div className="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 shadow-sm">
             <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">
@@ -91,7 +99,7 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
               <Package size={14} className="text-teal-500" />
-              <h3>Productos</h3>
+              <h3>{t('admin.thProduct')}</h3>
             </div>
             <span className="bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-400 font-bold text-xs px-2 py-0.5 rounded-lg">
               {pedido.detalles?.length ?? 0}
@@ -99,7 +107,7 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
           </div>
 
           {(!pedido.detalles || pedido.detalles.length === 0) ? (
-            <p className="text-sm text-slate-400 dark:text-slate-500 font-medium italic">Sin detalles disponibles</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500 font-medium italic">{t('admin.noDetails')}</p>
           ) : (
             <div className="space-y-3">
               {pedido.detalles.map((d, i) => (
@@ -130,7 +138,7 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
         {/* TOTAL DEL PEDIDO */}
         <section>
           <div className="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-2xl px-5 py-4 flex justify-between items-center shadow-md shadow-teal-500/20 text-white">
-            <span className="text-teal-50 text-sm font-bold tracking-wide">Total del pedido</span>
+            <span className="text-teal-50 text-sm font-bold tracking-wide">{t('admin.orderTotal')}</span>
             <span className="font-black text-xl drop-shadow-sm">
               {fmtPrecio(pedido.total)}
             </span>
@@ -141,11 +149,11 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
         <section>
           <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
             <MapPin size={14} className="text-teal-500" />
-            <h3>Dirección de envío</h3>
+            <h3>{t('admin.shippingAddress')}</h3>
           </div>
           <div className="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 shadow-sm">
             <p className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-relaxed">
-              {pedido.direccionEnvio || 'No especificada'}
+              {pedido.direccionEnvio || t('admin.notSpecified')}
             </p>
           </div>
         </section>
@@ -154,27 +162,27 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
         <section>
           <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
             <CreditCard size={14} className="text-teal-500" />
-            <h3>Información de Pago</h3>
+            <h3>{t('admin.paymentInfo')}</h3>
           </div>
           <div className="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 shadow-sm space-y-3">
             <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-700/50">
-              <span className="text-xs font-bold text-slate-400">Método</span>
+              <span className="text-xs font-bold text-slate-400">{t('admin.paymentMethod')}</span>
               <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
                 {nombreMetodo}
               </span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-700/50">
-              <span className="text-xs font-bold text-slate-400">Estado</span>
+              <span className="text-xs font-bold text-slate-400">{t('admin.thStatus')}</span>
               <span className={`text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-lg ${
                 esAprobado 
                   ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' 
                   : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
               }`}>
-                {pedido.pago?.estadoPago || '—'}
+                {t('paymentStatus.' + pedido.pago?.estadoPago, pedido.pago?.estadoPago || '—')}
               </span>
             </div>
             <div className="flex justify-between items-center pt-1">
-              <span className="text-xs font-bold text-slate-400">Monto Transado</span>
+              <span className="text-xs font-bold text-slate-400">{t('admin.transactedAmount')}</span>
               <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
                 {pedido.pago?.monto ? fmtPrecio(pedido.pago.monto) : '—'}
               </span>
@@ -182,7 +190,6 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
           </div>
         </section>
         
-        {/* Espacio extra al final para scroll cómodo */}
         <div className="h-4"></div>
       </div>
     </div>

@@ -9,8 +9,17 @@ import {
   AlertTriangle, RefreshCw, ClipboardList, Bug, Sprout, 
   MapPin, Loader2, ArrowDownRight, User, Calendar
 } from 'lucide-react'
+import { useLanguage } from '../../context/LanguageContext'
 
+/**
+ * Vista operativa para el registro de pérdidas biológicas y mermas en los lotes de vivero.
+ * Permite documentar causas de mortandad o descarte y mantener actualizado el inventario real.
+ *
+ * @component
+ * @returns {JSX.Element} Panel de control y registro de mermas
+ */
 export default function TrabajadorMermas() {
+  const { t } = useLanguage()
   const [lotes, setLotes] = useState([])
   const [causas, setCausas] = useState([])
   const [mermas, setMermas] = useState([])
@@ -112,10 +121,10 @@ export default function TrabajadorMermas() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                Control de Mermas
+                {t('waste.title')}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-0.5">
-                Reporta pérdidas por plagas, clima o factores biológicos y actualiza el stock real
+                {t('waste.subtitle')}
               </p>
             </div>
           </div>
@@ -123,7 +132,7 @@ export default function TrabajadorMermas() {
             onClick={cargarDatos}
             className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 transition-all duration-200"
           >
-            <RefreshCw size={18} /> Actualizar Datos
+            <RefreshCw size={18} /> {t('common.save')}
           </button>
         </div>
 
@@ -148,14 +157,14 @@ export default function TrabajadorMermas() {
           <div className="lg:col-span-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl p-6 rounded-3xl shadow-sm border border-slate-200/60 dark:border-slate-700/50 h-fit">
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-2">
               <Bug size={20} className="text-amber-500" />
-              Reportar Pérdida
+              {t('waste.registerTitle')}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Selección de Lote */}
               <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
-                  Lote Afectado *
+                  {t('waste.selectBatch')} *
                 </label>
                 <select
                   value={form.idLote}
@@ -163,21 +172,21 @@ export default function TrabajadorMermas() {
                   className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none transition-shadow text-slate-700 dark:text-slate-200"
                   required
                 >
-                  <option value="">Selecciona un lote activo...</option>
+                  <option value="">{t('waste.selectBatch')}...</option>
                   {lotes
                     .filter(l => l.estadoLote !== 'DESCARTADO' && l.cantidadActual > 0)
                     .map(l => (
                       <option key={l.idLote} value={l.idLote}>
-                        {l.codigoLote} — {l.especie} ({l.cantidadActual} u.)
+                        {l.codigoLote} — {t('plantSpecies.' + l.especie, l.especie)} ({l.cantidadActual} {t('common.unit')})
                       </option>
                     ))}
                 </select>
 
                 {loteSeleccionado && (
                   <div className="mt-3 p-3 bg-amber-50/50 dark:bg-amber-900/10 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 border border-amber-100/50 dark:border-amber-800/30 space-y-2 animate-fade-in">
-                    <p className="flex items-center gap-1.5"><MapPin size={14} className="text-amber-500" /> <span className="font-bold text-slate-700 dark:text-slate-300">Zona:</span> {loteSeleccionado.nombreZona || 'Sin asignar'}</p>
-                    <p className="flex items-center gap-1.5"><Sprout size={14} className="text-teal-500" /> <span className="font-bold text-slate-700 dark:text-slate-300">Estado:</span> {loteSeleccionado.estadoLote}</p>
-                    <p className="flex items-center gap-1.5"><ClipboardList size={14} className="text-blue-500" /> <span className="font-bold text-slate-700 dark:text-slate-300">Disponible:</span> {loteSeleccionado.cantidadActual} plantas</p>
+                    <p className="flex items-center gap-1.5"><MapPin size={14} className="text-amber-500" /> <span className="font-bold text-slate-700 dark:text-slate-300">{t('worker.zone')}:</span> {loteSeleccionado.nombreZona || t('worker.unassigned')}</p>
+                    <p className="flex items-center gap-1.5"><Sprout size={14} className="text-teal-500" /> <span className="font-bold text-slate-700 dark:text-slate-300">{t('common.status')}:</span> {t(`lotPhase.${loteSeleccionado.estadoLote}`) !== `lotPhase.${loteSeleccionado.estadoLote}` ? t(`lotPhase.${loteSeleccionado.estadoLote}`) : loteSeleccionado.estadoLote}</p>
+                    <p className="flex items-center gap-1.5"><ClipboardList size={14} className="text-blue-500" /> <span className="font-bold text-slate-700 dark:text-slate-300">{t('lots.currentQty')}:</span> {loteSeleccionado.cantidadActual} {t('common.units')}</p>
                   </div>
                 )}
               </div>
@@ -185,7 +194,7 @@ export default function TrabajadorMermas() {
               {/* Causa de Merma */}
               <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
-                  Causa Principal *
+                  {t('waste.selectCause')} *
                 </label>
                 <select
                   value={form.idCausa}
@@ -195,7 +204,8 @@ export default function TrabajadorMermas() {
                 >
                   {causas.map(c => (
                     <option key={c.idCausa} value={c.idCausa}>
-                      {c.nombreCausa}
+                      {/* Traduce el nombre de la causa de merma para el formulario */}
+                      {t('wasteCause.' + c.nombreCausa, c.nombreCausa)}
                     </option>
                   ))}
                 </select>
@@ -205,7 +215,7 @@ export default function TrabajadorMermas() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
-                    Cant. Perdida *
+                    {t('waste.quantityLost')} *
                   </label>
                   <input
                     type="number"
@@ -220,7 +230,7 @@ export default function TrabajadorMermas() {
 
                 <div className="space-y-1.5">
                   <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
-                    Fecha Evento *
+                    {t('waste.date')} *
                   </label>
                   <input
                     type="date"
@@ -235,13 +245,13 @@ export default function TrabajadorMermas() {
               {/* Observaciones */}
               <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-red-600 dark:text-red-400">
-                  Descripción (Obligatoria) *
+                  {t('waste.observations')} *
                 </label>
                 <textarea
                   rows="3"
                   value={form.observaciones}
                   onChange={(e) => setForm(prev => ({ ...prev, observaciones: e.target.value }))}
-                  placeholder="Ej: Infección en hojas basales, tallo roto por el viento, etc."
+                  placeholder={t('waste.observationsPlaceholder')}
                   className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-red-200 dark:border-red-900/50 rounded-xl text-sm font-medium focus:ring-2 focus:ring-red-500 outline-none transition-shadow resize-none text-slate-700 dark:text-slate-200"
                   required
                 />
@@ -254,7 +264,7 @@ export default function TrabajadorMermas() {
                   className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-md shadow-amber-500/20 disabled:opacity-50 transition-all duration-200 flex items-center justify-center gap-2"
                 >
                   {enviando ? <Loader2 size={18} className="animate-spin" /> : <AlertTriangle size={18} />} 
-                  {enviando ? 'Registrando Pérdida...' : 'Registrar y Descontar'}
+                  {enviando ? t('waste.submitting') : t('waste.submit')}
                 </button>
               </div>
             </form>
@@ -265,34 +275,33 @@ export default function TrabajadorMermas() {
             <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
               <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                 <ClipboardList size={20} className="text-slate-400" />
-                Pérdidas Recientes Registradas
+                {t('waste.recentTitle')}
               </h2>
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-                Últimos 30 ({mermas.length})
+                ({mermas.length})
               </span>
             </div>
 
             {cargando ? (
               <div className="py-24 flex flex-col items-center justify-center text-slate-400">
                 <Loader2 className="w-10 h-10 text-teal-500 animate-spin mb-4" />
-                <p className="font-bold text-sm">Cargando registro de mermas...</p>
+                <p className="font-bold text-sm">{t('common.loading')}</p>
               </div>
             ) : mermas.length === 0 ? (
               <div className="py-24 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
                 <Bug size={48} className="mb-4 text-slate-300 dark:text-slate-600" strokeWidth={1} />
-                <p className="font-bold text-sm text-slate-600 dark:text-slate-300">No hay mermas registradas recientemente.</p>
-                <p className="text-xs">Todos los cultivos gozan de buena salud.</p>
+                <p className="font-bold text-sm text-slate-600 dark:text-slate-300">{t('waste.noRecent')}</p>
               </div>
             ) : (
               <div className="overflow-x-auto flex-1 custom-scrollbar">
                 <table className="w-full text-left text-sm border-collapse">
                   <thead className="bg-slate-200 dark:bg-slate-700/80 border-b-2 border-slate-300 dark:border-slate-600">
                     <tr>
-                      <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 whitespace-nowrap">Fecha</th>
-                      <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Lote / Especie</th>
-                      <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Causa</th>
-                      <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Pérdida</th>
-                      <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Operador</th>
+                      <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 whitespace-nowrap">{t('common.date')}</th>
+                      <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('worker.batch')} / {t('lots.species')}</th>
+                      <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('waste.selectCause')}</th>
+                      <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('lots.wasteQty')}</th>
+                      <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('worker.operator')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -310,17 +319,23 @@ export default function TrabajadorMermas() {
                           </div>
                           {m.especieLote && (
                             <div className="text-[11px] font-bold text-teal-600 dark:text-teal-400 mt-0.5">
-                              {m.especieLote}
+                              {/* Traduce la especie botánica asociada */}
+                              {t('plantSpecies.' + m.especieLote, m.especieLote)}
                             </div>
                           )}
                         </td>
                         <td className="px-5 py-4">
                           <span className="inline-flex text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border bg-transparent border-amber-300 dark:border-amber-700/50 text-amber-700 dark:text-amber-400">
-                            {m.nombreCausa}
+                            {/* Traduce la causa de merma histórica registrada */}
+                            {t('wasteCause.' + m.nombreCausa, m.nombreCausa)}
                           </span>
                           {m.observaciones && (
-                            <p className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 italic max-w-[200px] truncate" title={m.observaciones}>
-                              "{m.observaciones}"
+                            <p 
+                              className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 italic max-w-[200px] truncate" 
+                              title={t('wasteObservation.' + (m.observaciones || '').trim(), m.observaciones)}
+                            >
+                              {/* Traduce el texto explicativo de la merma o detalle capturado */}
+                              "{t('wasteObservation.' + (m.observaciones || '').trim(), m.observaciones)}"
                             </p>
                           )}
                         </td>
@@ -333,7 +348,8 @@ export default function TrabajadorMermas() {
                         <td className="px-5 py-4">
                           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300">
                             <User size={14} className="text-slate-400" />
-                            {m.nombreUsuario || 'Usuario'}
+                            {/* Traduce el nombre del operador o rol visible */}
+                            {t('operatorName.' + (m.nombreUsuario || ''), m.nombreUsuario || t('admin.user'))}
                           </span>
                         </td>
                       </tr>

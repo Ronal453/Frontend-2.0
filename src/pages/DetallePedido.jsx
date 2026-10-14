@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useLocation, Link } from 'react-router-dom'
 import { getDetallePedido } from '../api/pedidosApi'
+import { useLanguage } from '../context/LanguageContext'
 import { 
   ArrowLeft, CheckCircle, Package, Truck, Clock, XCircle, 
   MapPin, CreditCard, ShieldCheck, FileText 
@@ -8,18 +9,13 @@ import {
 
 const PASOS = ['PENDIENTE', 'EN_PREPARACION', 'ENVIADO', 'ENTREGADO']
 
-const NOMBRES_METODO = {
-  'TARJETA_CREDITO':  'Tarjeta de Crédito',
-  'TARJETA CREDITO':  'Tarjeta de Crédito',
-  'TARJETA_DEBITO':   'Tarjeta de Débito',
-  'TARJETA DEBITO':   'Tarjeta de Débito',
-  'TRANSFERENCIA':    'PSE',
-  'EFECTIVO':         'Contra entrega',
-}
-
+/**
+ * Detailed order status and products view with internationalized strings.
+ */
 export default function DetallePedido() {
   const { id }    = useParams()
   const { state } = useLocation()
+  const { t }     = useLanguage()
 
   const [pedido,  setPedido]  = useState(null)
   const [loading, setLoading] = useState(true)
@@ -102,7 +98,7 @@ export default function DetallePedido() {
 
       <Link to="/pedidos"
             className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 mb-6 transition-colors">
-        <ArrowLeft size={16} /> Volver a mis pedidos
+        <ArrowLeft size={16} /> {t('orders.backToList')}
       </Link>
 
       {state?.nuevo && (
@@ -111,9 +107,9 @@ export default function DetallePedido() {
           <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
             <CheckCircle className="text-green-600 dark:text-green-400" size={32} />
           </div>
-          <h2 className="text-2xl font-extrabold text-green-800 dark:text-green-400 tracking-tight">¡Pedido confirmado!</h2>
+          <h2 className="text-2xl font-extrabold text-green-800 dark:text-green-400 tracking-tight">{t('orders.orderPlaced')}</h2>
           <p className="text-green-700 dark:text-green-500 font-medium mt-1">
-            Hemos recibido tu pedido y te enviamos un correo con los detalles.
+            {t('orders.subtitle')}
           </p>
         </div>
       )}
@@ -135,7 +131,7 @@ export default function DetallePedido() {
                               ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50'
                               : 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/50'}`}>
             {cancelado ? <XCircle size={16} strokeWidth={2.5} /> : <Package size={16} strokeWidth={2.5} />}
-            {pedido.estado}
+            {t(`status.${pedido.estado}`) || pedido.estado}
           </span>
         </div>
       </div>
@@ -144,7 +140,7 @@ export default function DetallePedido() {
       {!cancelado && (
         <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 sm:p-8 mb-8">
           <h2 className="font-bold text-slate-900 dark:text-white text-lg mb-8 flex items-center gap-2">
-            <Truck className="text-green-600 dark:text-green-500" size={20} /> Seguimiento del pedido
+            <Truck className="text-green-600 dark:text-green-500" size={20} /> {t('orders.statusHistory')}
           </h2>
           <div className="relative max-w-3xl mx-auto px-4 sm:px-8">
             <div className="absolute top-5 left-10 right-10 h-1 bg-slate-100 dark:bg-slate-700 rounded-full z-0" />
@@ -172,7 +168,7 @@ export default function DetallePedido() {
                                    ${isActive
                                      ? 'text-green-700 dark:text-green-400'
                                      : 'text-slate-400 dark:text-slate-500'}`}>
-                      {paso.replace('_', ' ')}
+                      {t(`status.${paso}`) || paso.replace('_', ' ')}
                     </p>
                   </div>
                 )
@@ -190,7 +186,7 @@ export default function DetallePedido() {
           <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex-1">
             <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
               <FileText className="text-slate-500" size={18} />
-              <h2 className="font-bold text-slate-900 dark:text-white">Artículos del Pedido</h2>
+              <h2 className="font-bold text-slate-900 dark:text-white">{t('orders.products')}</h2>
             </div>
             
             <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -203,10 +199,10 @@ export default function DetallePedido() {
                   </div>
                   <div className="flex-1">
                     <p className="font-bold text-slate-900 dark:text-white">
-                      {d.nombreProducto}
+                      {t('product.name.' + d.nombreProducto, d.nombreProducto)}
                     </p>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">
-                      <span className="text-slate-700 dark:text-slate-300 font-bold">{d.cantidad}</span> un. × {formatearPrecio(d.precioUnitario)}
+                      <span className="text-slate-700 dark:text-slate-300 font-bold">{d.cantidad}</span> {t('common.unit')} × {formatearPrecio(d.precioUnitario)}
                     </p>
                   </div>
                   <p className="font-black text-slate-900 dark:text-white text-lg">
@@ -217,7 +213,7 @@ export default function DetallePedido() {
             </div>
             
             <div className="flex justify-between items-center px-6 py-5 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700">
-              <span className="font-bold text-slate-700 dark:text-slate-300 text-lg uppercase tracking-wider">Total Final</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300 text-lg uppercase tracking-wider">{t('common.total')}</span>
               <span className="font-black text-green-700 dark:text-green-400 text-2xl">
                 {formatearPrecio(pedido.total)}
               </span>
@@ -234,7 +230,7 @@ export default function DetallePedido() {
               <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
                 <MapPin size={20} />
               </div>
-              <h2 className="font-bold text-slate-900 dark:text-white text-lg">Dirección de Envío</h2>
+              <h2 className="font-bold text-slate-900 dark:text-white text-lg">{t('checkout.stepAddress')}</h2>
             </div>
             <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50">
               {pedido.direccionEnvio || 'No especificada'}
@@ -247,29 +243,29 @@ export default function DetallePedido() {
               <div className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg">
                 <CreditCard size={20} />
               </div>
-              <h2 className="font-bold text-slate-900 dark:text-white text-lg">Detalles del Pago</h2>
+              <h2 className="font-bold text-slate-900 dark:text-white text-lg">{t('orders.paymentInfo')}</h2>
             </div>
 
             <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Método</span>
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('checkout.stepPayment')}</span>
                 <span className="text-slate-900 dark:text-white font-bold">
-                  {nombreMetodo || <span className="text-amber-500">Procesando...</span>}
+                  {nombreMetodo || <span className="text-amber-500">...</span>}
                 </span>
               </div>
               
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Estado</span>
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('common.status')}</span>
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider
                                   ${esAprobado
                                     ? 'bg-green-100/80 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                                     : 'bg-amber-100/80 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}>
-                  {estadoPago}
+                  {t('paymentStatus.' + estadoPago, estadoPago)}
                 </span>
               </div>
               
               <div className="pt-3 mt-1 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Monto Cobrado</span>
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('common.total')}</span>
                 <span className="font-black text-green-700 dark:text-green-400 text-lg">
                   {formatearPrecio(montoPago)}
                 </span>
@@ -277,7 +273,7 @@ export default function DetallePedido() {
             </div>
 
             <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-4 text-center flex items-center justify-center gap-1">
-              <ShieldCheck size={14} /> Transacción segura verificada
+              <ShieldCheck size={14} /> {t('checkout.securePurchase')}
             </p>
           </div>
 

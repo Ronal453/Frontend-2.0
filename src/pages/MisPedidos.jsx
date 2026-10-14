@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getHistorial } from '../api/pedidosApi'
+import { useLanguage } from '../context/LanguageContext'
 import { 
   Package, Clock, Truck, CheckCircle, XCircle, ChevronRight, Inbox, Search 
 } from 'lucide-react'
@@ -13,7 +14,11 @@ const ESTADO_ESTILO = {
   CANCELADO:       { clase: 'bg-red-100/80 dark:bg-red-900/40 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800/50',     icono: XCircle },
 }
 
+/**
+ * Customer order history list with internationalized statuses and order details.
+ */
 export default function MisPedidos() {
+  const { t } = useLanguage()
   const [pedidos, setPedidos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
@@ -56,10 +61,10 @@ export default function MisPedidos() {
           </div>
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight drop-shadow-sm">
-              Historial de Pedidos
+              {t('orders.title')}
             </h1>
             <p className="text-emerald-700/80 dark:text-slate-400 text-sm md:text-base mt-1 font-medium">
-              Revisa el estado y detalle de tus compras recientes.
+              {t('orders.subtitle')}
             </p>
           </div>
         </div>
@@ -70,15 +75,15 @@ export default function MisPedidos() {
               <Inbox className="text-green-300 dark:text-green-500/50" size={48} />
             </div>
             <h3 className="text-2xl font-black text-emerald-950 dark:text-white mb-3">
-              Aún no tienes pedidos
+              {t('orders.emptyTitle')}
             </h3>
             <p className="text-emerald-700/70 dark:text-slate-400 mb-8 max-w-sm mx-auto font-medium">
-              Explora nuestro catálogo y realiza tu primera compra para llenar este espacio de vida.
+              {t('orders.emptyDesc')}
             </p>
             <Link to="/catalogo"
                   className="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 dark:bg-green-600/90 dark:hover:bg-green-500 text-white px-8 py-3.5 rounded-2xl
                              font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-green-600/30">
-              <Search size={20} strokeWidth={2.5} /> Explorar Catálogo
+              <Search size={20} strokeWidth={2.5} /> {t('cart.exploreCatalog')}
             </Link>
           </div>
         ) : (
@@ -86,11 +91,11 @@ export default function MisPedidos() {
             
             {/* Header Desktop */}
             <div className="hidden md:grid grid-cols-12 gap-4 px-8 py-5 bg-green-50/50 dark:bg-slate-800/50 border-b border-green-100/50 dark:border-slate-700/50 text-xs font-black text-emerald-800/60 dark:text-slate-400 uppercase tracking-widest">
-              <div className="col-span-3">Pedido</div>
-              <div className="col-span-3">Fecha</div>
-              <div className="col-span-2 text-center">Artículos</div>
-              <div className="col-span-2 text-center">Estado</div>
-              <div className="col-span-2 text-right">Total</div>
+              <div className="col-span-3">{t('admin.orders')}</div>
+              <div className="col-span-3">{t('orders.date')}</div>
+              <div className="col-span-2 text-center">{t('common.units')}</div>
+              <div className="col-span-2 text-center">{t('orders.status')}</div>
+              <div className="col-span-2 text-right">{t('orders.total')}</div>
             </div>
 
             {/* Lista de Pedidos */}
@@ -129,7 +134,7 @@ export default function MisPedidos() {
                       
                       <div className="col-span-2 flex justify-center">
                         <span className={`inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest border shadow-sm ${config.clase}`}>
-                          <Icon size={14} strokeWidth={3} /> {p.estado}
+                          <Icon size={14} strokeWidth={3} /> {t(`status.${p.estado}`) || p.estado}
                         </span>
                       </div>
                       
@@ -159,10 +164,10 @@ export default function MisPedidos() {
                       
                       <div className="flex items-center justify-between mt-3 pt-4 border-t border-green-50 dark:border-slate-700/50">
                         <span className={`inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${config.clase}`}>
-                          <Icon size={12} strokeWidth={3} /> {p.estado}
+                          <Icon size={12} strokeWidth={3} /> {t(`status.${p.estado}`) || p.estado}
                         </span>
                         <div className="flex items-center gap-1 text-sm font-bold text-green-500 dark:text-green-400 group-hover:text-green-600 dark:group-hover:text-green-300 transition-colors">
-                          Detalles <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                          {t('common.details')} <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
                     </div>

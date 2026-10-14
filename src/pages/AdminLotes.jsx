@@ -6,7 +6,13 @@ import {
   Box, Link as LinkIcon, CheckCircle, AlertTriangle, X, Loader2, Truck 
 } from 'lucide-react'
 import Input from '../components/ui/Input'
+import { useLanguage } from '../context/LanguageContext'
 
+/**
+ * Componente administrativo para gestión global de lotes botánicos.
+ * Permite registrar nuevas siembras, filtrar por zonas/estados,
+ * ordenar por múltiples criterios y vincular lotes listos al catálogo e-commerce.
+ */
 const ESTADOS_CONFIG = {
   GERMINANDO:       { color: 'text-amber-600 dark:text-amber-400', bg: 'bg-transparent border-amber-300 dark:border-amber-700/50' },
   CRECIENDO:        { color: 'text-blue-600 dark:text-blue-400', bg: 'bg-transparent border-blue-300 dark:border-blue-700/50' },
@@ -16,6 +22,7 @@ const ESTADOS_CONFIG = {
 }
 
 export default function AdminLotes() {
+  const { t } = useLanguage()
   const [lotes, setLotes] = useState([])
   const [zonas, setZonas] = useState([])
   const [productos, setProductos] = useState([])
@@ -94,7 +101,7 @@ export default function AdminLotes() {
       setModalRegistro(false)
       cargarDatos()
     } catch (err) {
-      alert(err.response?.data?.mensaje || 'Error al crear lote')
+      alert(err.response?.data?.mensaje || t('admin.createBatchError'))
     } finally {
       setGuardando(false)
     }
@@ -109,7 +116,12 @@ export default function AdminLotes() {
       const nombreProd = prodSeleccionado.nombreProducto.trim().toLowerCase()
       
       if (especieLote !== nombreProd) {
-        const confirmado = window.confirm(`⚠️ Advertencia\n\nLa especie del lote ("${modalVinculacion.lote.especie}") no coincide exactamente con el nombre del producto seleccionado ("${prodSeleccionado.nombreProducto}").\n\n¿Estás seguro de vincular este lote a dicho producto?`)
+        const confirmado = window.confirm(
+          t('admin.linkWarningPrompt', {
+            batchSpecies: modalVinculacion.lote.especie,
+            prodName: prodSeleccionado.nombreProducto
+          })
+        )
         if (!confirmado) return
       }
     }
@@ -120,7 +132,7 @@ export default function AdminLotes() {
       setModalVinculacion({ abierto: false, lote: null, idProducto: '' })
       cargarDatos()
     } catch (err) {
-      alert(err.response?.data?.message || err.response?.data?.mensaje || 'Error al vincular lote')
+      alert(err.response?.data?.message || err.response?.data?.mensaje || t('admin.linkBatchError'))
     } finally {
       setGuardando(false)
     }
@@ -128,7 +140,7 @@ export default function AdminLotes() {
 
   const badgeEstado = (estado) => {
     const config = ESTADOS_CONFIG[estado] || { color: 'text-slate-600', bg: 'bg-slate-100 border-slate-200' }
-    const label = estado === 'LISTO_PARA_VENTA' ? 'LISTO PARA VENTA' : estado
+    const label = t('lotPhase.' + estado, estado === 'LISTO_PARA_VENTA' ? 'LISTO PARA VENTA' : estado)
     return (
       <span className={`inline-flex items-center text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${config.bg} ${config.color}`}>
         {label}
@@ -148,10 +160,10 @@ export default function AdminLotes() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">
-                Administración de Lotes
+                {t('admin.batchesTitle')}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
-                Gestiona la producción y vinculación al catálogo
+                {t('admin.batchesDesc')}
               </p>
             </div>
           </div>
@@ -160,7 +172,7 @@ export default function AdminLotes() {
             className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md shadow-teal-500/20 transition-all duration-200"
           >
             <Plus size={18} strokeWidth={2.5} />
-            <span>Nuevo Lote</span>
+            <span>{t('admin.newBatch')}</span>
           </button>
         </div>
 
@@ -170,7 +182,7 @@ export default function AdminLotes() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
               type="text"
-              placeholder="Buscar lote o especie..."
+              placeholder={t('admin.searchBatchPlaceholder')}
               value={filtroBuscar}
               onChange={(e) => { setFiltroBuscar(e.target.value); setPagina(0) }}
               className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow text-slate-700 dark:text-slate-200"
@@ -182,7 +194,7 @@ export default function AdminLotes() {
             onChange={(e) => { setFiltroZona(e.target.value); setPagina(0) }}
             className="w-full lg:w-48 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none"
           >
-            <option value="">Todas las zonas</option>
+            <option value="">{t('admin.allZones')}</option>
             {zonas.map(z => <option key={z.idZona} value={z.idZona}>{z.nombre}</option>)}
           </select>
           
@@ -191,12 +203,12 @@ export default function AdminLotes() {
             onChange={(e) => { setFiltroEstado(e.target.value); setPagina(0) }}
             className="w-full lg:w-48 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none"
           >
-            <option value="">Todos los estados</option>
-            <option value="GERMINANDO">GERMINANDO</option>
-            <option value="CRECIENDO">CRECIENDO</option>
-            <option value="LISTO_PARA_VENTA">LISTO PARA VENTA</option>
-            <option value="EN_TIENDA">EN TIENDA</option>
-            <option value="DESCARTADO">DESCARTADO</option>
+            <option value="">{t('admin.allBatchStatuses')}</option>
+            <option value="GERMINANDO">{t('lotPhase.GERMINANDO')}</option>
+            <option value="CRECIENDO">{t('lotPhase.CRECIENDO')}</option>
+            <option value="LISTO_PARA_VENTA">{t('lotPhase.LISTO_PARA_VENTA')}</option>
+            <option value="EN_TIENDA">{t('lotPhase.EN_TIENDA')}</option>
+            <option value="DESCARTADO">{t('lotPhase.DESCARTADO')}</option>
           </select>
 
           <div className="flex items-center gap-2 lg:pl-4 lg:border-l border-slate-200 dark:border-slate-700 w-full lg:w-auto">
@@ -205,15 +217,15 @@ export default function AdminLotes() {
               onChange={(e) => { setOrdenCampo(e.target.value); setPagina(0) }}
               className="flex-1 lg:w-44 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none"
             >
-              <option value="fechaSiembra">Fecha de Siembra</option>
-              <option value="fechaCreacion">Fecha de Registro</option>
-              <option value="nombre">Especie</option>
-              <option value="codigo">Código Lote</option>
+              <option value="fechaSiembra">{t('admin.sortSowingDate')}</option>
+              <option value="fechaCreacion">{t('admin.sortCreationDate')}</option>
+              <option value="nombre">{t('admin.sortSpecies')}</option>
+              <option value="codigo">{t('admin.sortBatchCode')}</option>
             </select>
             <button
               onClick={() => setOrdenDir(d => d === 'asc' ? 'desc' : 'asc')}
               className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 transition-colors"
-              title="Cambiar dirección"
+              title={t('admin.changeSortDirection')}
             >
               {ordenDir === 'asc' ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
             </button>
@@ -225,26 +237,26 @@ export default function AdminLotes() {
           {cargando ? (
             <div className="flex flex-col items-center justify-center py-24">
               <Loader2 className="w-10 h-10 text-teal-500 animate-spin mb-4" />
-              <p className="text-slate-500 dark:text-slate-400 font-medium">Cargando lotes...</p>
+              <p className="text-slate-500 dark:text-slate-400 font-medium">{t('admin.loadingBatches')}</p>
             </div>
           ) : lotes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-slate-500 dark:text-slate-400">
               <Sprout size={48} className="mb-4 text-slate-300 dark:text-slate-600" strokeWidth={1} />
-              <p className="font-medium">No se encontraron lotes</p>
+              <p className="font-medium">{t('admin.noBatchesFound')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-sm text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-200 dark:bg-slate-700/80 border-b-2 border-slate-300 dark:border-slate-600">
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Código / Especie</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Zona</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Proveedor</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Fechas (Siembra / Reg)</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Stock</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Estado</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Vinculación</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Acciones</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thCodeSpecies')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thZone')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thSupplier')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thDatesSowingReg')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thStock')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thStatus')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.thLinking')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thActions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -262,23 +274,23 @@ export default function AdminLotes() {
                       </td>
                       <td className="px-6 py-4">
                         {l.nombreProveedor ? (
-                          <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300" title="Proveedor asignado">
+                          <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300" title={t('admin.assignedSupplierTitle')}>
                             <Truck size={14} className="text-indigo-400" />
                             {l.nombreProveedor}
                           </span>
                         ) : (
                           <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400 italic">
                             <Truck size={14} className="text-slate-300 dark:text-slate-600" />
-                            Propio
+                            {t('admin.ownSupplier')}
                           </span>
                         )}
                       </td>
                       <td className="px-6 py-4 space-y-1">
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300" title="Fecha de Siembra">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300" title={t('admin.sowingDateTitle')}>
                           <Sprout size={14} className="text-emerald-500" /> 
                           {l.fechaSiembra ? new Date(l.fechaSiembra).toLocaleDateString() : 'N/A'}
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-slate-400" title="Fecha de Registro">
+                        <div className="flex items-center gap-1.5 text-xs text-slate-400" title={t('admin.registrationDateTitle')}>
                           <Calendar size={14} /> 
                           {l.fechaCreacion ? new Date(l.fechaCreacion).toLocaleDateString() : 'N/A'}
                         </div>
@@ -295,11 +307,11 @@ export default function AdminLotes() {
                         {l.esVinculado ? (
                           <div className="flex items-center gap-1.5 text-xs font-bold text-teal-600 dark:text-teal-400">
                             <CheckCircle size={14} /> 
-                            Vinculado a: <span className="underline underline-offset-2 decoration-teal-200">{l.nombreProducto}</span>
+                            {t('admin.linkedTo')} <span className="underline underline-offset-2 decoration-teal-200">{l.nombreProducto}</span>
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
-                            <Box size={14} /> No vinculado
+                            <Box size={14} /> {t('admin.notLinked')}
                           </div>
                         )}
                       </td>
@@ -309,7 +321,7 @@ export default function AdminLotes() {
                             onClick={() => setModalVinculacion({ abierto: true, lote: l, idProducto: '' })}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100 hover:border-teal-300 dark:bg-teal-900/30 dark:border-teal-800/50 dark:text-teal-400 transition-colors text-xs font-bold"
                           >
-                            <LinkIcon size={14} /> Vincular
+                            <LinkIcon size={14} /> {t('admin.link')}
                           </button>
                         )}
                       </td>
@@ -322,7 +334,7 @@ export default function AdminLotes() {
               {!cargando && totalPaginas > 1 && (
                 <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                    Página {pagina + 1} de {totalPaginas}
+                    {t('admin.pageOf', { page: pagina + 1, total: totalPaginas })}
                   </span>
                   <div className="flex gap-2">
                     <button
@@ -330,14 +342,14 @@ export default function AdminLotes() {
                       disabled={pagina === 0}
                       className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Anterior
+                      {t('admin.previous')}
                     </button>
                     <button
                       onClick={() => setPagina(p => Math.min(totalPaginas - 1, p + 1))}
                       disabled={pagina >= totalPaginas - 1}
                       className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Siguiente
+                      {t('admin.next')}
                     </button>
                   </div>
                 </div>
@@ -358,7 +370,7 @@ export default function AdminLotes() {
                 <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 flex items-center justify-center">
                   <Sprout size={20} />
                 </div>
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Registrar Nuevo Lote</h2>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{t('admin.registerNewBatch')}</h2>
               </div>
               <button onClick={() => setModalRegistro(false)} className="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-full p-2 transition-colors">
                 <X size={18} />
@@ -367,36 +379,36 @@ export default function AdminLotes() {
             
             <form onSubmit={handleCrearLote} className="p-6 space-y-5">
               <Input
-                label="Código del Lote *"
+                label={t('admin.batchCode')}
                 name="codigoLote"
                 required
-                placeholder="Ej: LOTE-FIC-001"
+                placeholder={t('admin.batchCodePlaceholder')}
                 value={nuevoLote.codigoLote}
                 onChange={e => setNuevoLote({...nuevoLote, codigoLote: e.target.value})}
               />
               
               <Input
-                label="Especie / Variedad *"
+                label={t('admin.speciesVariety')}
                 name="especie"
                 required
-                placeholder="Ej: Ficus Lyrata"
+                placeholder={t('admin.speciesPlaceholder')}
                 value={nuevoLote.especie}
                 onChange={e => setNuevoLote({...nuevoLote, especie: e.target.value})}
               />
               
               <div className="grid grid-cols-2 gap-4">
                 <Input
-                  label="Cantidad Inicial *"
+                  label={t('admin.initialQuantity')}
                   name="cantidadInicial"
                   type="number"
                   min="1"
                   required
-                  placeholder="Ej: 50"
+                  placeholder={t('admin.initialQuantityPlaceholder')}
                   value={nuevoLote.cantidadInicial}
                   onChange={e => setNuevoLote({...nuevoLote, cantidadInicial: e.target.value})}
                 />
                 <Input
-                  label="Fecha de Siembra *"
+                  label={t('admin.sowingDate')}
                   name="fechaSiembra"
                   type="date"
                   required
@@ -406,35 +418,35 @@ export default function AdminLotes() {
               </div>
               
               <div className="space-y-1.5">
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Zona Asignada *</label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">{t('admin.assignedZone')}</label>
                 <select required value={nuevoLote.idZona} onChange={e => setNuevoLote({...nuevoLote, idZona: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow">
-                  <option value="" disabled>Seleccione Zona...</option>
+                  <option value="" disabled>{t('admin.selectZone')}</option>
                   {zonas.map(z => <option key={z.idZona} value={z.idZona}>{z.nombre}</option>)}
                 </select>
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Proveedor</label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">{t('admin.supplier')}</label>
                 <select value={nuevoLote.idProveedor} onChange={e => setNuevoLote({...nuevoLote, idProveedor: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow">
-                  <option value="">Ninguno (Propio / Desconocido)</option>
+                  <option value="">{t('admin.noneSupplier')}</option>
                   {proveedores.map(p => <option key={p.idProveedor} value={p.idProveedor}>{p.nombre} ({p.tipoInsumo})</option>)}
                 </select>
               </div>
               
               <div className="space-y-1.5">
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Estado Inicial *</label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">{t('admin.initialStatus')}</label>
                 <select required value={nuevoLote.estadoLote} onChange={e => setNuevoLote({...nuevoLote, estadoLote: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow">
-                  <option value="GERMINANDO">GERMINANDO</option>
-                  <option value="CRECIENDO">CRECIENDO</option>
-                  <option value="LISTO_PARA_VENTA">LISTO PARA VENTA</option>
+                  <option value="GERMINANDO">{t('lotPhase.GERMINANDO')}</option>
+                  <option value="CRECIENDO">{t('lotPhase.CRECIENDO')}</option>
+                  <option value="LISTO_PARA_VENTA">{t('lotPhase.LISTO_PARA_VENTA')}</option>
                 </select>
               </div>
 
               <div className="pt-4 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
-                <button type="button" onClick={() => setModalRegistro(false)} disabled={guardando} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition-colors">Cancelar</button>
+                <button type="button" onClick={() => setModalRegistro(false)} disabled={guardando} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition-colors">{t('admin.cancel')}</button>
                 <button type="submit" disabled={guardando} className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 transition-all shadow-md shadow-teal-500/20 disabled:opacity-50">
                   {guardando ? <Loader2 size={16} className="animate-spin" /> : <Sprout size={16} />}
-                  {guardando ? 'Registrando...' : 'Registrar Lote'}
+                  {guardando ? t('admin.registeringBatch') : t('admin.registerBatchBtn')}
                 </button>
               </div>
             </form>
@@ -451,7 +463,7 @@ export default function AdminLotes() {
                 <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 flex items-center justify-center">
                   <LinkIcon size={20} />
                 </div>
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Vincular al Catálogo</h2>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{t('admin.linkToCatalogTitle')}</h2>
               </div>
               <button onClick={() => setModalVinculacion({ abierto: false, lote: null, idProducto: '' })} className="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-full p-2 transition-colors">
                 <X size={18} />
@@ -460,32 +472,32 @@ export default function AdminLotes() {
             
             <div className="p-6">
               <div className="mb-5 bg-teal-50 dark:bg-teal-900/20 p-4 rounded-xl border border-teal-100 dark:border-teal-800/50">
-                <span className="font-black text-[10px] uppercase tracking-widest text-teal-600 dark:text-teal-400 block mb-1">Lote a vincular</span>
+                <span className="font-black text-[10px] uppercase tracking-widest text-teal-600 dark:text-teal-400 block mb-1">{t('admin.batchToLink')}</span>
                 <p className="font-bold text-slate-800 dark:text-slate-100">
                   {modalVinculacion.lote.codigoLote} - {modalVinculacion.lote.especie}
                 </p>
                 <div className="mt-2 flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-400 bg-white/60 dark:bg-slate-800/50 py-1 px-2.5 rounded-lg border border-teal-200/50 w-fit">
-                  <Sprout size={14} /> Stock listo: {modalVinculacion.lote.cantidadActual} u.
+                  <Sprout size={14} /> {t('admin.readyStock', { count: modalVinculacion.lote.cantidadActual })}
                 </div>
               </div>
               
               <form onSubmit={handleVincular} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Producto del Catálogo *</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">{t('admin.catalogProduct')}</label>
                   <select required value={modalVinculacion.idProducto} onChange={e => setModalVinculacion({...modalVinculacion, idProducto: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow">
-                    <option value="" disabled>Seleccione Producto...</option>
+                    <option value="" disabled>{t('admin.selectProduct')}</option>
                     {productos.map(p => <option key={p.idProducto} value={p.idProducto}>{p.nombreProducto}</option>)}
                   </select>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed mt-2">
-                    El stock actual de este lote ({modalVinculacion.lote.cantidadActual} unidades) se sumará al producto seleccionado. El lote pasará automáticamente a estado <strong className="text-purple-600 dark:text-purple-400">EN TIENDA</strong>.
+                    {t('admin.linkExplanation', { count: modalVinculacion.lote.cantidadActual })}
                   </p>
                 </div>
                 
                 <div className="pt-4 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
-                  <button type="button" onClick={() => setModalVinculacion({ abierto: false, lote: null, idProducto: '' })} disabled={guardando} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition-colors">Cancelar</button>
+                  <button type="button" onClick={() => setModalVinculacion({ abierto: false, lote: null, idProducto: '' })} disabled={guardando} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition-colors">{t('admin.cancel')}</button>
                   <button type="submit" disabled={guardando} className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 transition-all shadow-md shadow-teal-500/20 disabled:opacity-50">
                     {guardando ? <Loader2 size={16} className="animate-spin" /> : <LinkIcon size={16} />}
-                    {guardando ? 'Vinculando...' : 'Confirmar Vinculación'}
+                    {guardando ? t('admin.linking') : t('admin.confirmLink')}
                   </button>
                 </div>
               </form>

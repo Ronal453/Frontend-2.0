@@ -11,19 +11,18 @@ import {
   Users, UserCheck, UserX, UserPlus, Shield, HardHat, User, 
   Key, Copy, Search, CheckCircle, XCircle, Loader2, X 
 } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
-const ROLES = [
-  { id: 1, nombre: 'ADMINISTRADOR', icono: <Shield size={14} />, color: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50' },
-  { id: 2, nombre: 'TRABAJADOR',    icono: <HardHat size={14} />, color: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50' },
-  { id: 3, nombre: 'CLIENTE',       icono: <User size={14} />, color: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50' },
-]
-
-const badgeRol = (nombreRol) => {
-  const r = ROLES.find(x => x.nombre === nombreRol)
-  return r ?? { icono: <User size={14} />, color: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }
-}
-
+/**
+ * Panel de gestión de usuarios y accesos — Panel Admin.
+ * Permite listar usuarios, filtrar por roles y estado, crear cuentas
+ * directas de trabajadores y generar contraseñas temporales para restablecimiento.
+ *
+ * @component
+ * @returns {JSX.Element} Vista administrativa de usuarios
+ */
 export default function AdminUsuarios() {
+  const { t } = useLanguage()
   const [usuarios,    setUsuarios]    = useState([])
   const [totalPages,  setTotalPages]  = useState(0)
   const [loading,     setLoading]     = useState(true)
@@ -36,6 +35,17 @@ export default function AdminUsuarios() {
   const [filtros, setFiltros] = useState({
     nombre: '', idRol: '', activo: '', page: 0, size: 15
   })
+
+  const ROLES = [
+    { id: 1, valor: 'ADMINISTRADOR', label: t('admin.administrator'), icono: <Shield size={14} />, color: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50' },
+    { id: 2, valor: 'TRABAJADOR',    label: t('admin.worker'), icono: <HardHat size={14} />, color: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50' },
+    { id: 3, valor: 'CLIENTE',       label: t('admin.client'), icono: <User size={14} />, color: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50' },
+  ]
+
+  const badgeRol = (nombreRol) => {
+    const r = ROLES.find(x => x.valor === nombreRol)
+    return r ?? { label: nombreRol, icono: <User size={14} />, color: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }
+  }
 
   useEffect(() => { cargarUsuarios() }, [filtros])
 
@@ -67,10 +77,10 @@ export default function AdminUsuarios() {
     try {
       if (usuario.activo) {
         await desactivarUsuario(usuario.idUsuario)
-        mostrarMensaje('ok', `${usuario.nombreCompleto} fue desactivado`)
+        mostrarMensaje('ok', `${usuario.nombreCompleto} desactivado`)
       } else {
         await activarUsuario(usuario.idUsuario)
-        mostrarMensaje('ok', `${usuario.nombreCompleto} fue reactivado`)
+        mostrarMensaje('ok', `${usuario.nombreCompleto} reactivado`)
       }
       await cargarUsuarios()
     } catch (e) {
@@ -102,7 +112,7 @@ export default function AdminUsuarios() {
   const copiarPassword = () => {
     if (!passwordGenerada) return
     navigator.clipboard?.writeText(passwordGenerada.password)
-    mostrarMensaje('ok', 'Contraseña copiada al portapapeles')
+    mostrarMensaje('ok', t('admin.copyPassword'))
   }
 
   const handleCrearTrabajador = async (datos) => {
@@ -113,7 +123,7 @@ export default function AdminUsuarios() {
       passwordInicial: datos.passwordInicial,
       idUsuario: res.data?.idUsuario
     })
-    mostrarMensaje('ok', `Trabajador ${datos.nombreCompleto} creado exitosamente`)
+    mostrarMensaje('ok', `${datos.nombreCompleto} ${t('admin.workerCreatedSuccess')}`)
     await cargarUsuarios()
   }
 
@@ -121,7 +131,7 @@ export default function AdminUsuarios() {
     if (!cred) return
     const texto = `Credenciales de acceso a Plantopolis:\nRol: TRABAJADOR\nUsuario: ${cred.correo}\nContraseña: ${cred.passwordInicial}\nAcceso: Panel Operativo (/trabajador)`
     navigator.clipboard?.writeText(texto)
-    mostrarMensaje('ok', 'Credenciales copiadas al portapapeles')
+    mostrarMensaje('ok', t('admin.copyCredentials'))
   }
 
   return (
@@ -136,10 +146,10 @@ export default function AdminUsuarios() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">
-                Gestión de Usuarios
+                {t('admin.usersTitle')}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
-                Administra clientes, trabajadores y administradores
+                {t('admin.usersSubtitle')}
               </p>
             </div>
           </div>
@@ -148,7 +158,7 @@ export default function AdminUsuarios() {
             className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md shadow-teal-500/20 transition-all duration-200"
           >
             <UserPlus size={18} />
-            <span>Crear Trabajador</span>
+            <span>{t('admin.createWorker')}</span>
           </button>
         </div>
 
@@ -161,28 +171,28 @@ export default function AdminUsuarios() {
               <div>
                 <p className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
                   <CheckCircle size={20} />
-                  Cuenta de trabajador creada con éxito
+                  {t('admin.workerCreatedSuccess')}
                 </p>
                 <p className="text-sm font-medium text-emerald-700/80 dark:text-emerald-400/80 mt-1">
-                  El usuario ha sido registrado con rol <strong className="text-emerald-800 dark:text-emerald-300">TRABAJADOR</strong> y estado Activo.
+                  {t('admin.workerCreatedDesc')}
                 </p>
                 <div className="mt-4 bg-white/60 dark:bg-slate-900/50 border border-emerald-100 dark:border-emerald-800/50 rounded-xl p-4 inline-block shadow-sm">
                   <p className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">
-                    Credenciales Iniciales
+                    {t('admin.initialCredentials')}
                   </p>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-3">
-                      <span className="text-slate-500 dark:text-slate-400 w-24">Nombre:</span>
+                      <span className="text-slate-500 dark:text-slate-400 w-24">{t('admin.fullName')}:</span>
                       <strong className="text-slate-800 dark:text-slate-200">{nuevoTrabajadorExito.nombreCompleto}</strong>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-slate-500 dark:text-slate-400 w-24">Usuario:</span>
+                      <span className="text-slate-500 dark:text-slate-400 w-24">{t('admin.user')}:</span>
                       <code className="font-mono font-bold text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 rounded">
                         {nuevoTrabajadorExito.correo}
                       </code>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-slate-500 dark:text-slate-400 w-24">Contraseña:</span>
+                      <span className="text-slate-500 dark:text-slate-400 w-24">{t('admin.initialPassword')}:</span>
                       <code className="font-mono font-bold text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 rounded">
                         {nuevoTrabajadorExito.passwordInicial}
                       </code>
@@ -198,7 +208,7 @@ export default function AdminUsuarios() {
             <div className="mt-4">
               <button onClick={() => copiarCredenciales(nuevoTrabajadorExito)}
                       className="flex items-center gap-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl transition-all shadow-md shadow-emerald-600/20">
-                <Copy size={16} /> Copiar credenciales
+                <Copy size={16} /> {t('admin.copyCredentials')}
               </button>
             </div>
           </div>
@@ -211,10 +221,10 @@ export default function AdminUsuarios() {
               <div>
                 <p className="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-2">
                   <Key size={20} />
-                  Contraseña temporal para {passwordGenerada.nombre}
+                  {t('admin.tempPasswordFor', { name: passwordGenerada.nombre })}
                 </p>
                 <p className="text-sm font-medium text-amber-700/80 dark:text-amber-400/80 mt-1">
-                  {passwordGenerada.correo} — Cópiala ahora, no se volverá a mostrar
+                  {t('admin.tempPasswordNotice', { email: passwordGenerada.correo })}
                 </p>
                 <div className="mt-4 inline-block">
                   <code className="bg-white/80 dark:bg-slate-900/50 border border-amber-200 dark:border-amber-700/50 rounded-xl px-5 py-2.5 font-mono text-xl font-bold tracking-widest text-amber-700 dark:text-amber-400 shadow-sm">
@@ -230,7 +240,7 @@ export default function AdminUsuarios() {
             <div className="mt-4">
               <button onClick={copiarPassword}
                       className="flex items-center gap-2 text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl transition-all shadow-md shadow-amber-500/20">
-                <Copy size={16} /> Copiar contraseña
+                <Copy size={16} /> {t('admin.copyPassword')}
               </button>
             </div>
           </div>
@@ -242,7 +252,7 @@ export default function AdminUsuarios() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
               type="text"
-              placeholder="Buscar por nombre o correo..."
+              placeholder={t('admin.searchUserPlaceholder')}
               value={filtros.nombre}
               onChange={e => handleFiltro('nombre', e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-shadow text-slate-700 dark:text-slate-200"
@@ -253,17 +263,17 @@ export default function AdminUsuarios() {
             onChange={e => handleFiltro('idRol', e.target.value)}
             className="w-full md:w-48 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none transition-shadow"
           >
-            <option value="">Todos los roles</option>
-            {ROLES.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
+            <option value="">{t('admin.allRoles')}</option>
+            {ROLES.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}
           </select>
           <select
             value={filtros.activo}
             onChange={e => handleFiltro('activo', e.target.value)}
             className="w-full md:w-48 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none transition-shadow"
           >
-            <option value="">Todos los estados</option>
-            <option value="true">Activos</option>
-            <option value="false">Desactivados</option>
+            <option value="">{t('admin.allStatuses')}</option>
+            <option value="true">{t('admin.activeOnly')}</option>
+            <option value="false">{t('admin.inactiveOnly')}</option>
           </select>
         </div>
 
@@ -272,23 +282,23 @@ export default function AdminUsuarios() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-24">
               <Loader2 className="w-10 h-10 text-teal-500 animate-spin mb-4" />
-              <p className="text-slate-500 dark:text-slate-400 font-medium">Cargando usuarios...</p>
+              <p className="text-slate-500 dark:text-slate-400 font-medium">{t('admin.loadingUsers')}</p>
             </div>
           ) : usuarios.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-slate-500 dark:text-slate-400">
               <Users size={48} className="mb-4 text-slate-300 dark:text-slate-600" strokeWidth={1} />
-              <p className="font-medium">No se encontraron usuarios con esos filtros</p>
+              <p className="font-medium">{t('admin.noUsersFilter')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-sm text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-200 dark:bg-slate-700/80 border-b-2 border-slate-300 dark:border-slate-600">
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Usuario</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Rol</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Registrado</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Estado</th>
-                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">Acciones</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('admin.user')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.role')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thRegistered')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thStatus')}</th>
+                    <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-center">{t('admin.thActions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -305,7 +315,7 @@ export default function AdminUsuarios() {
                         {/* ROL */}
                         <td className="px-6 py-4 text-center">
                           <span className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-xl ${rol.color}`}>
-                            {rol.icono} {u.rol}
+                            {rol.icono} {rol.label}
                           </span>
                         </td>
                         {/* FECHA REGISTRO */}
@@ -323,15 +333,15 @@ export default function AdminUsuarios() {
                             }`}
                           >
                             {u.activo ? <UserCheck size={14} /> : <UserX size={14} />}
-                            {u.activo ? 'Activo' : 'Inactivo'}
+                            {u.activo ? t('admin.activeStatus') : t('admin.inactiveStatus')}
                           </span>
                         </td>
                         {/* ACCIONES */}
                         <td className="px-6 py-4">
                           <div className="flex gap-2 justify-center">
-                            <button onClick={() => handleResetearPassword(u)} disabled={enAccion} title="Resetear contraseña"
+                            <button onClick={() => handleResetearPassword(u)} disabled={enAccion} title={t('admin.resetPassword')}
                                     className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50 rounded-xl hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors disabled:opacity-50">
-                              <Key size={14} /> Resetear
+                              <Key size={14} /> {t('admin.reset')}
                             </button>
                             <button onClick={() => handleToggleActivo(u)} disabled={enAccion}
                                     className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border transition-colors disabled:opacity-50
@@ -341,7 +351,7 @@ export default function AdminUsuarios() {
                                       }`}
                             >
                               {enAccion ? <Loader2 size={14} className="animate-spin" /> : (u.activo ? <UserX size={14} /> : <UserCheck size={14} />)}
-                              {u.activo ? 'Desactivar' : 'Activar'}
+                              {u.activo ? t('admin.deactivate') : t('admin.activate')}
                             </button>
                           </div>
                         </td>
@@ -376,9 +386,14 @@ export default function AdminUsuarios() {
 }
 
 /**
- * Modal interactivo para que el Administrador cree cuentas con rol TRABAJADOR
+ * Modal interactivo para que el Administrador cree cuentas con rol TRABAJADOR.
+ * Incluye validación de contraseña segura y campos de registro directo sin pasar por checkout.
+ *
+ * @component
+ * @param {Object} props Propiedades del modal
  */
 function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
+  const { t } = useLanguage()
   const [form, setForm] = useState({
     nombreCompleto: '',
     correo: '',
@@ -400,17 +415,17 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
   const validar = () => {
     const err = {}
     if (!form.nombreCompleto.trim()) {
-      err.nombreCompleto = 'El nombre completo es obligatorio'
+      err.nombreCompleto = t('cart.requiredField') || 'El nombre completo es obligatorio'
     }
     if (!form.correo.trim()) {
-      err.correo = 'El correo electrónico es obligatorio'
+      err.correo = t('cart.requiredField') || 'El correo electrónico es obligatorio'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo.trim())) {
       err.correo = 'Formato de correo inválido'
     }
     if (!form.passwordInicial) {
-      err.passwordInicial = 'La contraseña inicial es obligatoria'
+      err.passwordInicial = t('cart.requiredField') || 'La contraseña inicial es obligatoria'
     } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(form.passwordInicial)) {
-      err.passwordInicial = 'Debe tener mín. 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial'
+      err.passwordInicial = t('admin.passwordRequirements')
     }
     setErrores(err)
     return Object.keys(err).length === 0
@@ -445,7 +460,7 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
             <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 flex items-center justify-center">
               <UserPlus size={20} />
             </div>
-            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Crear Trabajador</h2>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{t('admin.createWorker')}</h2>
           </div>
           <button
             type="button"
@@ -461,14 +476,13 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
           <div className="p-4 bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-800/50 text-xs font-medium text-teal-800 dark:text-teal-300 rounded-xl flex gap-3 shadow-sm">
             <HardHat size={24} className="text-teal-500 shrink-0" />
             <p>
-              Esta cuenta se creará exclusivamente con el rol <strong>TRABAJADOR</strong>. 
-              Permite al personal acceder directamente al Panel Operativo (Kanban, Lotes y Mermas) sin requerir registro público.
+              {t('admin.workerModalNotice')}
             </p>
           </div>
 
           <div className="space-y-4">
             <Input
-              label="Nombre completo"
+              label={t('admin.fullName')}
               name="nombreCompleto"
               required
               value={form.nombreCompleto}
@@ -478,7 +492,7 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
             />
 
             <Input
-              label="Correo electrónico"
+              label={t('admin.email')}
               name="correo"
               type="email"
               required
@@ -490,7 +504,7 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
 
             <div>
               <Input
-                label="Contraseña inicial"
+                label={t('admin.initialPassword')}
                 name="passwordInicial"
                 type="text"
                 required
@@ -500,7 +514,7 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
                 error={errores.passwordInicial}
               />
               <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed font-medium">
-                Mínimo 8 caracteres, al menos 1 mayúscula, 1 número y 1 carácter especial <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">@$!%*?&</code>
+                {t('admin.passwordRequirements')} <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">@$!%*?&</code>
               </p>
             </div>
           </div>
@@ -520,7 +534,7 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
               disabled={guardando}
               className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors focus:outline-none"
             >
-              Cancelar
+              {t('admin.cancel')}
             </button>
             <button
               type="submit"
@@ -528,7 +542,7 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 transition-all shadow-md shadow-teal-500/20 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none"
             >
               {guardando ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
-              {guardando ? 'Creando...' : 'Crear Trabajador'}
+              {guardando ? t('admin.creating') : t('admin.createWorker')}
             </button>
           </div>
         </form>

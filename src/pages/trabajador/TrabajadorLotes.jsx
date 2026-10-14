@@ -12,14 +12,15 @@ import {
   MapPin, Loader2, History, Leaf, CheckCircle2, Store, Trash2
 } from 'lucide-react'
 import Input from '../../components/ui/Input'
+import { useLanguage } from '../../context/LanguageContext'
 
-const ESTADOS_LOTE = [
-  { id: '', label: 'Todos los estados' },
-  { id: 'GERMINANDO', label: 'Germinando' },
-  { id: 'CRECIENDO', label: 'Creciendo' },
-  { id: 'LISTO_PARA_VENTA', label: 'Listo para Venta' },
-  { id: 'EN_TIENDA', label: 'En Tienda' },
-  { id: 'DESCARTADO', label: 'Descartado' },
+const ESTADOS_LOTE_KEYS = [
+  { id: '', labelKey: 'lots.allPhases' },
+  { id: 'GERMINANDO', labelKey: 'lotPhase.GERMINANDO' },
+  { id: 'CRECIENDO', labelKey: 'lotPhase.CRECIENDO' },
+  { id: 'LISTO_PARA_VENTA', labelKey: 'lotPhase.LISTO_PARA_VENTA' },
+  { id: 'EN_TIENDA', labelKey: 'lotPhase.EN_TIENDA' },
+  { id: 'DESCARTADO', labelKey: 'lotPhase.DESCARTADO' },
 ]
 
 const ESTADO_BADGES = {
@@ -30,7 +31,15 @@ const ESTADO_BADGES = {
   DESCARTADO: 'bg-transparent border-red-300 dark:border-red-700/50 text-red-600 dark:text-red-400',
 }
 
+/**
+ * Vista operativa para trabajadores de vivero para monitorear el estado,
+ * fases biológicas, mermas e historial de trazabilidad de lotes de cultivo.
+ *
+ * @component
+ * @returns {JSX.Element} Panel de control de lotes
+ */
 export default function TrabajadorLotes() {
+  const { t } = useLanguage()
   const [lotes, setLotes] = useState([])
   const [zonas, setZonas] = useState([])
   const [filtroZona, setFiltroZona] = useState('')
@@ -195,10 +204,10 @@ export default function TrabajadorLotes() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                Control de Lotes
+                {t('lots.title')}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-0.5">
-                Supervisa el crecimiento, trazabilidad y estado de la producción
+                {t('lots.subtitle')}
               </p>
             </div>
           </div>
@@ -210,7 +219,7 @@ export default function TrabajadorLotes() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
               type="text"
-              placeholder="Buscar lote o especie..."
+              placeholder={t('lots.searchPlaceholder')}
               value={filtroBuscar}
               onChange={(e) => { setFiltroBuscar(e.target.value); setPagina(0) }}
               className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow text-slate-700 dark:text-slate-200"
@@ -222,7 +231,7 @@ export default function TrabajadorLotes() {
             onChange={(e) => { setFiltroZona(e.target.value); setPagina(0) }}
             className="w-full lg:w-48 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none"
           >
-            <option value="">Todas las zonas</option>
+            <option value="">{t('lots.allZones')}</option>
             {zonas.map(z => <option key={z.idZona} value={z.idZona}>{z.nombre}</option>)}
           </select>
 
@@ -231,12 +240,12 @@ export default function TrabajadorLotes() {
             onChange={(e) => { setFiltroEstado(e.target.value); setPagina(0) }}
             className="w-full lg:w-48 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 outline-none"
           >
-            {ESTADOS_LOTE.map(e => <option key={e.id} value={e.id}>{e.label}</option>)}
+            {ESTADOS_LOTE_KEYS.map(e => <option key={e.id} value={e.id}>{t(e.labelKey)}</option>)}
           </select>
 
           <button
             onClick={cargarLotes}
-            title="Refrescar lotes"
+            title={t('common.filter')}
             className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
           >
             <RefreshCw size={18} />
@@ -254,24 +263,24 @@ export default function TrabajadorLotes() {
           {cargando ? (
             <div className="flex-1 flex flex-col items-center justify-center py-20 text-slate-400">
               <Loader2 className="w-10 h-10 text-teal-500 animate-spin mb-4" />
-              <p className="font-medium">Cargando lotes...</p>
+              <p className="font-medium">{t('common.loading')}</p>
             </div>
           ) : lotes.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center py-20 text-slate-400">
               <Sprout className="w-12 h-12 text-slate-300 dark:text-slate-600 mb-4" strokeWidth={1.5} />
-              <p className="font-medium">No se encontraron lotes con los filtros actuales.</p>
+              <p className="font-medium">{t('lots.emptyList')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto flex-1 custom-scrollbar">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-200 dark:bg-slate-700/80 border-b-2 border-slate-300 dark:border-slate-600">
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Código / Especie</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Ubicación</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Stock (Act/Ini)</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Fecha Siembra</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Estado</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-right">Acciones</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('lots.code')} / {t('lots.species')}</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('worker.targetLocation')}</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Stock ({t('lots.currentQty')} / {t('lots.initialQty')})</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('lots.plantedDate')}</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">{t('common.status')}</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 text-right">{t('common.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -285,7 +294,7 @@ export default function TrabajadorLotes() {
                       <td className="px-6 py-4">
                         <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                           <MapPin size={14} className="text-slate-400" />
-                          {lote.nombreZona || 'Sin asignar'}
+                          {lote.nombreZona || t('worker.unassigned')}
                         </span>
                       </td>
 
@@ -299,7 +308,7 @@ export default function TrabajadorLotes() {
                           </div>
                           {lote.cantidadActual < lote.cantidadInicial && (
                             <span className="text-[10px] font-bold text-amber-500 mt-0.5">
-                              -{lote.cantidadInicial - lote.cantidadActual} mermas
+                              -{lote.cantidadInicial - lote.cantidadActual} {t('lots.wasteQty')}
                             </span>
                           )}
                         </div>
@@ -313,7 +322,7 @@ export default function TrabajadorLotes() {
 
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${ESTADO_BADGES[lote.estadoLote] || 'bg-slate-100 border-slate-200 text-slate-600'}`}>
-                          {lote.estadoLote === 'LISTO_PARA_VENTA' ? 'LISTO PARA VENTA' : lote.estadoLote}
+                          {t(`lotPhase.${lote.estadoLote}`) !== `lotPhase.${lote.estadoLote}` ? t(`lotPhase.${lote.estadoLote}`) : lote.estadoLote}
                         </span>
                       </td>
 
@@ -323,20 +332,21 @@ export default function TrabajadorLotes() {
                             onClick={() => abrirCambioEstado(lote)}
                             className="px-2.5 py-1.5 bg-teal-50 border border-teal-200 hover:bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:border-teal-800/50 dark:text-teal-400 dark:hover:bg-teal-900/60 rounded-xl font-bold text-xs transition-colors flex items-center gap-1"
                           >
-                            Avanzar <ArrowRight size={14} />
+                            {t('lots.changePhase')} <ArrowRight size={14} />
                           </button>
                         )}
                         {lote.cantidadActual > 0 && !['DESCARTADO', 'EN_TIENDA'].includes(lote.estadoLote) && (
                           <button
                             onClick={() => abrirModalMerma(lote)}
-                            title="Reportar merma"
+                            title={t('lots.registerWaste')}
                             className="px-2.5 py-1.5 bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:border-amber-800/50 dark:text-amber-400 dark:hover:bg-amber-900/60 rounded-xl font-bold text-xs transition-colors flex items-center gap-1"
                           >
-                            <AlertTriangle size={14} /> Merma
+                            <AlertTriangle size={14} /> {t('lots.wasteQty')}
                           </button>
                         )}
                         <button
                           onClick={() => abrirHistorial(lote)}
+                          title={t('lots.viewHistory')}
                           className="px-2.5 py-1.5 bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700 rounded-xl font-bold text-xs transition-colors flex items-center gap-1"
                         >
                           <History size={14} />
@@ -351,7 +361,7 @@ export default function TrabajadorLotes() {
               {totalPaginas > 1 && (
                 <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                    Página {pagina + 1} de {totalPaginas}
+                    {t('common.page_info', { current: pagina + 1, total: totalPaginas })}
                   </span>
                   <div className="flex gap-2">
                     <button
@@ -359,14 +369,14 @@ export default function TrabajadorLotes() {
                       disabled={pagina === 0}
                       className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Anterior
+                      {t('common.prev')}
                     </button>
                     <button
                       onClick={() => setPagina(p => Math.min(totalPaginas - 1, p + 1))}
                       disabled={pagina >= totalPaginas - 1}
                       className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Siguiente
+                      {t('common.next')}
                     </button>
                   </div>
                 </div>
@@ -385,7 +395,7 @@ export default function TrabajadorLotes() {
                 <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 flex items-center justify-center">
                   <ArrowRight size={20} />
                 </div>
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Avanzar Estado</h2>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{t('lots.confirmPhase')}</h2>
               </div>
               <button onClick={() => setModalEstado(prev => ({ ...prev, abierto: false }))} className="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-full p-2 transition-colors">
                 <X size={18} />
@@ -394,46 +404,46 @@ export default function TrabajadorLotes() {
 
             <div className="p-6">
               <div className="mb-5 bg-teal-50 dark:bg-teal-900/20 p-4 rounded-xl border border-teal-100 dark:border-teal-800/50">
-                <span className="font-black text-[10px] uppercase tracking-widest text-teal-600 dark:text-teal-400 block mb-1">Lote Seleccionado</span>
+                <span className="font-black text-[10px] uppercase tracking-widest text-teal-600 dark:text-teal-400 block mb-1">{t('lots.movingBatch')}</span>
                 <p className="font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight text-sm">
                   {modalEstado.lote?.codigoLote} <span className="font-medium font-sans ml-1">({modalEstado.lote?.especie})</span>
                 </p>
                 <div className="mt-2 flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-400">
-                  Estado actual: <span className="bg-white/60 dark:bg-slate-800/50 py-1 px-2 rounded-lg border border-teal-200/50">{modalEstado.lote?.estadoLote}</span>
+                  {t('common.status')}: <span className="bg-white/60 dark:bg-slate-800/50 py-1 px-2 rounded-lg border border-teal-200/50">{t(`lotPhase.${modalEstado.lote?.estadoLote}`) !== `lotPhase.${modalEstado.lote?.estadoLote}` ? t(`lotPhase.${modalEstado.lote?.estadoLote}`) : modalEstado.lote?.estadoLote}</span>
                 </div>
               </div>
 
               <form onSubmit={ejecutarCambioEstado} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Nuevo Estado *</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">{t('lots.newPhase')} *</label>
                   <select
                     value={modalEstado.nuevoEstado}
                     onChange={(e) => setModalEstado(prev => ({ ...prev, nuevoEstado: e.target.value }))}
                     className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow"
                     required
                   >
-                    <option value="">Selecciona un estado...</option>
-                    {modalEstado.lote?.estadoLote === 'GERMINANDO' && <option value="CRECIENDO">CRECIENDO (Fase vegetativa)</option>}
-                    {modalEstado.lote?.estadoLote === 'CRECIENDO' && <option value="LISTO_PARA_VENTA">LISTO PARA VENTA (Madurez)</option>}
-                    <option value="DESCARTADO">DESCARTADO (Pérdida total)</option>
+                    <option value="">{t('lots.allPhases')}...</option>
+                    {modalEstado.lote?.estadoLote === 'GERMINANDO' && <option value="CRECIENDO">{t('lotPhase.CRECIENDO')}</option>}
+                    {modalEstado.lote?.estadoLote === 'CRECIENDO' && <option value="LISTO_PARA_VENTA">{t('lotPhase.LISTO_PARA_VENTA')}</option>}
+                    <option value="DESCARTADO">{t('lotPhase.DESCARTADO')}</option>
                   </select>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Observaciones Técnicas (Opcional)</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">{t('lots.observations')}</label>
                   <textarea
                     rows="3"
                     value={modalEstado.observaciones}
                     onChange={(e) => setModalEstado(prev => ({ ...prev, observaciones: e.target.value }))}
-                    placeholder="Ej: Plantas alcanzaron 25cm de altura..."
+                    placeholder={t('lots.observationsPlaceholder')}
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-shadow resize-none"
                   />
                 </div>
 
                 <div className="pt-4 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
-                  <button type="button" onClick={() => setModalEstado(prev => ({ ...prev, abierto: false }))} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition-colors">Cancelar</button>
+                  <button type="button" onClick={() => setModalEstado(prev => ({ ...prev, abierto: false }))} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition-colors">{t('common.cancel')}</button>
                   <button type="submit" disabled={modalEstado.enviando || !modalEstado.nuevoEstado} className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold rounded-xl shadow-md shadow-teal-500/20 disabled:opacity-50 flex items-center gap-2">
-                    {modalEstado.enviando ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />} Actualizar
+                    {modalEstado.enviando ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />} {t('lots.confirm')}
                   </button>
                 </div>
               </form>
@@ -451,7 +461,7 @@ export default function TrabajadorLotes() {
                 <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                   <AlertTriangle size={20} />
                 </div>
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Reportar Merma</h2>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{t('waste.registerTitle')}</h2>
               </div>
               <button onClick={() => setModalMerma(prev => ({ ...prev, abierto: false }))} className="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-full p-2 transition-colors">
                 <X size={18} />
@@ -460,31 +470,36 @@ export default function TrabajadorLotes() {
 
             <div className="p-6">
               <div className="mb-5 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-100 dark:border-amber-800/50">
-                <span className="font-black text-[10px] uppercase tracking-widest text-amber-600 dark:text-amber-400 block mb-1">Lote Afectado</span>
+                <span className="font-black text-[10px] uppercase tracking-widest text-amber-600 dark:text-amber-400 block mb-1">{t('waste.selectBatch')}</span>
                 <p className="font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight text-sm">
                   {modalMerma.lote?.codigoLote} <span className="font-medium font-sans ml-1">({modalMerma.lote?.especie})</span>
                 </p>
                 <div className="mt-2 flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-400 bg-white/60 dark:bg-slate-800/50 py-1 px-2.5 rounded-lg border border-amber-200/50 w-fit">
-                  <Sprout size={14} /> Stock actual: {modalMerma.lote?.cantidadActual} u.
+                  <Sprout size={14} /> {t('waste.currentStock')} {modalMerma.lote?.cantidadActual} {t('common.unit')}
                 </div>
               </div>
 
               <form onSubmit={ejecutarRegistroMerma} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Causa Principal *</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">{t('waste.selectCause')} *</label>
                   <select
                     value={modalMerma.idCausa}
                     onChange={(e) => setModalMerma(prev => ({ ...prev, idCausa: e.target.value }))}
                     className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none transition-shadow"
                     required
                   >
-                    {modalMerma.causas.map(c => <option key={c.idCausa} value={c.idCausa}>{c.nombreCausa}</option>)}
+                    {/* Traduce dinámicamente las causas de merma en el selector modal */}
+                    {modalMerma.causas.map(c => (
+                      <option key={c.idCausa} value={c.idCausa}>
+                        {t('wasteCause.' + c.nombreCausa, c.nombreCausa)}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <Input
-                    label="Cant. Perdida *"
+                    label={`${t('waste.quantityLost')} *`}
                     type="number"
                     min="1"
                     max={modalMerma.lote?.cantidadActual || 1}
@@ -493,7 +508,7 @@ export default function TrabajadorLotes() {
                     required
                   />
                   <Input
-                    label="Fecha de Pérdida *"
+                    label={`${t('waste.date')} *`}
                     type="date"
                     value={modalMerma.fechaMerma}
                     onChange={(e) => setModalMerma(prev => ({ ...prev, fechaMerma: e.target.value }))}
@@ -502,21 +517,21 @@ export default function TrabajadorLotes() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-bold text-red-600 dark:text-red-400">Descripción (Obligatoria) *</label>
+                  <label className="block text-sm font-bold text-red-600 dark:text-red-400">{t('waste.observations')} *</label>
                   <textarea
                     required
                     rows="3"
                     value={modalMerma.observaciones}
                     onChange={(e) => setModalMerma(prev => ({ ...prev, observaciones: e.target.value }))}
-                    placeholder="Ej: Invasión severa de plaga que no respondió al tratamiento..."
+                    placeholder={t('waste.observationsPlaceholder')}
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-red-500 outline-none transition-shadow resize-none"
                   />
                 </div>
 
                 <div className="pt-4 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
-                  <button type="button" onClick={() => setModalMerma(prev => ({ ...prev, abierto: false }))} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition-colors">Cancelar</button>
+                  <button type="button" onClick={() => setModalMerma(prev => ({ ...prev, abierto: false }))} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition-colors">{t('common.cancel')}</button>
                   <button type="submit" disabled={modalMerma.enviando} className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-md shadow-amber-500/20 disabled:opacity-50 flex items-center gap-2">
-                    {modalMerma.enviando ? <Loader2 size={16} className="animate-spin" /> : <AlertTriangle size={16} />} Reportar
+                    {modalMerma.enviando ? <Loader2 size={16} className="animate-spin" /> : <AlertTriangle size={16} />} {t('waste.submit')}
                   </button>
                 </div>
               </form>
@@ -535,7 +550,7 @@ export default function TrabajadorLotes() {
                   <History size={20} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Trazabilidad de Lote</h2>
+                  <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{t('lots.historyTitle')}</h2>
                   <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{modalHistorial.lote?.codigoLote} - {modalHistorial.lote?.especie}</p>
                 </div>
               </div>
@@ -548,11 +563,11 @@ export default function TrabajadorLotes() {
               {modalHistorial.cargando ? (
                 <div className="py-12 flex flex-col items-center justify-center text-slate-400">
                   <Loader2 className="w-8 h-8 text-slate-300 animate-spin mb-3" />
-                  <span className="font-bold text-sm">Cargando trazabilidad...</span>
+                  <span className="font-bold text-sm">{t('common.loading')}</span>
                 </div>
               ) : modalHistorial.historial.length === 0 ? (
                 <div className="py-10 text-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 text-slate-400 font-medium text-sm">
-                  Sin cambios registrados aún.
+                  {t('lots.noHistory')}
                 </div>
               ) : (
                 <div className="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
@@ -564,16 +579,18 @@ export default function TrabajadorLotes() {
                       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 p-4 shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">
-                            <span className="text-slate-400 font-medium">{h.estadoAnterior}</span> &rarr; <span className="text-emerald-600 dark:text-emerald-400">{h.estadoNuevo}</span>
+                            <span className="text-slate-400 font-medium">{t(`lotPhase.${h.estadoAnterior}`) !== `lotPhase.${h.estadoAnterior}` ? t(`lotPhase.${h.estadoAnterior}`) : h.estadoAnterior}</span> &rarr; <span className="text-emerald-600 dark:text-emerald-400">{t(`lotPhase.${h.estadoNuevo}`) !== `lotPhase.${h.estadoNuevo}` ? t(`lotPhase.${h.estadoNuevo}`) : h.estadoNuevo}</span>
                           </span>
                           <span className="text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                             {new Date(h.fechaCambio).toLocaleString()}
                           </span>
                         </div>
-                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400">Operador: <span className="text-slate-700 dark:text-slate-300">{h.nombreUsuario || 'Sistema'}</span></p>
+                        {/* Traduce el operador responsable o sistema */}
+                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400">{t('worker.operator')}: <span className="text-slate-700 dark:text-slate-300">{t('operatorName.' + (h.nombreUsuario || ''), h.nombreUsuario || 'Sistema')}</span></p>
                         {h.observaciones && (
                           <div className="mt-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/50 italic">
-                            "{h.observaciones}"
+                            {/* Traduce las notas de auditoría u observaciones del lote */}
+                            "{t('lotObservation.' + (h.observaciones || '').trim(), h.observaciones)}"
                           </div>
                         )}
                       </div>

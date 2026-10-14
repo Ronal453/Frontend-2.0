@@ -6,6 +6,7 @@ import {
   getComentariosTarea,
   getHistorialTarea
 } from '../../api/trabajadorApi'
+import { useLanguage } from '../../context/LanguageContext'
 import ModalCambioEstado from './components/ModalCambioEstado'
 import ModalDetalleTarea from './components/ModalDetalleTarea'
 import { 
@@ -28,6 +29,7 @@ const PRIORIDAD_COLORS = {
 }
 
 export default function TrabajadorKanban() {
+  const { t } = useLanguage()
   const [tareas, setTareas] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
@@ -152,10 +154,10 @@ export default function TrabajadorKanban() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-              Tablero de Tareas Operativas
+              {t('worker.kanban')}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-0.5">
-              Gestiona visualmente las labores de cultivo, riego, poda y fertilización
+              {t('worker.title')}
             </p>
           </div>
         </div>
@@ -168,7 +170,7 @@ export default function TrabajadorKanban() {
                 soloMias ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
-              Mis Tareas
+              {t('worker.myTasksOnly')}
             </button>
             <button
               onClick={() => setSoloMias(false)}
@@ -176,7 +178,7 @@ export default function TrabajadorKanban() {
                 !soloMias ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
-              Todas las Tareas
+              {t('worker.allTasks')}
             </button>
           </div>
 
@@ -185,10 +187,10 @@ export default function TrabajadorKanban() {
             onChange={(e) => setFiltroPrioridad(e.target.value)}
             className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none"
           >
-            <option value="">Todas las prioridades</option>
-            <option value="ALTA">Alta</option>
-            <option value="MEDIA">Media</option>
-            <option value="BAJA">Baja</option>
+            <option value="">{t('common.all')} ({t('worker.priority')})</option>
+            <option value="ALTA">{t('worker.high')}</option>
+            <option value="MEDIA">{t('worker.medium')}</option>
+            <option value="BAJA">{t('worker.low')}</option>
           </select>
 
           <button
@@ -213,7 +215,7 @@ export default function TrabajadorKanban() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-amber-900 dark:text-amber-300 flex items-center gap-2">
               <Lock size={18} className="text-amber-600 dark:text-amber-400" />
-              Tareas Bloqueadas ({tareasBloqueadas.length})
+              {t('taskStatus.BLOQUEADA')} ({tareasBloqueadas.length})
             </h3>
             <span className="text-xs font-bold text-amber-700/80 dark:text-amber-400 bg-amber-100/50 dark:bg-amber-900/40 px-3 py-1 rounded-full">Requieren atención</span>
           </div>
@@ -234,10 +236,10 @@ export default function TrabajadorKanban() {
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-amber-100 dark:border-amber-800/30">
                   <button onClick={() => abrirDetalle(tarea)} className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300 flex items-center gap-1">
-                    <ExternalLink size={12} /> Ver detalle
+                    <ExternalLink size={12} /> {t('common.details')}
                   </button>
                   <button onClick={() => solicitarCambioEstado(tarea, 'EN_PROGRESO')} className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-xs transition-colors flex items-center gap-1.5 shadow-sm shadow-amber-600/20">
-                    <Unlock size={12} /> Desbloquear
+                    <Unlock size={12} /> {t('worker.unblock')}
                   </button>
                 </div>
               </div>
@@ -250,7 +252,7 @@ export default function TrabajadorKanban() {
       {cargando ? (
         <div className="flex-1 flex flex-col items-center justify-center py-20 text-slate-400">
           <Loader2 className="w-10 h-10 text-emerald-500 animate-spin mb-4" />
-          <p className="font-medium">Cargando tablero operativo...</p>
+          <p className="font-medium">{t('common.loading')}</p>
         </div>
       ) : (
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 pb-6 min-h-[500px]">
@@ -263,7 +265,7 @@ export default function TrabajadorKanban() {
                 {/* Cabecera Columna */}
                 <div className={`flex items-center justify-between px-5 py-4 ${col.headerBg} border-b border-slate-200/50 dark:border-slate-700/50`}>
                   <h2 className="font-bold text-slate-700 dark:text-slate-200 text-sm flex items-center gap-2">
-                    <ColIcon size={16} /> {col.titulo}
+                    <ColIcon size={16} /> {t(`taskStatus.${col.id}`) || col.titulo}
                   </h2>
                   <span className={`text-[10px] font-black px-2.5 py-1 rounded-xl ${col.badgeBg}`}>
                     {tareasColumna.length}
