@@ -17,6 +17,8 @@ import AdminUsuarios  from './pages/AdminUsuarios'
 import AdminLotes     from './pages/AdminLotes'
 import AdminMermas    from './pages/AdminMermas'
 import AdminBackup    from './pages/AdminBackup'
+import AdminTareas    from './pages/AdminTareas'
+import AdminDashboardOperativo from './pages/AdminDashboardOperativo'
 
 import TrabajadorLayout  from './components/layout/TrabajadorLayout'
 import TrabajadorRoute   from './components/TrabajadorRoute'
@@ -81,6 +83,8 @@ function App() {
                   <Route path="productos" element={<AdminProductos />} />
                   <Route path="pedidos" element={<AdminPedidos />} />
                   <Route path="usuarios" element={<AdminUsuarios />} />
+                  <Route path="tareas" element={<AdminTareas />} />
+                  <Route path="operaciones" element={<AdminDashboardOperativo />} />
                   <Route path="zonas" element={<AdminZonas />} />
                   <Route path="lotes" element={<AdminLotes />} />
                   <Route path="mermas" element={<AdminMermas />} />

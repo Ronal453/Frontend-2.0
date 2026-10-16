@@ -6,13 +6,14 @@ const api = axios.create({
   withCredentials: true // Envía cookies automáticamente
 })
 
-// Intercepta respuestas 401 (No Autorizado) para limpiar sesión local
+// Intercepta respuestas 401 (No Autorizado / Sesión Expirada) para limpiar sesión local
 api.interceptors.response.use(
   response => response,
   error => {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    // Solo el error 401 indica expiración de autenticación o token ausente.
+    // El error 403 (Prohibido) indica falta de permisos para una acción específica y no debe cerrar la sesión.
+    if (error.response && error.response.status === 401) {
       localStorage.removeItem('user')
-      // Solo redirigir si no estamos ya en login
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }

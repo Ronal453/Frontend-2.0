@@ -145,3 +145,138 @@ export const restaurarBackup = (archivo) => {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
 }
+
+// ════════════════════════════════════════════════════════════════════════════════════════
+// GESTIÓN DE TAREAS Y KANBAN OPERATIVO (ADMIN)
+// ════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Obtiene la lista de tareas con filtros avanzados para el panel administrativo.
+ * Permite filtrar por estado, trabajador asignado, tipo, prioridad, lote, zona o vencimiento.
+ *
+ * @param {Object} filtros - Criterios opcionales de búsqueda
+ * @returns {Promise} Respuesta HTTP con la lista de tareas
+ */
+export const getTareasAdmin = (filtros = {}) => {
+  const params = new URLSearchParams()
+  if (filtros.estado)       params.set('estado', filtros.estado)
+  if (filtros.idAsignadoA)  params.set('idAsignadoA', filtros.idAsignadoA)
+  if (filtros.tipo)         params.set('tipo', filtros.tipo)
+  if (filtros.prioridad)    params.set('prioridad', filtros.prioridad)
+  if (filtros.idLote)       params.set('idLote', filtros.idLote)
+  if (filtros.idZona)       params.set('idZona', filtros.idZona)
+  if (filtros.soloVencidas) params.set('soloVencidas', filtros.soloVencidas)
+  return api.get(`/admin/tareas?${params}`)
+}
+
+/**
+ * Crea una nueva tarea puntual desde el panel de administración (HU22).
+ *
+ * @param {Object} datos - Datos de la tarea a registrar
+ * @returns {Promise} Tarea creada
+ */
+export const crearTareaAdmin = (datos) => api.post('/admin/tareas', datos)
+
+/**
+ * Registra una regla de tarea recurrente y opcionalmente su primera instancia inmediata (HU23).
+ *
+ * @param {Object} datos - Datos de la tarea recurrente
+ * @returns {Promise} Tarea inicial creada
+ */
+export const crearTareaConRecurrencia = (datos) => api.post('/admin/tareas-recurrentes', datos)
+
+/**
+ * Reasigna una tarea existente a un operario diferente (HU30).
+ * Registra auditoría automática de la reasignación en el historial.
+ *
+ * @param {number|string} id - ID de la tarea
+ * @param {Object} datos - { nuevoIdAsignadoA, motivo }
+ * @returns {Promise} Tarea actualizada
+ */
+export const reasignarTareaAdmin = (id, datos) => api.patch(`/admin/tareas/${id}/reasignar`, datos)
+
+/**
+ * Obtiene el resumen consolidado de métricas operativas de vivero para HU29.
+ * Incluye KPIs de tareas activas, vencidas, completadas, desglose por estado y carga por operario.
+ *
+ * @param {string} [fechaInicio] - Fecha inicio formato YYYY-MM-DD
+ * @param {string} [fechaFin] - Fecha fin formato YYYY-MM-DD
+ * @returns {Promise} Métricas operativas
+ */
+export const getResumenTareas = (fechaInicio, fechaFin) => {
+  const params = new URLSearchParams()
+  if (fechaInicio) params.set('fechaInicio', fechaInicio)
+  if (fechaFin)    params.set('fechaFin', fechaFin)
+  return api.get(`/admin/tareas/resumen?${params}`)
+}
+
+/**
+ * Obtiene la lista simplificada de operarios activos (Rol TRABAJADOR = 2) disponibles para asignación.
+ *
+ * @returns {Promise} Lista de trabajadores { idUsuario, nombreCompleto, correo }
+ */
+export const getTrabajadoresActivos = () => api.get('/admin/tareas/trabajadores')
+
+/**
+ * Ejecuta manualmente el proceso de detección y notificación por correo de tareas vencidas (HU28).
+ *
+ * @returns {Promise} Resultado del proceso con total de alertas enviadas
+ */
+export const procesarAlertasVencidas = () => api.post('/admin/tareas/procesar-alertas-vencidas')
+
+// ════════════════════════════════════════════════════════════════════════════════════════
+// GESTIÓN DE TAREAS RECURRENTES (ADMIN - HU23)
+// ════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Lista las reglas de tareas recurrentes programadas en el vivero.
+ *
+ * @param {boolean} [soloActivas=false] - Si es true, solo trae reglas activas
+ * @returns {Promise} Lista de tareas recurrentes
+ */
+export const getTareasRecurrentes = (soloActivas = false) => {
+  const params = new URLSearchParams()
+  if (soloActivas) params.set('soloActivas', 'true')
+  return api.get(`/admin/tareas-recurrentes?${params}`)
+}
+
+/**
+ * Crea una nueva regla de tarea recurrente.
+ *
+ * @param {Object} datos - Parámetros de la recurrencia
+ * @returns {Promise} Regla creada
+ */
+export const crearTareaRecurrente = (datos) => api.post('/admin/tareas-recurrentes', datos)
+
+/**
+ * Actualiza la configuración de una regla de tarea recurrente existente.
+ *
+ * @param {number|string} id - ID de la tarea recurrente
+ * @param {Object} datos - Nuevos parámetros de la recurrencia
+ * @returns {Promise} Regla actualizada
+ */
+export const actualizarTareaRecurrente = (id, datos) => api.put(`/admin/tareas-recurrentes/${id}`, datos)
+
+/**
+ * Reactiva una regla de tarea recurrente que estaba pausada.
+ *
+ * @param {number|string} id - ID de la tarea recurrente
+ * @returns {Promise} Regla actualizada
+ */
+export const activarTareaRecurrente = (id) => api.patch(`/admin/tareas-recurrentes/${id}/activar`)
+
+/**
+ * Pausa una regla de tarea recurrente para que no genere más instancias automáticas.
+ *
+ * @param {number|string} id - ID de la tarea recurrente
+ * @returns {Promise} Regla actualizada
+ */
+export const pausarTareaRecurrente = (id) => api.patch(`/admin/tareas-recurrentes/${id}/pausar`)
+
+/**
+ * Dispara de forma manual la generación de instancias pendientes para hoy de todas las reglas activas.
+ *
+ * @returns {Promise} Resultado con cantidad de instancias generadas
+ */
+export const generarInstanciasRecurrentes = () => api.post('/admin/tareas-recurrentes/generar-pendientes')
+

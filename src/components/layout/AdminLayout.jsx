@@ -1,6 +1,6 @@
 import { NavLink, Outlet, Link } from 'react-router-dom'
 import Navbar from './Navbar'
-import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck, AlertTriangle, DatabaseBackup } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck, AlertTriangle, DatabaseBackup, Kanban, Activity } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 
 /**
@@ -17,10 +17,12 @@ export default function AdminLayout() {
   ]
 
   const VIVERO_LINKS = [
-    { to: '/admin/zonas',      icono: MapPin,        label: t('admin.zones') },
-    { to: '/admin/lotes',      icono: Sprout,        label: t('admin.batches') },
-    { to: '/admin/mermas',     icono: AlertTriangle, label: t('admin.waste') },
-    { to: '/admin/proveedores',icono: Truck,         label: t('admin.suppliers') },
+    { to: '/admin/tareas',      icono: Kanban,        label: t('admin.tasks') },
+    { to: '/admin/operaciones', icono: Activity,      label: t('admin.operationsDashboard') },
+    { to: '/admin/zonas',       icono: MapPin,        label: t('admin.zones') },
+    { to: '/admin/lotes',       icono: Sprout,        label: t('admin.batches') },
+    { to: '/admin/mermas',      icono: AlertTriangle, label: t('admin.waste') },
+    { to: '/admin/proveedores', icono: Truck,         label: t('admin.suppliers') },
   ]
 
   const SISTEMA_LINKS = [
