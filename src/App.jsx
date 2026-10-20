@@ -17,6 +17,7 @@ import AdminUsuarios  from './pages/AdminUsuarios'
 import AdminLotes     from './pages/AdminLotes'
 import AdminMermas    from './pages/AdminMermas'
 import AdminBackup    from './pages/AdminBackup'
+import AdminLogs      from './pages/AdminLogs'
 import AdminTareas    from './pages/AdminTareas'
 import AdminDashboardOperativo from './pages/AdminDashboardOperativo'
 
@@ -90,6 +91,7 @@ function App() {
                   <Route path="mermas" element={<AdminMermas />} />
                   <Route path="proveedores" element={<AdminProveedores />} />
                   <Route path="backup" element={<AdminBackup />} />
+                  <Route path="logs" element={<AdminLogs />} />
                 </Route>
 
                 <Route path="/trabajador" element={<TrabajadorRoute><TrabajadorLayout /></TrabajadorRoute>}>

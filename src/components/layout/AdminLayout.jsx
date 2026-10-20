@@ -1,6 +1,6 @@
 import { NavLink, Outlet, Link } from 'react-router-dom'
 import Navbar from './Navbar'
-import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck, AlertTriangle, DatabaseBackup, Kanban, Activity } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck, AlertTriangle, DatabaseBackup, Kanban, Activity, ScrollText } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 
 /**
@@ -25,8 +25,10 @@ export default function AdminLayout() {
     { to: '/admin/proveedores', icono: Truck,         label: t('admin.suppliers') },
   ]
 
+  // Sección de Sistema del panel lateral izquierdo (Copias de seguridad y Logs del Sistema)
   const SISTEMA_LINKS = [
     { to: '/admin/backup',     icono: DatabaseBackup, label: t('admin.backup') },
+    { to: '/admin/logs',       icono: ScrollText,     label: t('admin.systemLogs', 'Logs del Sistema') },
   ]
 
   return (

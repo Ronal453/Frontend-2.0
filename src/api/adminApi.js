@@ -280,3 +280,31 @@ export const pausarTareaRecurrente = (id) => api.patch(`/admin/tareas-recurrente
  */
 export const generarInstanciasRecurrentes = () => api.post('/admin/tareas-recurrentes/generar-pendientes')
 
+// ════════════════════════════════════════════════════════════════════════════════════════
+// MONITOR Y LOGS DEL SISTEMA (ADMIN)
+// ════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Consulta los registros de actividad, auditoría en base de datos y eventos internos del sistema.
+ * Permite filtrar por texto libre, módulo funcional, nivel de severidad, origen y límite de filas.
+ *
+ * @param {Object} [filtros={}] - Criterios opcionales de filtrado
+ * @returns {Promise} Respuesta HTTP con KPIs y listado cronológico de logs
+ */
+export const getLogsSistema = (filtros = {}) => {
+  const params = new URLSearchParams()
+  if (filtros.busqueda) params.set('busqueda', filtros.busqueda)
+  if (filtros.modulo)   params.set('modulo', filtros.modulo)
+  if (filtros.nivel)    params.set('nivel', filtros.nivel)
+  if (filtros.origen)   params.set('origen', filtros.origen)
+  params.set('limite', filtros.limite ?? 300)
+  return api.get(`/admin/logs?${params}`)
+}
+
+/**
+ * Limpia el buffer de eventos transitorios en memoria del servidor conservando intacta
+ * la auditoría histórica de la base de datos.
+ *
+ * @returns {Promise} Confirmación de limpieza
+ */
+export const limpiarLogsMemoria = () => api.delete('/admin/logs/memoria')
