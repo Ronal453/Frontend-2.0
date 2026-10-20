@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useParams, useLocation, Link } from 'react-router-dom'
 import { getDetallePedido } from '../api/pedidosApi'
 import { useLanguage } from '../context/LanguageContext'
@@ -10,23 +10,39 @@ import {
 const PASOS = ['PENDIENTE', 'EN_PREPARACION', 'ENVIADO', 'ENTREGADO']
 
 /**
- * Detailed order status and products view with internationalized strings.
+ * Vista detallada del pedido de un cliente con barra de progreso de estado,
+ * listado de productos comprados, dirección de entrega y resumen de pago.
+ *
+ * @component
+ * @returns {JSX.Element|null} Detalle completo del pedido
  */
 export default function DetallePedido() {
   const { id }    = useParams()
   const { state } = useLocation()
-  const { t }     = useLanguage()
+  const { t, language } = useLanguage()
 
   const [pedido,  setPedido]  = useState(null)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
 
+  /**
+   * Diccionario memoizado de nombres legibles de métodos de pago según el idioma activo.
+   */
+  const NOMBRES_METODO = useMemo(() => ({
+    TARJETA_CREDITO:        t('checkout.paymentCredit', 'Tarjeta de Crédito'),
+    TARJETA_DEBITO:         t('checkout.paymentDebit', 'Tarjeta de Débito'),
+    PSE:                    t('checkout.paymentPSE', 'PSE'),
+    TRANSFERENCIA_BANCARIA: t('checkout.paymentCashOnDelivery', 'Contra entrega'),
+    CONTRA_ENTREGA:         t('checkout.paymentCashOnDelivery', 'Contra entrega'),
+    EFECTIVO:               t('checkout.paymentCashOnDelivery', 'Contra entrega'),
+  }), [t])
+
   useEffect(() => {
     getDetallePedido(id)
       .then(r  => setPedido(r.data))
-      .catch(() => setError('No se pudo cargar el pedido'))
+      .catch(() => setError(t('orders.errorLoadDetail', 'No se pudo cargar el pedido')))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, t])
 
   if (loading) return (
     <div className="flex justify-center items-center py-32 min-h-[60vh]">
@@ -47,14 +63,17 @@ export default function DetallePedido() {
   const pasoActual = PASOS.indexOf(pedido.estado)
   const cancelado  = pedido.estado === 'CANCELADO'
 
+  /**
+   * Formatea la fecha de creación del pedido en zona horaria de Bogotá según el idioma activo.
+   */
   const formatearFechaColombia = (fechaStr) => {
-    if (!fechaStr) return 'Fecha no disponible'
+    if (!fechaStr) return '—'
     try {
       const fechaUTC = fechaStr.includes('Z') || fechaStr.includes('+')
         ? fechaStr
         : fechaStr + 'Z'
 
-      return new Date(fechaUTC).toLocaleString('es-CO', {
+      return new Date(fechaUTC).toLocaleString(language === 'en' ? 'en-US' : 'es-CO', {
         year:     'numeric',
         month:    'long',
         day:      'numeric',
@@ -68,11 +87,17 @@ export default function DetallePedido() {
     }
   }
 
+  /**
+   * Formatea valores monetarios en pesos colombianos.
+   */
   const formatearPrecio = (valor) => {
     if (valor == null) return '$0'
     return '$' + Number(valor).toLocaleString('es-CO')
   }
 
+  /**
+   * Traduce el código técnico del método de pago a su etiqueta legible.
+   */
   const obtenerNombreMetodo = (metodoPago) => {
     if (!metodoPago) return null
     const clave = metodoPago.toUpperCase().trim()
@@ -82,6 +107,9 @@ export default function DetallePedido() {
                      .replace(/\b\w/g, l => l.toUpperCase())
   }
 
+  /**
+   * Determina el estado del pago a partir de la respuesta del backend.
+   */
   const obtenerEstadoPago = () => {
     if (pedido.pago?.estadoPago) return pedido.pago.estadoPago
     const metodo = (pedido.pago?.metodoPago || '').toUpperCase()
@@ -233,7 +261,7 @@ export default function DetallePedido() {
               <h2 className="font-bold text-slate-900 dark:text-white text-lg">{t('checkout.stepAddress')}</h2>
             </div>
             <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50">
-              {pedido.direccionEnvio || 'No especificada'}
+              {pedido.direccionEnvio || t('admin.notSpecified', 'No especificada')}
             </p>
           </div>
 

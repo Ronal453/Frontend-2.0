@@ -10,6 +10,8 @@ import {
   MapPin, Loader2, ArrowDownRight, User, Calendar
 } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
+import DynamicText from '../../components/common/DynamicText'
+import { getCachedTranslation } from '../../services/translatorService'
 
 /**
  * Vista operativa para el registro de pérdidas biológicas y mermas en los lotes de vivero.
@@ -19,7 +21,7 @@ import { useLanguage } from '../../context/LanguageContext'
  * @returns {JSX.Element} Panel de control y registro de mermas
  */
 export default function TrabajadorMermas() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [lotes, setLotes] = useState([])
   const [causas, setCausas] = useState([])
   const [mermas, setMermas] = useState([])
@@ -177,14 +179,14 @@ export default function TrabajadorMermas() {
                     .filter(l => l.estadoLote !== 'DESCARTADO' && l.cantidadActual > 0)
                     .map(l => (
                       <option key={l.idLote} value={l.idLote}>
-                        {l.codigoLote} — {t('plantSpecies.' + l.especie, l.especie)} ({l.cantidadActual} {t('common.unit')})
+                        {l.codigoLote} — {getCachedTranslation(l.especie, language) || t('plantSpecies.' + l.especie, l.especie)} ({l.cantidadActual} {t('common.unit')})
                       </option>
                     ))}
                 </select>
 
                 {loteSeleccionado && (
                   <div className="mt-3 p-3 bg-amber-50/50 dark:bg-amber-900/10 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 border border-amber-100/50 dark:border-amber-800/30 space-y-2 animate-fade-in">
-                    <p className="flex items-center gap-1.5"><MapPin size={14} className="text-amber-500" /> <span className="font-bold text-slate-700 dark:text-slate-300">{t('worker.zone')}:</span> {loteSeleccionado.nombreZona || t('worker.unassigned')}</p>
+                    <p className="flex items-center gap-1.5"><MapPin size={14} className="text-amber-500" /> <span className="font-bold text-slate-700 dark:text-slate-300">{t('worker.zone')}:</span> {t('zone.name.' + (loteSeleccionado.nombreZona || '').trim(), loteSeleccionado.nombreZona || t('worker.unassigned'))}</p>
                     <p className="flex items-center gap-1.5"><Sprout size={14} className="text-teal-500" /> <span className="font-bold text-slate-700 dark:text-slate-300">{t('common.status')}:</span> {t(`lotPhase.${loteSeleccionado.estadoLote}`) !== `lotPhase.${loteSeleccionado.estadoLote}` ? t(`lotPhase.${loteSeleccionado.estadoLote}`) : loteSeleccionado.estadoLote}</p>
                     <p className="flex items-center gap-1.5"><ClipboardList size={14} className="text-blue-500" /> <span className="font-bold text-slate-700 dark:text-slate-300">{t('lots.currentQty')}:</span> {loteSeleccionado.cantidadActual} {t('common.units')}</p>
                   </div>
@@ -318,10 +320,12 @@ export default function TrabajadorMermas() {
                             {m.codigoLote || `Lote #${m.idLote}`}
                           </div>
                           {m.especieLote && (
-                            <div className="text-[11px] font-bold text-teal-600 dark:text-teal-400 mt-0.5">
-                              {/* Traduce la especie botánica asociada */}
-                              {t('plantSpecies.' + m.especieLote, m.especieLote)}
-                            </div>
+                            <DynamicText 
+                              text={m.especieLote} 
+                              prefix="plantSpecies" 
+                              as="div" 
+                              className="text-[11px] font-bold text-teal-600 dark:text-teal-400 mt-0.5" 
+                            />
                           )}
                         </td>
                         <td className="px-5 py-4">
@@ -330,13 +334,14 @@ export default function TrabajadorMermas() {
                             {t('wasteCause.' + m.nombreCausa, m.nombreCausa)}
                           </span>
                           {m.observaciones && (
-                            <p 
-                              className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 italic max-w-[200px] truncate" 
-                              title={t('wasteObservation.' + (m.observaciones || '').trim(), m.observaciones)}
-                            >
-                              {/* Traduce el texto explicativo de la merma o detalle capturado */}
-                              "{t('wasteObservation.' + (m.observaciones || '').trim(), m.observaciones)}"
-                            </p>
+                            <DynamicText 
+                              text={m.observaciones}
+                              prefix="wasteObservation"
+                              showQuotes
+                              title
+                              as="p"
+                              className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 italic max-w-[200px] truncate"
+                            />
                           )}
                         </td>
                         <td className="px-5 py-4 text-center">

@@ -938,6 +938,9 @@ export const es = {
   'wasteObservation.fue pisada la planta': 'fue pisada la planta',
   'wasteObservation.Planta pisada': 'Planta pisada',
   'wasteObservation.planta pisada': 'planta pisada',
+  'wasteObservation.Mucha Agua': 'Mucha Agua',
+  'wasteObservation.mucha agua': 'mucha agua',
+  'wasteObservation.Mucha agua': 'Mucha agua',
 
   // Observaciones de Historial de Lotes (Lot Status History Observations)
   'lotObservation.Descartado automaticamente: la merma redujo la cantidad a 0.': 'Descartado automáticamente: la merma redujo la cantidad a 0.',
@@ -947,6 +950,9 @@ export const es = {
   'lotObservation.Lote vinculado a catalogo y movido a tienda': 'Lote vinculado a catálogo y movido a tienda',
   'lotObservation.Lote vinculado a catálogo y movido a tienda': 'Lote vinculado a catálogo y movido a tienda',
   'lotObservation.Lote vinculado a catlogo y movido a tienda': 'Lote vinculado a catálogo y movido a tienda',
+  'lotObservation.Ya esta grande': 'Ya esta grande',
+  'lotObservation.ya esta grande': 'ya esta grande',
+  'lotObservation.Ya está grande': 'Ya está grande',
 
   // Nombres de Operadores Comunes (Operator Display Names)
   'operatorName.Trabajador Vivero': 'Trabajador Vivero',
@@ -964,6 +970,10 @@ export const es = {
   'plantSpecies.Suculenta': 'Suculenta',
   'plantSpecies.Bonsái': 'Bonsái',
   'plantSpecies.Bonsi': 'Bonsái',
+  'plantSpecies.Ficus Lyrata': 'Ficus Lyrata',
+  'plantSpecies.ficus lyrata': 'Ficus Lyrata',
+  'plantSpecies.Orquidea Phalaenopsis': 'Orquídea Phalaenopsis',
+  'plantSpecies.Orquídea Phalaenopsis': 'Orquídea Phalaenopsis',
 
   // Tipos de Tarea (Task Types)
   'taskType.RIEGO': 'Riego',

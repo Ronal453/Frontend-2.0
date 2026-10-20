@@ -5,6 +5,7 @@ import {
   Search, X, ExternalLink, Sun, Cloud, Thermometer, Layers, Loader2 
 } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
+import DynamicText from '../../components/common/DynamicText'
 
 const ESTADO_BADGES = {
   GERMINANDO: 'bg-transparent border-amber-300 dark:border-amber-700/50 text-amber-600 dark:text-amber-400',
@@ -148,7 +149,7 @@ export default function TrabajadorZonas() {
                 <div className="flex flex-wrap gap-2 mt-2">
                   {zonasCriticas90.map(z => (
                     <span key={z.idZona} className="inline-flex items-center gap-1.5 font-bold bg-white/60 dark:bg-slate-900/40 border border-red-200 dark:border-red-800 px-3 py-1 rounded-lg text-xs text-red-800 dark:text-red-300">
-                      {z.nombre} <span className="text-red-500 dark:text-red-400">({z.porcentajeOcupacion}%)</span>
+                      <DynamicText text={z.nombre} prefix="zone.name" /> <span className="text-red-500 dark:text-red-400">({z.porcentajeOcupacion}%)</span>
                     </span>
                   ))}
                 </div>
@@ -279,7 +280,7 @@ export default function TrabajadorZonas() {
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg leading-tight group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                          {zona.nombre}
+                          <DynamicText text={zona.nombre} prefix="zone.name" />
                         </h3>
                         <p className="text-xs font-bold text-slate-400 mt-0.5 font-mono">ID: #{zona.idZona}</p>
                       </div>
@@ -365,7 +366,7 @@ export default function TrabajadorZonas() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-                    {modalDetalle.zona?.nombre}
+                    <DynamicText text={modalDetalle.zona?.nombre} prefix="zone.name" />
                   </h3>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
                     <span>{t('zones.filterCondition')}: <strong className="text-slate-700 dark:text-slate-300">{modalDetalle.zona?.tipoCondicion}</strong></span>

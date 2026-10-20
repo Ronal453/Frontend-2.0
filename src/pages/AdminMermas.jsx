@@ -3,6 +3,7 @@ import { getMermasRecientes } from '../api/trabajadorApi'
 import { Bug, ClipboardList, Loader2, ArrowDownRight, User, Calendar, Filter, BarChart3 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
 import { useLanguage } from '../context/LanguageContext'
+import DynamicText from '../components/common/DynamicText'
 
 /**
  * Componente administrativo para análisis de mermas y descarte biológico.
@@ -224,10 +225,12 @@ export default function AdminMermas() {
                           {m.codigoLote || `Lote #${m.idLote}`}
                         </div>
                         {m.especieLote && (
-                          <div className="text-[11px] font-bold text-teal-600 dark:text-teal-400 mt-0.5">
-                            {/* Traduce la especie botánica del lote */}
-                            {t('plantSpecies.' + m.especieLote, m.especieLote)}
-                          </div>
+                          <DynamicText 
+                            text={m.especieLote} 
+                            prefix="plantSpecies" 
+                            as="div" 
+                            className="text-[11px] font-bold text-teal-600 dark:text-teal-400 mt-0.5" 
+                          />
                         )}
                       </td>
                       <td className="px-5 py-4">
@@ -236,13 +239,14 @@ export default function AdminMermas() {
                           {t('wasteCause.' + m.nombreCausa, m.nombreCausa)}
                         </span>
                         {m.observaciones && (
-                          <p 
-                            className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 italic max-w-[300px] truncate" 
-                            title={t('wasteObservation.' + (m.observaciones || '').trim(), m.observaciones)}
-                          >
-                            {/* Traduce las observaciones detalladas de la pérdida */}
-                            "{t('wasteObservation.' + (m.observaciones || '').trim(), m.observaciones)}"
-                          </p>
+                          <DynamicText 
+                            text={m.observaciones}
+                            prefix="wasteObservation"
+                            showQuotes
+                            title
+                            as="p"
+                            className="mt-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 italic max-w-[300px] truncate"
+                          />
                         )}
                       </td>
                       <td className="px-5 py-4 text-center">

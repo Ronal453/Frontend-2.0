@@ -4,7 +4,6 @@ import Login         from './pages/Login'
 import Register      from './pages/Register'
 import Catalog       from './pages/Catalog'
 import ProductDetail from './pages/ProductDetail'
-import Cart          from './pages/Cart'
 import Checkout      from './pages/Checkout'
 import MisPedidos    from './pages/MisPedidos'
 import DetallePedido from './pages/DetallePedido'
@@ -30,7 +29,6 @@ import TrabajadorZonas   from './pages/trabajador/TrabajadorZonas'
 import AdminZonas        from './pages/AdminZonas'
 import AdminProveedores  from './pages/AdminProveedores'
 
-import Navbar      from './components/layout/Navbar'
 import Footer      from './components/layout/Footer'
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute   from './components/AdminRoute'
@@ -45,6 +43,14 @@ import { LayoutProvider } from './context/LayoutContext'
 import { LanguageProvider } from './context/LanguageContext'
 import PublicLayout from './components/layout/PublicLayout'
 
+/**
+ * Componente raíz de la aplicación Plantopolis.
+ * Configura los proveedores globales de contexto (tema, idioma, autenticación, carrito y layout)
+ * y define el árbol de rutas públicas, administrativas y operativas.
+ *
+ * @component
+ * @returns {JSX.Element} Aplicación principal renderizada
+ */
 function App() {
   return (
     <ThemeProvider>

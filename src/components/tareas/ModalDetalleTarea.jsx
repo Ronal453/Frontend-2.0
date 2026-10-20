@@ -24,6 +24,7 @@ import {
   agregarComentarioTarea
 } from '../../api/trabajadorApi'
 import { useLanguage } from '../../context/LanguageContext'
+import DynamicText from '../common/DynamicText'
 
 /**
  * Modal detallado de tarea para visualización técnica, envío de comentarios y auditoría unificada (HU27) con soporte multi-idioma.
@@ -129,7 +130,7 @@ export default function ModalDetalleTarea({
             </div>
 
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-              {tituloTraducido}
+              <DynamicText text={tituloDetalle} prefix="taskTitle" />
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
               {t('taskDetail.taskHeader', {
@@ -151,14 +152,17 @@ export default function ModalDetalleTarea({
         <div className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
           
           {/* Instrucciones / Observaciones operativas si existen */}
-          {descTraducida && (
+          {descDetalle && (
             <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
               <h5 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                 {t('taskDetail.instructionsTitle', 'Instrucciones u Observaciones')}
               </h5>
-              <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
-                {descTraducida}
-              </p>
+              <DynamicText 
+                text={descDetalle} 
+                prefix="taskDesc" 
+                as="p" 
+                className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed" 
+              />
             </div>
           )}
 

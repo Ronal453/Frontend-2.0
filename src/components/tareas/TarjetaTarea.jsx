@@ -20,6 +20,7 @@ import {
   extraerTituloYDescripcion
 } from './tareasConstantes'
 import { useLanguage } from '../../context/LanguageContext'
+import DynamicText from '../common/DynamicText'
 
 /**
  * Componente de tarjeta de tarea individual para el tablero Kanban con soporte de internacionalización.
@@ -128,15 +129,18 @@ export default function TarjetaTarea({
           </div>
         )}
         <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-snug">
-          {tituloTraducido}
+          <DynamicText text={tituloMostrado} prefix="taskTitle" />
         </h4>
       </div>
 
       {/* Descripción / Instrucciones cortas opcionales */}
-      {descTraducida && (
-        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mb-3 leading-relaxed">
-          {descTraducida}
-        </p>
+      {descMostrada && (
+        <DynamicText 
+          text={descMostrada} 
+          prefix="taskDesc" 
+          as="p" 
+          className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mb-3 leading-relaxed" 
+        />
       )}
 
       {/* Metadatos: Ubicación (Lote o Zona), Operario y Fecha Límite */}

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import Input from '../components/ui/Input'
 import { useLanguage } from '../context/LanguageContext'
+import DynamicText from '../components/common/DynamicText'
 
 /**
  * Componente administrativo para gestión global de lotes botánicos.
@@ -264,12 +265,17 @@ export default function AdminLotes() {
                     <tr key={l.idLote} className="group hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors duration-200">
                       <td className="px-6 py-4">
                         <p className="font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight">{l.codigoLote || 'N/A'}</p>
-                        <p className="text-xs font-bold text-teal-600 dark:text-teal-400 mt-1">{l.especie}</p>
+                        <DynamicText 
+                          text={l.especie} 
+                          prefix="plantSpecies" 
+                          as="p" 
+                          className="text-xs font-bold text-teal-600 dark:text-teal-400 mt-1" 
+                        />
                       </td>
                       <td className="px-6 py-4">
                         <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                           <MapPin size={14} className="text-slate-400" />
-                          {l.nombreZona}
+                          {t('zone.name.' + (l.nombreZona || '').trim(), l.nombreZona || t('admin.notSpecified', 'No especificada'))}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -474,7 +480,7 @@ export default function AdminLotes() {
               <div className="mb-5 bg-teal-50 dark:bg-teal-900/20 p-4 rounded-xl border border-teal-100 dark:border-teal-800/50">
                 <span className="font-black text-[10px] uppercase tracking-widest text-teal-600 dark:text-teal-400 block mb-1">{t('admin.batchToLink')}</span>
                 <p className="font-bold text-slate-800 dark:text-slate-100">
-                  {modalVinculacion.lote.codigoLote} - {modalVinculacion.lote.especie}
+                  {modalVinculacion.lote.codigoLote} - <DynamicText text={modalVinculacion.lote.especie} prefix="plantSpecies" />
                 </p>
                 <div className="mt-2 flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-400 bg-white/60 dark:bg-slate-800/50 py-1 px-2.5 rounded-lg border border-teal-200/50 w-fit">
                   <Sprout size={14} /> {t('admin.readyStock', { count: modalVinculacion.lote.cantidadActual })}

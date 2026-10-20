@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { getLogsSistema, limpiarLogsMemoria } from '../api/adminApi'
 import { useLanguage } from '../context/LanguageContext'
+import { getCachedTranslation } from '../services/translatorService'
 import FlashMessage from '../components/ui/FlashMessage'
 import Pagination from '../components/ui/Pagination'
 import {
@@ -299,7 +300,8 @@ export default function AdminLogs() {
     if (mComentario) {
       const [, id, texto] = mComentario
       if (esEn) {
-        return `A note was added to task #${id}: "${texto}"`
+        const textoTrad = getCachedTranslation(texto, 'en') || t('taskComment.' + texto.trim(), texto)
+        return `A note was added to task #${id}: "${textoTrad}"`
       }
       return descripcion
     }
@@ -309,7 +311,13 @@ export default function AdminLogs() {
     if (mLoteFase) {
       const [, id, ant, nvo, obs = ''] = mLoteFase
       if (esEn) {
-        return `Crop batch #${id} transitioned from "${traducirTextoEstado(ant)}" to "${traducirTextoEstado(nvo)}"${obs}.`
+        let obsTrad = obs
+        if (obs && obs.includes('(')) {
+          const rawObs = obs.replace(/[()]/g, '').trim()
+          const cachedObs = getCachedTranslation(rawObs, 'en') || t('lotObservation.' + rawObs, rawObs)
+          obsTrad = ` (${cachedObs})`
+        }
+        return `Crop batch #${id} transitioned from "${traducirTextoEstado(ant)}" to "${traducirTextoEstado(nvo)}"${obsTrad}.`
       }
       return `El lote #${id} pasó de «${traducirTextoEstado(ant)}» a «${traducirTextoEstado(nvo)}»${obs}.`
     }

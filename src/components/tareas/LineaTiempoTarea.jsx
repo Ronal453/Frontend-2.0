@@ -9,6 +9,7 @@ import {
   Calendar
 } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
+import DynamicText from '../common/DynamicText'
 
 /**
  * Componente de línea de tiempo unificada para la auditoría de una tarea (HU27) con soporte multi-idioma.
@@ -111,15 +112,22 @@ export default function LineaTiempoTarea({ comentarios = [], historial = [] }) {
                   </span>
                 </p>
                 {evento.comentario && (
-                  <p className="mt-1.5 p-2 bg-white dark:bg-slate-900 rounded-lg text-slate-700 dark:text-slate-300 italic border border-slate-100 dark:border-slate-800">
-                    "{t('taskComment.' + (evento.comentario || '').trim(), evento.comentario)}"
-                  </p>
+                  <DynamicText 
+                    text={evento.comentario} 
+                    prefix="taskComment" 
+                    showQuotes 
+                    as="p" 
+                    className="mt-1.5 p-2 bg-white dark:bg-slate-900 rounded-lg text-slate-700 dark:text-slate-300 italic border border-slate-100 dark:border-slate-800" 
+                  />
                 )}
               </div>
             ) : (
-              <p className="text-slate-700 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">
-                {t('taskComment.' + (evento.comentario || '').trim(), evento.comentario)}
-              </p>
+              <DynamicText 
+                text={evento.comentario} 
+                prefix="taskComment" 
+                as="p" 
+                className="text-slate-700 dark:text-slate-200 whitespace-pre-wrap leading-relaxed" 
+              />
             )}
           </div>
         </div>

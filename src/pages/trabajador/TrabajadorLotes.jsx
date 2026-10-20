@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import Input from '../../components/ui/Input'
 import { useLanguage } from '../../context/LanguageContext'
+import DynamicText from '../../components/common/DynamicText'
 
 const ESTADOS_LOTE_KEYS = [
   { id: '', labelKey: 'lots.allPhases' },
@@ -288,13 +289,18 @@ export default function TrabajadorLotes() {
                     <tr key={lote.idLote} className="group hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors duration-200">
                       <td className="px-6 py-4">
                         <div className="font-bold text-slate-800 dark:text-slate-100 font-mono text-sm tracking-tight">{lote.codigoLote}</div>
-                        <div className="text-xs font-bold text-teal-600 dark:text-teal-400 mt-1">{lote.especie}</div>
+                        <DynamicText 
+                          text={lote.especie} 
+                          prefix="plantSpecies" 
+                          as="div" 
+                          className="text-xs font-bold text-teal-600 dark:text-teal-400 mt-1" 
+                        />
                       </td>
 
                       <td className="px-6 py-4">
                         <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                           <MapPin size={14} className="text-slate-400" />
-                          {lote.nombreZona || t('worker.unassigned')}
+                          {t('zone.name.' + (lote.nombreZona || '').trim(), lote.nombreZona || t('worker.unassigned'))}
                         </span>
                       </td>
 
@@ -406,7 +412,7 @@ export default function TrabajadorLotes() {
               <div className="mb-5 bg-teal-50 dark:bg-teal-900/20 p-4 rounded-xl border border-teal-100 dark:border-teal-800/50">
                 <span className="font-black text-[10px] uppercase tracking-widest text-teal-600 dark:text-teal-400 block mb-1">{t('lots.movingBatch')}</span>
                 <p className="font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight text-sm">
-                  {modalEstado.lote?.codigoLote} <span className="font-medium font-sans ml-1">({modalEstado.lote?.especie})</span>
+                  {modalEstado.lote?.codigoLote} <span className="font-medium font-sans ml-1">(<DynamicText text={modalEstado.lote?.especie} prefix="plantSpecies" />)</span>
                 </p>
                 <div className="mt-2 flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-400">
                   {t('common.status')}: <span className="bg-white/60 dark:bg-slate-800/50 py-1 px-2 rounded-lg border border-teal-200/50">{t(`lotPhase.${modalEstado.lote?.estadoLote}`) !== `lotPhase.${modalEstado.lote?.estadoLote}` ? t(`lotPhase.${modalEstado.lote?.estadoLote}`) : modalEstado.lote?.estadoLote}</span>
@@ -472,7 +478,7 @@ export default function TrabajadorLotes() {
               <div className="mb-5 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-100 dark:border-amber-800/50">
                 <span className="font-black text-[10px] uppercase tracking-widest text-amber-600 dark:text-amber-400 block mb-1">{t('waste.selectBatch')}</span>
                 <p className="font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight text-sm">
-                  {modalMerma.lote?.codigoLote} <span className="font-medium font-sans ml-1">({modalMerma.lote?.especie})</span>
+                  {modalMerma.lote?.codigoLote} <span className="font-medium font-sans ml-1">(<DynamicText text={modalMerma.lote?.especie} prefix="plantSpecies" />)</span>
                 </p>
                 <div className="mt-2 flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-400 bg-white/60 dark:bg-slate-800/50 py-1 px-2.5 rounded-lg border border-amber-200/50 w-fit">
                   <Sprout size={14} /> {t('waste.currentStock')} {modalMerma.lote?.cantidadActual} {t('common.unit')}
@@ -551,7 +557,7 @@ export default function TrabajadorLotes() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{t('lots.historyTitle')}</h2>
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{modalHistorial.lote?.codigoLote} - {modalHistorial.lote?.especie}</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{modalHistorial.lote?.codigoLote} - <DynamicText text={modalHistorial.lote?.especie} prefix="plantSpecies" /></p>
                 </div>
               </div>
               <button onClick={() => setModalHistorial(prev => ({ ...prev, abierto: false }))} className="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-full p-2 transition-colors">
@@ -588,10 +594,13 @@ export default function TrabajadorLotes() {
                         {/* Traduce el operador responsable o sistema */}
                         <p className="text-xs font-bold text-slate-500 dark:text-slate-400">{t('worker.operator')}: <span className="text-slate-700 dark:text-slate-300">{t('operatorName.' + (h.nombreUsuario || ''), h.nombreUsuario || 'Sistema')}</span></p>
                         {h.observaciones && (
-                          <div className="mt-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/50 italic">
-                            {/* Traduce las notas de auditoría u observaciones del lote */}
-                            "{t('lotObservation.' + (h.observaciones || '').trim(), h.observaciones)}"
-                          </div>
+                          <DynamicText 
+                            text={h.observaciones}
+                            prefix="lotObservation"
+                            showQuotes
+                            as="div"
+                            className="mt-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/50 italic"
+                          />
                         )}
                       </div>
                     </div>

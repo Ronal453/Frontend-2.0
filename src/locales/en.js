@@ -938,6 +938,9 @@ export const en = {
   'wasteObservation.fue pisada la planta': 'the plant was stepped on',
   'wasteObservation.Planta pisada': 'Plant was stepped on',
   'wasteObservation.planta pisada': 'plant was stepped on',
+  'wasteObservation.Mucha Agua': 'Excessive Water',
+  'wasteObservation.mucha agua': 'excessive water',
+  'wasteObservation.Mucha agua': 'Excessive water',
 
   // Observaciones de Historial de Lotes (Lot Status History Observations)
   'lotObservation.Descartado automaticamente: la merma redujo la cantidad a 0.': 'Automatically discarded: waste reduced quantity to 0.',
@@ -947,6 +950,9 @@ export const en = {
   'lotObservation.Lote vinculado a catalogo y movido a tienda': 'Batch linked to catalog and moved to store',
   'lotObservation.Lote vinculado a catálogo y movido a tienda': 'Batch linked to catalog and moved to store',
   'lotObservation.Lote vinculado a catlogo y movido a tienda': 'Batch linked to catalog and moved to store',
+  'lotObservation.Ya esta grande': 'Already grown',
+  'lotObservation.ya esta grande': 'already grown',
+  'lotObservation.Ya está grande': 'Already grown',
 
   // Nombres de Operadores Comunes (Operator Display Names)
   'operatorName.Trabajador Vivero': 'Nursery Worker',
@@ -964,6 +970,10 @@ export const en = {
   'plantSpecies.Suculenta': 'Succulent',
   'plantSpecies.Bonsái': 'Bonsai',
   'plantSpecies.Bonsi': 'Bonsai',
+  'plantSpecies.Ficus Lyrata': 'Ficus Lyrata',
+  'plantSpecies.ficus lyrata': 'Ficus Lyrata',
+  'plantSpecies.Orquidea Phalaenopsis': 'Phalaenopsis Orchid',
+  'plantSpecies.Orquídea Phalaenopsis': 'Phalaenopsis Orchid',
 
   // Tipos de Tarea (Task Types)
   'taskType.RIEGO': 'Watering',

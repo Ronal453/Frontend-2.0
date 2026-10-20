@@ -15,6 +15,7 @@ import {
   XCircle, Cloud, Sun, Edit, Play, Square, Loader2, X, ExternalLink, Box, MapPin 
 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
+import DynamicText from '../components/common/DynamicText'
 
 /**
  * Componente administrativo para administración de infraestructura de cultivo.
@@ -260,7 +261,7 @@ export default function AdminZonas() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   {zonasCriticas90.map(z => (
                     <span key={z.idZona} className="inline-flex items-center gap-1.5 bg-white/60 dark:bg-slate-900/50 border border-red-200 dark:border-red-800/50 px-3 py-1 rounded-lg text-xs font-bold text-red-700 dark:text-red-400 shadow-sm">
-                      <Map size={12} /> {z.nombre} ({z.porcentajeOcupacion}%)
+                      <Map size={12} /> <DynamicText text={z.nombre} prefix="zone.name" /> ({z.porcentajeOcupacion}%)
                     </span>
                   ))}
                 </div>
@@ -361,7 +362,12 @@ export default function AdminZonas() {
                                 {isAlert && zona.activo ? <AlertTriangle size={18} /> : <Map size={18} />}
                               </div>
                               <div>
-                                <p className="font-bold text-slate-800 dark:text-slate-100">{zona.nombre}</p>
+                                <DynamicText 
+                                  text={zona.nombre} 
+                                  prefix="zone.name" 
+                                  as="p" 
+                                  className="font-bold text-slate-800 dark:text-slate-100" 
+                                />
                                 <p className="text-xs font-medium text-slate-500 mt-0.5">ID: {zona.idZona}</p>
                               </div>
                             </div>
@@ -436,7 +442,12 @@ export default function AdminZonas() {
                         {isAlert && zona.activo ? <AlertTriangle size={24} /> : <Map size={24} />}
                       </div>
                       <div>
-                        <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">{zona.nombre}</h3>
+                        <DynamicText 
+                          text={zona.nombre} 
+                          prefix="zone.name" 
+                          as="h3" 
+                          className="font-bold text-lg text-slate-800 dark:text-slate-100" 
+                        />
                         <p className="text-xs font-medium text-slate-500 flex items-center gap-1">
                           {t('zoneCondition.' + zona.tipoCondicion, zona.tipoCondicion)} • {t('zoneExposure.' + zona.exposicionSolar, zona.exposicionSolar)}
                         </p>
@@ -501,7 +512,7 @@ export default function AdminZonas() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-                    {modalDetalle.zona?.nombre}
+                    <DynamicText text={modalDetalle.zona?.nombre} prefix="zone.name" />
                   </h3>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
                     <span>{t('admin.zoneConditionLabel')} <strong className="text-slate-700 dark:text-slate-300">{t('zoneCondition.' + modalDetalle.zona?.tipoCondicion, modalDetalle.zona?.tipoCondicion)}</strong></span>

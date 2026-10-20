@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { X, User, MapPin, CreditCard, Package, Clock, Truck, CheckCircle, XCircle, AlertTriangle, Image as ImageIcon } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 
@@ -33,12 +33,17 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
   const { t } = useLanguage()
   const config = ESTADOS_CONFIG[pedido.estado] ?? ESTADOS_CONFIG.PENDIENTE
 
-  const nombresMetodo = {
-    'TARJETA_CREDITO': t('checkout.method_credit_card') || 'Tarjeta de Crédito',
-    'TRANSFERENCIA_BANCARIA': t('checkout.method_bank_transfer') || 'Transferencia',
-    'CONTRA_ENTREGA': t('checkout.method_cod') || 'Pago Contra Entrega',
-    'PAYPAL': 'PayPal',
-  }
+  /**
+   * Mapeo memoizado de códigos de método de pago a etiquetas traducidas.
+   */
+  const nombresMetodo = useMemo(() => ({
+    TARJETA_CREDITO:        t('checkout.paymentCredit', 'Tarjeta de Crédito'),
+    TARJETA_DEBITO:         t('checkout.paymentDebit', 'Tarjeta de Débito'),
+    PSE:                    t('checkout.paymentPSE', 'PSE'),
+    TRANSFERENCIA_BANCARIA: t('checkout.paymentCashOnDelivery', 'Contra entrega'),
+    CONTRA_ENTREGA:         t('checkout.paymentCashOnDelivery', 'Contra entrega'),
+    PAYPAL:                 'PayPal',
+  }), [t])
 
   const nombreMetodo = pedido.pago?.metodoPago
     ? (nombresMetodo[pedido.pago.metodoPago?.toUpperCase()]
@@ -120,7 +125,7 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight truncate">
-                      {d.nombreProducto}
+                      {t('product.name.' + d.nombreProducto, d.nombreProducto)}
                     </p>
                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
                       {d.cantidad} x <span className="text-slate-400">{fmtPrecio(d.precioUnitario)}</span>
