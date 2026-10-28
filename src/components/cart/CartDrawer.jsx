@@ -4,6 +4,7 @@ import { getCarrito, actualizarCantidad, eliminarItem, vaciarCarrito } from '../
 import { useCart } from '../../context/CartContext'
 import { useLanguage } from '../../context/LanguageContext'
 import { X, ShoppingBag, Trash2, ArrowRight, Minus, Plus, CreditCard, Leaf } from 'lucide-react'
+import { getImagenProducto } from '../../utils/imageUtils'
 
 /**
  * Slide-over shopping cart drawer with internationalized text and item management.
@@ -143,7 +144,7 @@ export default function CartDrawer() {
                 <div key={item.idItem} className="flex gap-4 p-4 bg-white/60 dark:bg-slate-800/40 rounded-2xl border border-white/80 dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow group">
                   <div className="w-20 h-24 bg-gradient-to-br from-green-50 to-teal-50 dark:from-slate-800 dark:to-slate-700 rounded-xl overflow-hidden flex-shrink-0 border border-white dark:border-slate-600">
                     {item.imagenUrl ? (
-                      <img src={item.imagenUrl} alt={item.nombreProducto} className="w-full h-full object-cover" />
+                      <img src={getImagenProducto(item.imagenUrl, item.categoria)} alt={item.nombreProducto} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center"><Leaf className="text-green-300" size={24} /></div>
                     )}

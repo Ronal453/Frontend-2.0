@@ -1,35 +1,50 @@
+import { useMemo } from 'react'
 import { NavLink, Outlet, Link } from 'react-router-dom'
 import Navbar from './Navbar'
 import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck, AlertTriangle, DatabaseBackup, Kanban, Activity, ScrollText } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 
 /**
- * Admin dashboard layout with translated sidebar navigation and header navbar.
+ * Componente de diseño para el panel administrativo (AdminLayout).
+ * Renderiza la barra lateral izquierda con navegación organizada por módulos temáticos
+ * (E-Commerce, Operaciones de Vivero y Sistema), garantizando reactividad a los cambios de idioma.
+ *
+ * @returns {JSX.Element} Estructura visual del panel de administración con barra lateral y contenedor principal.
  */
 export default function AdminLayout() {
   const { t } = useLanguage()
 
-  const ECOM_LINKS = [
+  /**
+   * Enlaces del módulo comercial (E-Commerce).
+   * Memoizado para evitar recreaciones innecesarias salvo cuando cambie la función de traducción `t`.
+   */
+  const ECOM_LINKS = useMemo(() => [
     { to: '/admin/dashboard', icono: LayoutDashboard, label: t('admin.dashboard') },
     { to: '/admin/productos', icono: Package,         label: t('admin.inventory') },
     { to: '/admin/pedidos',   icono: ShoppingBag,     label: t('admin.orders') },
-    { to: '/admin/usuarios',  icono: Users,           label: t('admin.users') },
-  ]
+  ], [t])
 
-  const VIVERO_LINKS = [
+  /**
+   * Enlaces del módulo operativo y botánico de invernadero / vivero.
+   */
+  const VIVERO_LINKS = useMemo(() => [
     { to: '/admin/tareas',      icono: Kanban,        label: t('admin.tasks') },
     { to: '/admin/operaciones', icono: Activity,      label: t('admin.operationsDashboard') },
     { to: '/admin/zonas',       icono: MapPin,        label: t('admin.zones') },
     { to: '/admin/lotes',       icono: Sprout,        label: t('admin.batches') },
     { to: '/admin/mermas',      icono: AlertTriangle, label: t('admin.waste') },
     { to: '/admin/proveedores', icono: Truck,         label: t('admin.suppliers') },
-  ]
+  ], [t])
 
-  // Sección de Sistema del panel lateral izquierdo (Copias de seguridad y Logs del Sistema)
-  const SISTEMA_LINKS = [
+  /**
+   * Enlaces del módulo de Sistema y Administración técnica.
+   * Incluye la gestión de Usuarios y Roles, Copias de Seguridad y Logs de auditoría del sistema.
+   */
+  const SISTEMA_LINKS = useMemo(() => [
+    { to: '/admin/usuarios',  icono: Users,           label: t('admin.users') },
     { to: '/admin/backup',     icono: DatabaseBackup, label: t('admin.backup') },
     { to: '/admin/logs',       icono: ScrollText,     label: t('admin.systemLogs', 'Logs del Sistema') },
-  ]
+  ], [t])
 
   return (
     <div className="flex h-screen p-4 gap-4 overflow-hidden bg-slate-50 dark:bg-[#060A11]">

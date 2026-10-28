@@ -11,7 +11,8 @@ import { useLanguage } from '../context/LanguageContext'
 import Button from '../components/ui/Button'
 
 // Iconos lucide-react
-import { Sun, Droplets, Ruler, Package, Leaf, ChevronLeft, ShoppingCart, Info } from 'lucide-react'
+import { Sun, Droplets, Ruler, Package, Leaf, ChevronLeft, ShoppingCart, Info, Sparkles } from 'lucide-react'
+import { getCategoryVisual } from '../utils/categoryVisuals'
 
 /**
  * Botanical technical sheet and product detail page with dynamic translations.
@@ -95,23 +96,37 @@ export default function ProductDetail() {
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 transition-all duration-700 ease-out transform ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
 
         {/* COLUMNA IZQUIERDA: IMAGEN */}
-        <div className="flex justify-center lg:justify-end">
-          <div className="w-full max-w-sm xl:max-w-md bg-white dark:bg-slate-800 rounded-3xl overflow-hidden aspect-[4/5]
-                          flex items-center justify-center relative border border-slate-200 dark:border-slate-700 shadow-sm transition-transform duration-500 hover:scale-[1.02]">
+        <div className="flex justify-center lg:sticky lg:top-24 self-start">
+          <div className="w-full max-w-sm sm:max-w-md lg:max-w-[420px] aspect-square bg-white dark:bg-slate-800 rounded-3xl overflow-hidden
+                          flex items-center justify-center relative border border-slate-200 dark:border-slate-700 shadow-sm">
 
             {producto.imagenUrl ? (
               <img
                 src={getImagenProducto(producto.imagenUrl, producto.categoria)}
                 alt={t('product.name.' + producto.nombreProducto, producto.nombreProducto)}
-                className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal"
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                 onError={e => {
                   e.target.onerror = null
-                  e.target.src = `https://placehold.co/600x800/f8fafc/94a3b8?text=${encodeURIComponent(producto.nombreProducto)}`
+                  e.target.src = `https://placehold.co/600x600/f8fafc/94a3b8?text=${encodeURIComponent(producto.nombreProducto)}`
                 }}
               />
             ) : (
               <Leaf className="text-slate-200 dark:text-slate-700" size={80} strokeWidth={1} />
             )}
+
+            {/* Badge de Categoría Botánica en la esquina superior izquierda */}
+            {producto.categoria && (() => {
+              const visual = getCategoryVisual(producto.categoria)
+              const CatIcon = visual.Icon
+              return (
+                <div
+                  className={`absolute top-4 left-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-2.5 rounded-2xl shadow-md border ${visual.badgeBgClass} z-10 flex items-center justify-center`}
+                  title={t('category.' + producto.categoria, producto.categoria)}
+                >
+                  <CatIcon size={20} strokeWidth={2.3} className={visual.colorClass} />
+                </div>
+              )
+            })()}
 
             {sinStock && (
               <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
@@ -123,105 +138,78 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: DETALLES */}
-        <div className="flex flex-col pt-2 lg:pt-6">
+        {/* COLUMNA DERECHA: INFORMACIÓN, COMPRA Y CUIDADOS */}
+        <div className="flex flex-col pt-1 lg:pt-2">
 
-          <div className="flex gap-2 mb-4">
-            {producto.categoria && (
-              <span className="text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400
-                               px-3 py-1 rounded-full font-bold uppercase tracking-wide border border-green-200/50 dark:border-green-800/50">
-                {t('category.' + producto.categoria, producto.categoria)}
-              </span>
-            )}
-            {producto.tipo && (
-              <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300
-                               px-3 py-1 rounded-full font-bold uppercase tracking-wide border border-slate-200 dark:border-slate-700">
-                {t('plantType.' + producto.tipo, producto.tipo)}
-              </span>
-            )}
+          {/* Encabezado: Categoría, Tipo y Badge de Stock */}
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {producto.categoria && (() => {
+                const visual = getCategoryVisual(producto.categoria)
+                const CatIcon = visual.Icon
+                return (
+                  <span className="inline-flex items-center gap-1.5 text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400
+                                   px-3 py-1 rounded-full font-bold uppercase tracking-wide border border-green-200/50 dark:border-green-800/50">
+                    <CatIcon size={14} strokeWidth={2.2} className={visual.colorClass} />
+                    {t('category.' + producto.categoria, producto.categoria)}
+                  </span>
+                )
+              })()}
+            </div>
+
+            {/* Badge de disponibilidad compacto */}
+            <div>
+              {sinStock ? (
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/40">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                  {t('catalog.outOfStock')}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  {producto.stock} {t('common.units', 'unidades')}
+                </span>
+              )}
+            </div>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">
+          {/* Título de la Planta */}
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">
             {t('product.name.' + producto.nombreProducto, producto.nombreProducto)}
           </h1>
 
-          <p className="text-2xl sm:text-3xl font-black text-green-600 dark:text-green-400 mb-6">
-            ${producto.precio?.toLocaleString('es-CO')}
-          </p>
-
-          {producto.descripcion && (
-            <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed text-lg">
-              {t('product.desc.' + producto.nombreProducto, producto.descripcion)}
+          {/* Precio */}
+          <div className="flex items-baseline gap-3 mb-4">
+            <p className="text-2xl sm:text-3xl font-black text-green-600 dark:text-green-400">
+              ${producto.precio?.toLocaleString('es-CO')}
             </p>
-          )}
-
-          {/* Características en Grid Minimalista */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            {producto.luz && (
-              <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
-                <Sun className="text-amber-500 mt-0.5" size={20} />
-                <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">{t('catalog.light')}</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{t('care.light.' + producto.luz, producto.luz)}</p>
-                </div>
-              </div>
-            )}
-
-            {producto.riego && (
-              <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
-                <Droplets className="text-blue-500 mt-0.5" size={20} />
-                <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">{t('catalog.water')}</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{t('care.water.' + producto.riego, producto.riego)}</p>
-                </div>
-              </div>
-            )}
-
-            {producto.tamanioEstimado && (
-              <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
-                <Ruler className="text-indigo-500 mt-0.5" size={20} />
-                <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">{t('product.sizeDimension')}</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{producto.tamanioEstimado}</p>
-                </div>
-              </div>
-            )}
-
-            {producto.stock > 0 && (
-              <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
-                <Package className="text-emerald-500 mt-0.5" size={20} />
-                <div>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">{t('catalog.inStock')}</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 leading-snug">{producto.stock} {t('common.units')}</p>
-                </div>
-              </div>
-            )}
           </div>
 
-          {producto.cuidados && (
-            <div className="flex items-start gap-3 bg-green-50/50 dark:bg-green-900/10 p-5 rounded-2xl mb-8 border border-green-100 dark:border-green-900/30">
-              <Info className="text-green-600 dark:text-green-500 shrink-0 mt-0.5" size={20} />
-              <div>
-                <p className="font-bold text-green-800 dark:text-green-400 mb-1">{t('product.careGuide')}</p>
-                <p className="text-green-700 dark:text-green-300/80 text-sm leading-relaxed">{t('product.care.' + producto.nombreProducto, producto.cuidados)}</p>
-              </div>
+          {/* Descripción del Producto - Estilizada en tarjeta sutil y compacta */}
+          {producto.descripcion && (
+            <div className="mb-5 p-3.5 sm:p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/60">
+              <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+                {t('product.desc.' + producto.nombreProducto, producto.descripcion)}
+              </p>
             </div>
           )}
 
+          {/* Fila de Compra Inmediata: Cantidad y Botón de Agregar */}
           {!sinStock && (
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mt-auto">
-              
-              <div className="flex items-center justify-between border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm sm:w-32">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="flex items-center justify-between border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm w-32 shrink-0">
                 <button
                   onClick={() => setCantidad(Math.max(1, cantidad - 1))}
-                  className="px-4 py-3 sm:py-2 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  className="px-3.5 py-2.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-bold text-lg select-none"
+                  aria-label={t('product.decreaseQuantity', 'Disminuir cantidad')}
                 >−</button>
-                <span className="font-bold text-slate-900 dark:text-white w-8 text-center">
+                <span className="font-bold text-slate-900 dark:text-white w-8 text-center text-sm">
                   {cantidad}
                 </span>
                 <button
                   onClick={() => setCantidad(Math.min(producto.stock, cantidad + 1))}
-                  className="px-4 py-3 sm:py-2 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  className="px-3.5 py-2.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-bold text-lg select-none"
+                  aria-label={t('product.increaseQuantity', 'Aumentar cantidad')}
                 >+</button>
               </div>
 
@@ -232,9 +220,9 @@ export default function ProductDetail() {
                   onClick={handleAgregar}
                   loading={agregando}
                   disabled={sinStock}
-                  className="py-3 sm:py-2 shadow-md shadow-green-500/20"
+                  className="py-2.5 shadow-md shadow-green-500/20"
                 >
-                  <span className="flex items-center justify-center gap-2">
+                  <span className="flex items-center justify-center gap-2 font-bold text-sm sm:text-base">
                     <ShoppingCart size={18} />
                     {t('product.addToCart')}
                   </span>
@@ -243,12 +231,61 @@ export default function ProductDetail() {
             </div>
           )}
 
+          {/* Mensaje de feedback tras agregar al carrito */}
           {mensaje && (
-            <div className={`mt-4 p-4 rounded-xl text-sm text-center font-medium border
+            <div className={`mb-4 p-3 rounded-xl text-sm text-center font-medium border
                             ${mensaje.tipo === 'ok'
                               ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-400'
                               : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'}`}>
               {mensaje.texto}
+            </div>
+          )}
+
+          {/* Ficha Rápida de Especificaciones (Luz, Riego, Tamaño) en 3 columnas compactas */}
+          <div className="grid grid-cols-3 gap-2.5 mb-4">
+            {producto.luz && (
+              <div className="flex flex-col items-center text-center p-2.5 sm:p-3 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/60">
+                <Sun className="text-amber-500 mb-1" size={18} />
+                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">{t('catalog.light')}</span>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 line-clamp-2 mt-0.5 leading-snug">
+                  {t('care.light.' + producto.luz, producto.luz)}
+                </span>
+              </div>
+            )}
+
+            {producto.riego && (
+              <div className="flex flex-col items-center text-center p-2.5 sm:p-3 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/60">
+                <Droplets className="text-blue-500 mb-1" size={18} />
+                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">{t('catalog.water')}</span>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 line-clamp-2 mt-0.5 leading-snug">
+                  {t('care.water.' + producto.riego, producto.riego)}
+                </span>
+              </div>
+            )}
+
+            {producto.tamanioEstimado && (
+              <div className="flex flex-col items-center text-center p-2.5 sm:p-3 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/60">
+                <Ruler className="text-indigo-500 mb-1" size={18} />
+                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">{t('product.sizeDimension')}</span>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 line-clamp-2 mt-0.5 leading-snug">
+                  {producto.tamanioEstimado}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Guía Botánica / Consejos de Cuidados */}
+          {producto.cuidados && (
+            <div className="flex items-start gap-3 bg-green-50/60 dark:bg-green-950/20 p-3.5 rounded-2xl border border-green-200/50 dark:border-green-800/30">
+              <Sparkles className="text-green-600 dark:text-green-400 shrink-0 mt-0.5" size={18} />
+              <div>
+                <p className="text-xs font-bold text-green-800 dark:text-green-400 uppercase tracking-wider mb-0.5">
+                  {t('product.careGuide')}
+                </p>
+                <p className="text-xs sm:text-sm text-green-800/90 dark:text-green-300/80 leading-relaxed">
+                  {t('product.care.' + producto.nombreProducto, producto.cuidados)}
+                </p>
+              </div>
             </div>
           )}
 

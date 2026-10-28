@@ -3,14 +3,15 @@ import api from './axios'
 /**
  * Listar productos con filtros opcionales
  * GET /api/productos
- * @param {Object} filtros - { nombre, idCategoria, idTipo, precioMin, precioMax, page, size, sort }
+ * @param {Object} filtros - { nombre, idCategoria, luz, riego, precioMin, precioMax, page, size, sort }
  * @returns Page<ProductoResponse>
  */
 export const getProductos = (filtros = {}) => {
   const params = new URLSearchParams()
   if (filtros.nombre)      params.set('nombre',      filtros.nombre)
   if (filtros.idCategoria) params.set('idCategoria', filtros.idCategoria)
-  if (filtros.idTipo)      params.set('idTipo',      filtros.idTipo)
+  if (filtros.luz)         params.set('luz',         filtros.luz)
+  if (filtros.riego)       params.set('riego',       filtros.riego)
   if (filtros.precioMin)   params.set('precioMin',   filtros.precioMin)
   if (filtros.precioMax)   params.set('precioMax',   filtros.precioMax)
   params.set('page', filtros.page ?? 0)
@@ -34,6 +35,3 @@ export const getProducto = (id) =>
  */
 export const getCategorias = () =>
   api.get('/productos/categorias')
-
-export const getTipos = () =>
-  api.get('/productos/tipos')

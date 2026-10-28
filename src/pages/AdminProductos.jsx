@@ -7,13 +7,14 @@ import {
   desactivarProducto,
   getProductosStockCritico
 } from '../api/adminApi'
-import { getCategorias, getTipos } from '../api/productosApi'
+import { getCategorias } from '../api/productosApi'
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
 import FlashMessage from '../components/ui/FlashMessage'
 import Pagination from '../components/ui/Pagination'
-import { Package, Search, Plus, Edit2, AlertTriangle, Power, PowerOff, X, Leaf, Sprout, Filter } from 'lucide-react'
+import { Package, Search, Plus, Edit2, AlertTriangle, Power, PowerOff, X, Leaf, Sprout, Filter, Image as ImageIcon } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
+import { getImagenProducto, normalizarUrlImagen } from '../utils/imageUtils'
 
 /**
  * Vista de administración de inventario de productos.
@@ -27,14 +28,13 @@ export default function AdminProductos() {
   const { t } = useLanguage()
   const [productos,  setProductos]  = useState([])
   const [categorias, setCategorias] = useState([])
-  const [tipos,      setTipos]      = useState([])
   const [totalPages, setTotalPages] = useState(0)
   const [loading,    setLoading]    = useState(true)
 
   const [totalStockCritico, setTotalStockCritico] = useState(0)
 
   const [filtros, setFiltros] = useState({
-    nombre: '', idCategoria: '', idTipo: '', page: 0, size: 15
+    nombre: '', idCategoria: '', page: 0, size: 15
   })
 
   const [modalAbierto, setModalAbierto] = useState(false)
@@ -43,11 +43,8 @@ export default function AdminProductos() {
   const [mensaje,      setMensaje]      = useState(null)
 
   useEffect(() => {
-    Promise.all([getCategorias(), getTipos()])
-      .then(([cats, tips]) => {
-        setCategorias(cats.data)
-        setTipos(tips.data)
-      })
+    getCategorias()
+      .then(cats => setCategorias(cats.data))
       .catch(console.error)
   }, [])
 
@@ -199,19 +196,6 @@ export default function AdminProductos() {
             </select>
           </div>
           <div className="relative flex-1 md:w-44">
-            <Sprout className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <select
-              value={filtros.idTipo}
-              onChange={e => handleFiltro('idTipo', e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700 dark:text-slate-200 appearance-none"
-            >
-              <option value="">{t('admin.allTypes')}</option>
-              {tipos.map(tOption => (
-                <option key={tOption.idTipo} value={tOption.idTipo}>{t('plantType.' + tOption.nombreTipo, tOption.nombreTipo)}</option>
-              ))}
-            </select>
-          </div>
-          <div className="relative flex-1 md:w-44">
             <Power className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <select
               value={filtros.activo}
@@ -261,7 +245,7 @@ export default function AdminProductos() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {p.imagenUrl ? (
-                          <img src={p.imagenUrl} alt={p.nombreProducto} className="w-10 h-10 rounded-lg object-cover shadow-sm border border-slate-200" />
+                          <img src={getImagenProducto(p.imagenUrl, p.categoria)} alt={p.nombreProducto} className="w-10 h-10 rounded-lg object-cover shadow-sm border border-slate-200" />
                         ) : (
                           <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-200 dark:border-slate-700">
                             <Leaf size={20} />
@@ -270,9 +254,6 @@ export default function AdminProductos() {
                         <div>
                           <p className="font-semibold text-slate-800 dark:text-slate-100 max-w-[200px] truncate">
                             {t('product.name.' + p.nombreProducto, p.nombreProducto)}
-                          </p>
-                          <p className="text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 inline-block px-2 py-0.5 rounded-md mt-1">
-                            {t('plantType.' + p.tipo, p.tipo)}
                           </p>
                         </div>
                       </div>
@@ -361,7 +342,6 @@ export default function AdminProductos() {
         <ProductoModal
           producto={productoEdit}
           categorias={categorias}
-          tipos={tipos}
           guardando={guardando === 'modal'}
           onGuardar={handleGuardar}
           onCerrar={() => { setModalAbierto(false); setProductoEdit(null) }}
@@ -374,12 +354,12 @@ export default function AdminProductos() {
 /**
  * Modal interactivo para crear y editar productos del catálogo.
  * Soporta validación de campos, asignación de umbral de stock crítico,
- * categorías, tipos y ficha botánica de cuidados.
+ * categoría y ficha botánica de cuidados.
  *
  * @component
  * @param {Object} props Propiedades del modal
  */
-function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCerrar }) {
+function ProductoModal({ producto, categorias, guardando, onGuardar, onCerrar }) {
   const { t } = useLanguage()
   const [form, setForm] = useState({
     nombreProducto:  producto?.nombreProducto  ?? '',
@@ -391,7 +371,6 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
     idCategoria: producto?.idCategoria != null
                ? String(producto.idCategoria)
                : '',
-    idTipo:          producto?.idTipo          ?? '',
     cuidados:        producto?.cuidados        ?? '',
     luz:             producto?.luz             ?? '',
     riego:           producto?.riego           ?? '',
@@ -410,7 +389,6 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
     if (form.stockMinimoAlerta === '' || Number(form.stockMinimoAlerta) < 0)
       errs.stockMinimoAlerta = 'El umbral no puede ser negativo'
     if (!form.idCategoria) errs.idCategoria = t('admin.selectOption')
-    if (!form.idTipo) errs.idTipo = t('admin.selectOption')
     setErrores(errs)
     return Object.keys(errs).length === 0
   }
@@ -419,11 +397,11 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
     if (!validar()) return
     onGuardar({
       ...form,
+      imagenUrl: normalizarUrlImagen(form.imagenUrl),
       precio: Number(form.precio),
       stock:  Number(form.stock),
       stockMinimoAlerta: Number(form.stockMinimoAlerta),
       idCategoria: Number(form.idCategoria),
-      idTipo: Number(form.idTipo),
     })
   }
 
@@ -501,7 +479,7 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                 {t('admin.category')} <span className="text-red-500">*</span>
@@ -523,35 +501,42 @@ function ProductoModal({ producto, categorias, tipos, guardando, onGuardar, onCe
                 <p className="text-xs font-bold text-red-500 flex items-center gap-1"><X size={12}/> {errores.idCategoria}</p>
               )}
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                {t('admin.type')} <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="idTipo"
-                value={form.idTipo}
-                onChange={handleChange}
-                className={`border ${errores.idTipo ? 'border-red-400' : 'border-slate-200 dark:border-slate-600'} rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white/80 dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 font-medium transition-all appearance-none`}
-              >
-                <option value="">{t('admin.selectOption')}</option>
-                {tipos.map(tOption => (
-                  <option key={tOption.idTipo} value={tOption.idTipo}>{t('plantType.' + tOption.nombreTipo, tOption.nombreTipo)}</option>
-                ))}
-              </select>
-              {errores.idTipo && (
-                <p className="text-xs font-bold text-red-500 flex items-center gap-1"><X size={12}/> {errores.idTipo}</p>
-              )}
-            </div>
           </div>
 
-          <Input
-            label={t('admin.imageUrlOptional')}
-            name="imagenUrl"
-            type="url"
-            value={form.imagenUrl}
-            onChange={handleChange}
-            placeholder="https://ejemplo.com/imagen.jpg"
-          />
+          <div>
+            <Input
+              label={t('admin.imageUrlOptional')}
+              name="imagenUrl"
+              type="url"
+              value={form.imagenUrl}
+              onChange={handleChange}
+              placeholder="https://drive.google.com/file/d/... o URL directa"
+            />
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+              {t('admin.imageUrlHint')}
+            </p>
+
+            {form.imagenUrl && form.imagenUrl.trim() !== '' && (
+              <div className="mt-2.5 p-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-2xl flex items-center gap-3">
+                <img
+                  src={normalizarUrlImagen(form.imagenUrl)}
+                  alt="Vista previa"
+                  className="w-14 h-14 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm shrink-0 bg-white"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">
+                    {t('admin.imagePreview')}
+                  </p>
+                  <p className="text-[11px] text-teal-600 dark:text-teal-400 font-medium truncate">
+                    {normalizarUrlImagen(form.imagenUrl)}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('admin.description')}</label>

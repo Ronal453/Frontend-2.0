@@ -6,6 +6,7 @@ import {
   ArrowLeft, CheckCircle, Package, Truck, Clock, XCircle, 
   MapPin, CreditCard, ShieldCheck, FileText 
 } from 'lucide-react'
+import { getImagenProducto } from '../utils/imageUtils'
 
 const PASOS = ['PENDIENTE', 'EN_PREPARACION', 'ENVIADO', 'ENTREGADO']
 
@@ -222,7 +223,7 @@ export default function DetallePedido() {
                 <div key={idx} className="flex items-center gap-4 px-6 py-5">
                   <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900/50 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border border-slate-100 dark:border-slate-700/50">
                     {d.imagenUrl
-                      ? <img src={d.imagenUrl} alt={d.nombreProducto} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                      ? <img src={getImagenProducto(d.imagenUrl)} alt={d.nombreProducto} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
                       : <Package className="text-slate-300 dark:text-slate-600" size={24} />}
                   </div>
                   <div className="flex-1">

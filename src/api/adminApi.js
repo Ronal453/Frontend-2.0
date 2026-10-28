@@ -8,7 +8,6 @@ export const getProductosAdmin = (filtros = {}) => {
   const params = new URLSearchParams()
   if (filtros.nombre)      params.set('nombre',      filtros.nombre)
   if (filtros.idCategoria) params.set('idCategoria', filtros.idCategoria)
-  if (filtros.idTipo)      params.set('idTipo',      filtros.idTipo)
   if (filtros.activo !== undefined && filtros.activo !== '') params.set('activo', filtros.activo)
   params.set('page', filtros.page  ?? 0)
   params.set('size', filtros.size  ?? 20)

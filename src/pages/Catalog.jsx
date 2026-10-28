@@ -1,22 +1,26 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getProductos, getCategorias, getTipos } from '../api/productosApi'
+import { getProductos, getCategorias } from '../api/productosApi'
 import { agregarItem } from '../api/carritoApi'
 import { getImagenProducto } from '../utils/imageUtils'
 import { useAuth } from '../hooks/useAuth'
 import { useCart } from '../context/CartContext'
 import { useLanguage } from '../context/LanguageContext'
 import Pagination from '../components/ui/Pagination'
-import { Search, Droplets, Leaf, Sun, ChevronDown, ShoppingBag, Filter, FilterX, Home, Trees, Package, Flower2 } from 'lucide-react'
+import { Search, Droplets, Leaf, Sun, ChevronDown, ShoppingBag, Filter, FilterX } from 'lucide-react'
+import { getCategoryVisual } from '../utils/categoryVisuals'
 
 /**
- * Botanical e-commerce catalog page with multi-criteria filtering and i18n support.
+ * Componente principal del catálogo de comercio electrónico de Plantopolis.
+ * Integra filtrado botánico multi-criterio (categorías consolidadas, requerimiento de luz,
+ * frecuencia de riego, búsqueda por texto y rango de precio) con soporte completo de i18n.
+ * 
+ * @returns {JSX.Element} Vista del catálogo botánico con grid de productos e información esencial.
  */
 export default function Catalog() {
   const { t } = useLanguage()
   const [productos,  setProductos]  = useState([])
   const [categorias, setCategorias] = useState([])
-  const [tipos,      setTipos]      = useState([])
   const [loading,    setLoading]    = useState(true)
   const [totalPages, setTotalPages] = useState(0)
   
@@ -26,7 +30,8 @@ export default function Catalog() {
   const [filtros, setFiltros] = useState({
     nombre:      '',
     idCategoria: '',
-    idTipo:      '',
+    luz:         '',
+    riego:       '',
     precioMin:   '',
     precioMax:   '',
     page:        0,
@@ -61,10 +66,6 @@ export default function Catalog() {
         setCategorias(unicas)
       })
       .catch(console.error)
-
-    getTipos()
-      .then(r => setTipos(r.data))
-      .catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -87,12 +88,12 @@ export default function Catalog() {
 
   const limpiarFiltros = () =>
     setFiltros({
-      nombre: '', idCategoria: '', idTipo: '',
+      nombre: '', idCategoria: '', luz: '', riego: '',
       precioMin: '', precioMax: '', page: 0, size: 24
     })
 
   const hayFiltros = filtros.nombre || filtros.idCategoria ||
-                     filtros.idTipo || filtros.precioMin || filtros.precioMax
+                     filtros.luz || filtros.riego || filtros.precioMin || filtros.precioMax
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/50 to-teal-100/50 dark:from-slate-900 dark:via-[#0F172A] dark:to-emerald-950/20 relative z-0 overflow-hidden">
@@ -141,9 +142,9 @@ export default function Catalog() {
           <div className={`transition-all duration-300 ease-in-out overflow-hidden origin-top ${mostrarFiltros ? 'opacity-100 max-h-[800px]' : 'max-h-0 opacity-0'}`}>
             <div className="bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl border border-white/80 dark:border-slate-700/50 rounded-3xl p-6 shadow-xl shadow-green-900/5 w-full">
               
-              <div className="flex flex-col md:flex-row gap-4 lg:gap-6 items-end">
-                {/* Search */}
-                <div className="w-full md:flex-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                {/* 1. Búsqueda por Nombre */}
+                <div className="w-full">
                   <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider flex items-center gap-1">
                     <Search size={14} className="text-green-600 dark:text-green-500" /> {t('common.search')}
                   </label>
@@ -157,15 +158,17 @@ export default function Catalog() {
                   />
                 </div>
 
-                {/* Categories */}
-                <div className="w-full md:flex-1">
-                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">{t('catalog.category')}</label>
+                {/* 2. Selector 1: Categorías Botánicas y de Insumos */}
+                <div className="w-full">
+                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider flex items-center gap-1">
+                    <Leaf size={14} className="text-green-600 dark:text-green-500" /> {t('catalog.category')}
+                  </label>
                   <div className="relative">
                     <select
                       value={filtros.idCategoria}
                       onChange={e => handleFiltro('idCategoria', e.target.value)}
-                      className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
-                                 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all cursor-pointer shadow-sm font-medium"
+                      className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 pr-8 text-sm
+                                 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all cursor-pointer shadow-sm font-medium truncate"
                     >
                       <option value="">{t('catalog.allCategories')}</option>
                       {categorias.map(c => (
@@ -178,62 +181,87 @@ export default function Catalog() {
                   </div>
                 </div>
 
-                <div className="w-full md:flex-1">
-                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">{t('catalog.type')}</label>
+                {/* 3. Selector 2 (Filtro Clave 1): Requerimiento de Luz */}
+                <div className="w-full">
+                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider flex items-center gap-1">
+                    <Sun size={14} className="text-amber-500" /> {t('catalog.lightRequirement')}
+                  </label>
                   <div className="relative">
                     <select
-                      value={filtros.idTipo}
-                      onChange={e => handleFiltro('idTipo', e.target.value)}
-                      className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm
+                      value={filtros.luz}
+                      onChange={e => handleFiltro('luz', e.target.value)}
+                      className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 pr-8 text-sm
                                  text-slate-900 dark:text-slate-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all cursor-pointer shadow-sm font-medium"
                     >
-                      <option value="">{t('catalog.allTypes')}</option>
-                      {tipos.map(tItem => (
-                        <option key={tItem.idTipo} value={tItem.idTipo}>
-                          {t('plantType.' + tItem.nombreTipo, tItem.nombreTipo)}
-                        </option>
-                      ))}
+                      <option value="">{t('catalog.allLight')}</option>
+                      <option value="directa">{t('catalog.lightDirect')}</option>
+                      <option value="indirecta">{t('catalog.lightIndirect')}</option>
+                      <option value="sombra">{t('catalog.lightShade')}</option>
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 dark:text-slate-400 pointer-events-none" size={16} />
                   </div>
                 </div>
 
-                {/* Price Range */}
-                <div className="w-full md:flex-1">
-                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">{t('catalog.priceRange')}</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      placeholder={t('catalog.minPrice')}
-                      min="0"
-                      value={filtros.precioMin}
-                      onChange={e => handleFiltro('precioMin', e.target.value)}
-                      className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-2 py-2.5 text-sm
-                                 text-slate-900 dark:text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-center shadow-sm"
-                    />
-                    <span className="text-green-300 font-bold">-</span>
-                    <input
-                      type="number"
-                      placeholder={t('catalog.maxPrice')}
-                      min="0"
-                      value={filtros.precioMax}
-                      onChange={e => handleFiltro('precioMax', e.target.value)}
-                      className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-2 py-2.5 text-sm
-                                 text-slate-900 dark:text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-center shadow-sm"
-                    />
+                {/* 4. Selector 3 (Filtro Clave 2): Frecuencia de Riego */}
+                <div className="w-full">
+                  <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider flex items-center gap-1">
+                    <Droplets size={14} className="text-blue-500" /> {t('catalog.wateringFrequency')}
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={filtros.riego}
+                      onChange={e => handleFiltro('riego', e.target.value)}
+                      className="w-full appearance-none bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-4 py-2.5 pr-8 text-sm
+                                 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all cursor-pointer shadow-sm font-medium"
+                    >
+                      <option value="">{t('catalog.allWatering')}</option>
+                      <option value="escaso">{t('catalog.waterLow')}</option>
+                      <option value="moderado">{t('catalog.waterModerate')}</option>
+                      <option value="frecuente">{t('catalog.waterFrequent')}</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 dark:text-slate-400 pointer-events-none" size={16} />
                   </div>
                 </div>
 
-                {hayFiltros && (
-                  <div className="w-full md:w-auto">
+                {/* 5. Rango de Precio y Botón Limpiar */}
+                <div className="w-full flex items-end gap-2">
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold text-emerald-700 dark:text-slate-400 mb-2 uppercase tracking-wider">
+                      {t('catalog.priceRange')}
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="number"
+                        placeholder={t('catalog.minPrice')}
+                        min="0"
+                        value={filtros.precioMin}
+                        onChange={e => handleFiltro('precioMin', e.target.value)}
+                        className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-2 py-2.5 text-xs sm:text-sm
+                                   text-slate-900 dark:text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-center shadow-sm"
+                      />
+                      <span className="text-green-300 font-bold">-</span>
+                      <input
+                        type="number"
+                        placeholder={t('catalog.maxPrice')}
+                        min="0"
+                        value={filtros.precioMax}
+                        onChange={e => handleFiltro('precioMax', e.target.value)}
+                        className="w-full bg-white dark:bg-slate-800 border border-green-100 dark:border-slate-700 rounded-xl px-2 py-2.5 text-xs sm:text-sm
+                                   text-slate-900 dark:text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-center shadow-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {hayFiltros && (
                     <button
                       onClick={limpiarFiltros}
-                      className="w-full md:w-auto px-6 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50 rounded-xl text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors shadow-sm whitespace-nowrap"
+                      className="px-3.5 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50 rounded-xl text-xs sm:text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors shadow-sm shrink-0"
+                      title={t('catalog.clearFilters')}
                     >
-                      {t('catalog.clearFilters')}
+                      <FilterX size={16} />
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -260,7 +288,7 @@ export default function Catalog() {
               {/* Grid de productos responsivo a ancho completo */}
               <div className="grid gap-4 sm:gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {productos.map(p => (
-                  <ProductoCard key={p.idProducto} producto={p} tipos={tipos} />
+                  <ProductoCard key={p.idProducto} producto={p} />
                 ))}
               </div>
 
@@ -338,21 +366,19 @@ function ProductoCard({ producto: p }) {
           }}
         />
         
-        {/* Type Icon Badge */}
-        <div className="absolute top-4 left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-2.5 rounded-2xl shadow-sm border border-white dark:border-slate-700 group-hover:scale-110 transition-transform">
-          {(() => {
-            const cat = p.categoria?.toLowerCase() || ''
-            const tipo = p.tipo?.toLowerCase() || ''
-            
-            if (cat.includes('interior')) return <Home size={20} className="text-blue-500 drop-shadow-sm" />
-            if (cat.includes('exterior')) return <Trees size={20} className="text-emerald-600 drop-shadow-sm" />
-            if (cat.includes('suculenta') || cat.includes('cactus') || tipo.includes('suculenta')) return <Sun size={20} className="text-amber-500 drop-shadow-sm" />
-            if (cat.includes('arom') || cat.includes('medicin')) return <Flower2 size={20} className="text-fuchsia-500 drop-shadow-sm" />
-            if (cat.includes('insumos') || cat.includes('accesorios')) return <Package size={20} className="text-orange-500 drop-shadow-sm" />
-            
-            return <Leaf size={20} className="text-green-500 drop-shadow-sm" />
-          })()}
-        </div>
+        {/* Badge de Categoría Botánica (esquina superior izquierda) */}
+        {(() => {
+          const visual = getCategoryVisual(p.categoria)
+          const CategoryIcon = visual.Icon
+          return (
+            <div
+              className={`absolute top-3.5 left-3.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-2 rounded-2xl shadow-md border ${visual.badgeBgClass} group-hover:scale-110 transition-all duration-300 z-10 flex items-center justify-center`}
+              title={t('category.' + p.categoria, p.categoria || '')}
+            >
+              <CategoryIcon size={18} strokeWidth={2.3} className={visual.colorClass} />
+            </div>
+          )
+        })()}
 
         {sinStock && (
           <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
@@ -363,34 +389,24 @@ function ProductoCard({ producto: p }) {
         )}
       </div>
 
-      <div className="p-5 flex flex-col flex-1 relative z-10">
+      {/* Cuerpo de la tarjeta: Distribución equilibrada (Nombre arriba, Precio a la izquierda y Botón a la derecha) */}
+      <div className="p-4 sm:p-5 flex flex-col flex-1 relative z-10 justify-between gap-3">
         
-        <div className="flex justify-between items-start gap-2 mb-2">
-          <h3 className="font-extrabold text-slate-800 dark:text-white text-lg leading-tight line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-            {t('product.name.' + p.nombreProducto, p.nombreProducto)}
-          </h3>
-          <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 whitespace-nowrap bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-lg">
+        {/* Nombre del Producto */}
+        <h3 className="font-extrabold text-slate-800 dark:text-white text-base sm:text-lg leading-snug line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+          {t('product.name.' + p.nombreProducto, p.nombreProducto)}
+        </h3>
+
+        {/* Fila Inferior: Precio y Botón de Carrito alineados horizontalmente */}
+        <div className="mt-auto pt-2 flex items-center justify-between gap-3">
+          <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight whitespace-nowrap">
             ${p.precio?.toLocaleString('es-CO')}
           </span>
-        </div>
-        
-        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-4">
-          {t('plantType.' + p.tipo, p.tipo || 'Planta')}
-        </p>
 
-        <div className="mt-auto flex items-center justify-between">
-          <div className="flex flex-wrap gap-2">
-            {p.categoria && (
-              <span className="bg-slate-100/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700 text-[10px] font-bold tracking-wider px-2 py-1 rounded-md">
-                {t('category.' + p.categoria, p.categoria)}
-              </span>
-            )}
-          </div>
-          
           <button
             onClick={handleAgregar}
             disabled={sinStock || agregando}
-            className="flex items-center justify-center w-12 h-12 rounded-full bg-green-600 hover:bg-green-500 text-white shadow-md shadow-green-600/30 hover:shadow-lg hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95 group-hover:rotate-12"
+            className="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-green-600 hover:bg-green-500 text-white shadow-md shadow-green-600/30 hover:shadow-lg hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95 group-hover:rotate-6 shrink-0"
             title={t('catalog.addToCart')}
           >
             {agregando ? (
