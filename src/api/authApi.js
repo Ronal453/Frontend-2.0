@@ -22,3 +22,21 @@ export const login = (credenciales) =>
  */
 export const loginGoogle = (idToken, modo = 'login') =>
   api.post('/auth/google', { idToken }, { params: { modo } })
+
+/**
+ * Solicitar enlace temporal de recuperación de contraseña (HU2)
+ * POST /api/auth/recuperar-password
+ * @param {string} email
+ */
+export const solicitarRecuperacionPassword = (email) =>
+  api.post('/auth/recuperar-password', { email })
+
+/**
+ * Restablecer contraseña utilizando un token temporal (HU2)
+ * POST /api/auth/resetear-password
+ * @param {string} token
+ * @param {string} nuevaPassword
+ */
+export const resetearPassword = (token, nuevaPassword) =>
+  api.post('/auth/resetear-password', { token, nuevaPassword })
+

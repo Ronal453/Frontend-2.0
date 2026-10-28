@@ -18,6 +18,7 @@ export default function Login() {
   const location     = useLocation()
 
   const registradoExitoso = location.state?.registrado === true
+  const passwordRestablecida = location.state?.passwordRestablecida === true
 
   const [sesionExpirada, setSesionExpirada] = useState(
     () => location.state?.sesionExpirada === true || sessionStorage.getItem('sesion_expirada') === 'true'
@@ -147,6 +148,14 @@ export default function Login() {
           </div>
         )}
 
+        {/* Banner de contraseña restablecida exitosamente */}
+        {passwordRestablecida && (
+          <div className="bg-green-50/80 dark:bg-green-900/30 border border-green-200/80 dark:border-green-800/50 text-green-700 dark:text-green-400 font-medium
+                          rounded-xl p-4 mb-6 text-sm flex items-center justify-center gap-2 animate-in fade-in backdrop-blur-sm">
+            <CheckCircle2 size={18} /> {t('auth.passwordResetSuccess', 'Contraseña restablecida exitosamente. Ya puedes iniciar sesión.')}
+          </div>
+        )}
+
         {/* Banner de sesión cerrada por inactividad */}
         {sesionExpirada && (
           <div className="bg-amber-50/80 dark:bg-amber-900/30 border border-amber-200/80 dark:border-amber-800/50 text-amber-700 dark:text-amber-400 font-medium
@@ -182,15 +191,24 @@ export default function Login() {
             />
           </div>
 
-          <Input
-            label={t('auth.password')}
-            name="password"
-            type="password"
-            required
-            value={form.password}
-            onChange={handleChange}
-            placeholder="••••••••"
-          />
+          <div>
+            <Input
+              label={t('auth.password')}
+              name="password"
+              type="password"
+              required
+              value={form.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+            />
+            <div className="flex justify-end mt-1.5">
+              <Link
+                to="/recuperar-password"
+                className="text-xs font-semibold text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 hover:underline transition-colors">
+                {t('auth.forgotPassword', '¿Olvidaste tu contraseña?')}
+              </Link>
+            </div>
+          </div>
 
           {error && (
             <div className="bg-red-50/80 dark:bg-red-900/30 border border-red-200/80 dark:border-red-800/50 text-red-700 dark:text-red-400 font-medium

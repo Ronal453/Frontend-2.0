@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 import { registro as registroApi, loginGoogle as loginGoogleApi } from '../api/authApi'
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
+import PasswordCriteriaChecklist from '../components/ui/PasswordCriteriaChecklist'
 import { UserPlus, ShieldCheck } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 
@@ -44,9 +45,9 @@ export default function Register() {
     if (!form.email.trim())
       nuevosErrores.email = 'El email es obligatorio'
     if (!form.password) {
-      nuevosErrores.password = 'La contraseña es obligatoria'
+      nuevosErrores.password = t('auth.passwordRequired', 'La contraseña es obligatoria')
     } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(form.password)) {
-      nuevosErrores.password = 'Debe tener mín. 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial'
+      nuevosErrores.password = t('auth.passwordPolicyError', 'Debe tener mín. 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial (@$!%*?&)')
     }
     if (!form.aceptaPolitica)
       nuevosErrores.aceptaPolitica = 'Debe aceptar la política de tratamiento de datos'
@@ -166,6 +167,8 @@ export default function Register() {
             placeholder="••••••••"
             error={errors.password}
           />
+
+          <PasswordCriteriaChecklist password={form.password} />
 
           <div className="flex items-center gap-3 pt-4 pb-2">
             <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />

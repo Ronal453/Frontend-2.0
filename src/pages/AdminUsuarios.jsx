@@ -5,6 +5,7 @@ import {
 } from '../api/adminApi'
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
+import PasswordCriteriaChecklist from '../components/ui/PasswordCriteriaChecklist'
 import Pagination from '../components/ui/Pagination'
 import FlashMessage from '../components/ui/FlashMessage'
 import { 
@@ -506,16 +507,14 @@ function ModalCrearTrabajador({ abierto, onCerrar, onCreado }) {
               <Input
                 label={t('admin.initialPassword')}
                 name="passwordInicial"
-                type="text"
+                type="password"
                 required
                 value={form.passwordInicial}
                 onChange={handleChange}
                 placeholder="Ej: Plantopolis2026!"
                 error={errores.passwordInicial}
               />
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed font-medium">
-                {t('admin.passwordRequirements')} <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">@$!%*?&</code>
-              </p>
+              <PasswordCriteriaChecklist password={form.passwordInicial} className="mt-2" />
             </div>
           </div>
 

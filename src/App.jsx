@@ -8,6 +8,8 @@ import Checkout      from './pages/Checkout'
 import MisPedidos    from './pages/MisPedidos'
 import DetallePedido from './pages/DetallePedido'
 import PoliticaDatos from './pages/PoliticaDatos'
+import RecuperarPassword from './pages/RecuperarPassword'
+import ResetearPassword from './pages/ResetearPassword'
 
 import AdminDashboard from './pages/AdminDashboard'
 import AdminProductos from './pages/AdminProductos'
@@ -69,9 +71,11 @@ function App() {
               <Routes>
 
                 <Route element={<PublicLayout />}>
-                  <Route path="/login"        element={<Login />} />
-                  <Route path="/registro"     element={<Register />} />
-                  <Route path="/catalogo"     element={<Catalog />} />
+                  <Route path="/login"              element={<Login />} />
+                  <Route path="/registro"           element={<Register />} />
+                  <Route path="/recuperar-password" element={<RecuperarPassword />} />
+                  <Route path="/resetear-password"  element={<ResetearPassword />} />
+                  <Route path="/catalogo"           element={<Catalog />} />
                   <Route path="/producto/:id" element={<ProductDetail />} />
                   <Route path="/politica-datos" element={<PoliticaDatos />} />
 

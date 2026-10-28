@@ -30,7 +30,7 @@ const ESTADOS_CONFIG = {
  * @param {Object} props Propiedades del componente
  */
 export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFechaHora }) {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const config = ESTADOS_CONFIG[pedido.estado] ?? ESTADOS_CONFIG.PENDIENTE
 
   /**
@@ -194,7 +194,7 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
             </div>
           </div>
         </section>
-        
+
         <div className="h-4"></div>
       </div>
     </div>

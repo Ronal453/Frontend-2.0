@@ -18,7 +18,7 @@ const ESTADO_ESTILO = {
  * Customer order history list with internationalized statuses and order details.
  */
 export default function MisPedidos() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [pedidos, setPedidos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
@@ -138,7 +138,7 @@ export default function MisPedidos() {
                         </span>
                       </div>
                       
-                      <div className="col-span-2 flex items-center justify-end gap-3 text-right">
+                      <div className="col-span-2 flex items-center justify-end gap-2 text-right">
                         <span className="font-black text-slate-900 dark:text-white text-lg group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                           ${p.total?.toLocaleString('es-CO')}
                         </span>
