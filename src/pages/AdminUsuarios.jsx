@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import {
   getUsuariosAdmin, activarUsuario, desactivarUsuario, resetearPasswordUsuario,
   crearTrabajador
@@ -15,15 +15,15 @@ import {
 import { useLanguage } from '../context/LanguageContext'
 
 /**
- * Panel de gestión de usuarios y accesos — Panel Admin.
- * Permite listar usuarios, filtrar por roles y estado, crear cuentas
- * directas de trabajadores y generar contraseñas temporales para restablecimiento.
+ * Panel de gestión de personal y accesos — Panel Admin.
+ * Permite listar y administrar exclusivamente las cuentas de Trabajadores y Administradores,
+ * filtrar por roles y estado, crear cuentas directas de trabajadores y generar contraseñas temporales.
  *
  * @component
- * @returns {JSX.Element} Vista administrativa de usuarios
+ * @returns {JSX.Element} Vista administrativa de usuarios y personal del vivero
  */
 export default function AdminUsuarios() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [usuarios,    setUsuarios]    = useState([])
   const [totalPages,  setTotalPages]  = useState(0)
   const [loading,     setLoading]     = useState(true)
@@ -37,11 +37,14 @@ export default function AdminUsuarios() {
     nombre: '', idRol: '', activo: '', page: 0, size: 15
   })
 
-  const ROLES = [
+  /**
+   * Catálogo de roles permitidos para administración interna (Trabajadores y Administradores).
+   * Se excluye a clientes regulares para centralizar el panel en la gestión operativa y directiva.
+   */
+  const ROLES = useMemo(() => [
     { id: 1, valor: 'ADMINISTRADOR', label: t('admin.administrator'), icono: <Shield size={14} />, color: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50' },
     { id: 2, valor: 'TRABAJADOR',    label: t('admin.worker'), icono: <HardHat size={14} />, color: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50' },
-    { id: 3, valor: 'CLIENTE',       label: t('admin.client'), icono: <User size={14} />, color: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50' },
-  ]
+  ], [t])
 
   const badgeRol = (nombreRol) => {
     const r = ROLES.find(x => x.valor === nombreRol)
@@ -322,7 +325,7 @@ export default function AdminUsuarios() {
                         {/* FECHA REGISTRO */}
                         <td className="px-6 py-4 text-center text-slate-500 dark:text-slate-400 font-medium">
                           {u.fechaRegistro
-                            ? new Date(u.fechaRegistro).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: '2-digit' })
+                            ? new Date(u.fechaRegistro).toLocaleDateString(language === 'en' ? 'en-US' : 'es-CO', { year: 'numeric', month: 'short', day: '2-digit' })
                             : '—'}
                         </td>
                         {/* ESTADO */}

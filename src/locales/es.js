@@ -566,7 +566,7 @@ export const es = {
   'admin.stockRestoredMsg': 'Stock restaurado. ',
 
   // Usuarios
-  'admin.usersSubtitle': 'Administra clientes, trabajadores y administradores',
+  'admin.usersSubtitle': 'Administra trabajadores y administradores del sistema',
   'admin.searchUserPlaceholder': 'Buscar por nombre o correo...',
   'admin.allRoles': 'Todos los roles',
   'admin.loadingUsers': 'Cargando usuarios...',
