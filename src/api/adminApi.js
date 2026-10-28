@@ -89,6 +89,10 @@ export const resetearPasswordUsuario = (id) => api.post(`/admin/usuarios/${id}/r
 export const crearTrabajador = (datos) =>
   api.post('/admin/usuarios/trabajadores', datos)
 
+/** Crea una cuenta con rol ADMINISTRADOR. datos = { nombreCompleto, correo, passwordInicial } */
+export const crearAdministrador = (datos) =>
+  api.post('/admin/usuarios/administradores', datos)
+
 // ═══════════════════════════════════════════════════════════════
 // GESTIÓN DE ZONAS
 // ═══════════════════════════════════════════════════════════════
