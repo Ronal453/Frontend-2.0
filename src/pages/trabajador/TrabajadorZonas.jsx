@@ -131,7 +131,7 @@ export default function TrabajadorZonas() {
             onClick={cargarZonas}
             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold rounded-xl shadow-md shadow-teal-500/20 transition-all duration-200"
           >
-            <RefreshCw size={18} /> {t('common.save')}
+            <RefreshCw size={18} /> {t('common.refresh', 'Actualizar')}
           </button>
         </div>
 

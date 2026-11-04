@@ -38,6 +38,12 @@ export default function Register() {
     }
   }
 
+  /**
+   * Valida los campos obligatorios y la política de contraseña del formulario de registro.
+   * Utiliza `.{8,}` tras los lookaheads para coincidir con `PasswordCriteriaChecklist`.
+   *
+   * @returns {boolean} `true` si el formulario es válido.
+   */
   const validar = () => {
     const nuevosErrores = {}
     if (!form.nombre.trim())
@@ -46,7 +52,7 @@ export default function Register() {
       nuevosErrores.email = 'El email es obligatorio'
     if (!form.password) {
       nuevosErrores.password = t('auth.passwordRequired', 'La contraseña es obligatoria')
-    } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(form.password)) {
+    } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(form.password)) {
       nuevosErrores.password = t('auth.passwordPolicyError', 'Debe tener mín. 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial (@$!%*?&)')
     }
     if (!form.aceptaPolitica)

@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useCart } from '../../context/CartContext'
 import { useLayoutContext } from '../../context/LayoutContext'
@@ -8,6 +8,16 @@ import ThemeToggle from '../ui/ThemeToggle'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { useLanguage } from '../../context/LanguageContext'
 
+/**
+ * Barra de navegación superior responsiva para Plantopolis.
+ * Adapta sus enlaces, estilos y comportamiento de ocultación por scroll según el rol del usuario
+ * y el modo de layout (`public`, `dashboard` u `operativo`).
+ *
+ * @component
+ * @param {Object} props - Propiedades del componente.
+ * @param {'public'|'dashboard'|'operativo'} [props.layoutMode='public'] - Modo visual de la barra.
+ * @returns {JSX.Element}
+ */
 export default function Navbar({ layoutMode = 'public' }) {
   const { isAuth, user, logout } = useAuth()
   const { totalItems, refreshCart, clearCart, openCart } = useCart()
@@ -17,24 +27,24 @@ export default function Navbar({ layoutMode = 'public' }) {
 
   // Estado para la visibilidad del navbar al hacer scroll (solo para layout público)
   const [showNavbar, setShowNavbar] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
+  const lastScrollYRef = useRef(0)
 
   useEffect(() => {
-    if (layoutMode === 'dashboard') return // En dashboards no ocultamos el navbar
+    if (layoutMode === 'dashboard' || layoutMode === 'operativo') return // En paneles internos no ocultamos el navbar
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      if (currentScrollY > lastScrollYRef.current && currentScrollY > 100) {
         setShowNavbar(false)
       } else {
         setShowNavbar(true)
       }
-      setLastScrollY(currentScrollY)
+      lastScrollYRef.current = currentScrollY
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [lastScrollY, layoutMode])
+  }, [layoutMode])
 
   useEffect(() => {
     if (isAuth) {
@@ -44,9 +54,12 @@ export default function Navbar({ layoutMode = 'public' }) {
     }
   }, [isAuth])
 
+  /**
+   * Cierra la sesión actual del usuario, limpia el carrito y redirige a `/login` vía React Router.
+   */
   const handleLogout = () => {
     sessionStorage.removeItem('sesion_expirada')
-    logout()
+    logout({ redirect: false })
     clearCart()
     navigate('/login')
   }
@@ -152,6 +165,16 @@ export default function Navbar({ layoutMode = 'public' }) {
                 )}
               </button>
             )}
+
+            {/* Botón de cerrar sesión visible en pantallas móviles (< lg) */}
+            <button
+              onClick={handleLogout}
+              title={t('nav.salir')}
+              aria-label={t('nav.salir')}
+              className={`lg:hidden flex items-center gap-1 text-xs font-black transition-colors p-2 rounded-lg ${isDashboard ? 'text-slate-300 hover:text-red-400 hover:bg-red-500/10' : 'text-emerald-50 hover:text-red-200 hover:bg-white/10'}`}
+            >
+              <LogOut size={18} strokeWidth={2.5} />
+            </button>
 
             <div className={`flex items-center gap-3 pl-2 ml-2 border-l hidden lg:flex ${isDashboard ? 'border-slate-700/50' : 'border-gray-200/50 dark:border-slate-700/50'}`}>
               <span className={`text-xs font-black px-3 py-1.5 rounded-lg ${isDashboard ? 'text-slate-300 bg-white/10' : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800'}`}>

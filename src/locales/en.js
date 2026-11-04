@@ -33,6 +33,8 @@ export const en = {
   'common.page_info': 'Page {current} of {total}',
   'common.noResults': 'No results found',
   'common.resultsCount': '{count} results',
+  'common.retry': 'Retry',
+  'common.refresh': 'Refresh',
 
   // Navigation Bar (Navbar)
   'nav.catalogo': 'Catalog',
@@ -152,6 +154,7 @@ export const en = {
   'catalog.light': 'Light',
   'catalog.water': 'Watering',
   'catalog.humidity': 'Humidity',
+  'catalog.currency': 'USD',
 
   // Product Detail (ProductDetail)
   'product.backToCatalog': 'Catalog',
@@ -180,6 +183,8 @@ export const en = {
   'cart.shippingNote': 'Shipping calculated at checkout',
   'cart.checkout': 'Proceed to Checkout',
   'cart.remove': 'Remove',
+  'cart.requiredField': 'This field is required',
+  'cart.invalidPrice': 'Enter a valid price greater than 0',
 
   // Checkout
   'checkout.title': 'Checkout',
@@ -198,6 +203,7 @@ export const en = {
   'checkout.paymentCredit': 'Credit Card',
   'checkout.paymentDebit': 'Debit Card',
   'checkout.paymentPSE': 'Bank Transfer (PSE)',
+  'checkout.paymentTransfer': 'Bank Transfer / PSE',
   'checkout.paymentCashOnDelivery': 'Cash on Delivery',
   'checkout.stepReview': '3. Confirmation',
   'checkout.orderSummary': 'Order Summary',
@@ -232,6 +238,7 @@ export const en = {
   'orders.paymentInfo': 'Payment Method',
   'orders.statusHistory': 'Status History',
   'orders.orderPlaced': 'Order Placed Successfully!',
+  'orders.errorLoadDetail': 'Could not load order details.',
 
   // Order Statuses
   'status.PENDIENTE': 'Pending',
@@ -646,6 +653,7 @@ export const en = {
   'admin.sowingDate': 'Sowing Date *',
   'admin.assignedZone': 'Assigned Zone *',
   'admin.selectZone': 'Select Zone...',
+  'admin.supplier': 'Supplier (Optional)',
   'admin.noneSupplier': 'None (In-house / Unknown)',
   'admin.initialStatus': 'Initial Status *',
   'admin.registeringBatch': 'Registering...',
@@ -661,6 +669,7 @@ export const en = {
   'admin.linkWarningPrompt': '⚠️ Warning\n\nThe batch species (\"{batchSpecies}\") does not match exactly the selected product name (\"{prodName}\").\n\nAre you sure you want to link this batch to this product?',
   'admin.createBatchError': 'Error creating batch',
   'admin.linkBatchError': 'Error linking batch',
+  'admin.errorLoad': 'Error loading operational data.',
 
   // Waste (Mermas)
   'admin.wasteReportTitle': 'Waste & Causes Report',
@@ -749,6 +758,10 @@ export const en = {
   'admin.conditionRequired': 'Select condition type',
   'admin.exposureRequired': 'Select solar exposure',
   'admin.confirmReductionRequired': 'You must confirm reducing below current occupancy.',
+  'admin.errorLoadingZones': 'Error loading cultivation zones.',
+  'admin.errorChangingZoneStatus': 'Error changing zone status.',
+  'admin.errorSavingZone': 'Error saving zone.',
+  'admin.errorLoadingBatchesInZone': 'Error loading batches in zone.',
 
   // Suppliers (Proveedores)
   'admin.suppliersHeaderTitle': 'Suppliers',
@@ -815,12 +828,6 @@ export const en = {
   'admin.restoreSessionExpired': 'Your session is no longer valid after restoration. Log in with an account from the backup.',
 
   // Shared Enums
-  'lotPhase.GERMINANDO': 'GERMINATING',
-  'lotPhase.CRECIENDO': 'GROWING',
-  'lotPhase.LISTO_PARA_VENTA': 'READY FOR SALE',
-  'lotPhase.EN_TIENDA': 'IN STORE',
-  'lotPhase.DESCARTADO': 'DISCARDED',
-
   'zoneCondition.INTERIOR': 'Indoor',
   'zoneCondition.EXTERIOR': 'Outdoor',
   'zoneCondition.INVERNADERO': 'Greenhouse',
@@ -1002,26 +1009,18 @@ export const en = {
   'wasteCause.Quemadura por Sol': 'Sunburn',
   'wasteCause.Otra': 'Other',
   'wasteCause.Otro': 'Other',
-  'wasteCause.OTRO': 'Other',
-  'wasteCause.PLAGA': 'Pest',
   'wasteCause.ENFERMEDAD_HONGO': 'Disease - Fungus',
   'wasteCause.CLIMA_EXCESO_CALOR': 'Excess Heat',
   'wasteCause.ERROR_MANIPULACION': 'Handling Error',
 
   // Observaciones y Detalles de Merma (Waste Observations & Details)
   'wasteObservation.hongo en la pata': 'fungus on the stem',
-  'wasteObservation.Hongo en la pata': 'Fungus on the stem',
   'wasteObservation.hongo en la base': 'fungus at the base',
   'wasteObservation.Las lluvias recurrente pudrieron las plantas': 'Recurring rains caused plant rot',
   'wasteObservation.Las lluvias recurrentes pudrieron las plantas': 'Recurring rains caused plant rot',
-  'wasteObservation.las lluvias recurrente pudrieron las plantas': 'recurring rains caused plant rot',
   'wasteObservation.Fue pisada la planta': 'The plant was stepped on',
-  'wasteObservation.fue pisada la planta': 'the plant was stepped on',
   'wasteObservation.Planta pisada': 'Plant was stepped on',
-  'wasteObservation.planta pisada': 'plant was stepped on',
   'wasteObservation.Mucha Agua': 'Excessive Water',
-  'wasteObservation.mucha agua': 'excessive water',
-  'wasteObservation.Mucha agua': 'Excessive water',
 
   // Observaciones de Historial de Lotes (Lot Status History Observations)
   'lotObservation.Descartado automaticamente: la merma redujo la cantidad a 0.': 'Automatically discarded: waste reduced quantity to 0.',
@@ -1032,7 +1031,6 @@ export const en = {
   'lotObservation.Lote vinculado a catálogo y movido a tienda': 'Batch linked to catalog and moved to store',
   'lotObservation.Lote vinculado a catlogo y movido a tienda': 'Batch linked to catalog and moved to store',
   'lotObservation.Ya esta grande': 'Already grown',
-  'lotObservation.ya esta grande': 'already grown',
   'lotObservation.Ya está grande': 'Already grown',
 
   // Nombres de Operadores Comunes (Operator Display Names)
@@ -1044,7 +1042,6 @@ export const en = {
 
   // Especies Botánicas Comunes (Plant Species)
   'plantSpecies.cactus': 'cactus',
-  'plantSpecies.Cactus': 'Cactus',
   'plantSpecies.Helecho': 'Fern',
   'plantSpecies.Orquídea': 'Orchid',
   'plantSpecies.Orqudea': 'Orchid',
@@ -1052,7 +1049,6 @@ export const en = {
   'plantSpecies.Bonsái': 'Bonsai',
   'plantSpecies.Bonsi': 'Bonsai',
   'plantSpecies.Ficus Lyrata': 'Ficus Lyrata',
-  'plantSpecies.ficus lyrata': 'Ficus Lyrata',
   'plantSpecies.Orquidea Phalaenopsis': 'Phalaenopsis Orchid',
   'plantSpecies.Orquídea Phalaenopsis': 'Phalaenopsis Orchid',
 

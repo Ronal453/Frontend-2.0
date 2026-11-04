@@ -9,6 +9,7 @@ import { useLanguage } from '../context/LanguageContext'
 
 const COLORS_ESTADO = {
   PENDIENTE: '#facc15',
+  EN_PREPARACION: '#60a5fa',
   PREPARANDO: '#60a5fa',
   ENVIADO: '#c084fc',
   ENTREGADO: '#22c55e',
@@ -24,7 +25,7 @@ const COLORS_ESTADO = {
  * @returns {JSX.Element} Vista del dashboard administrativo
  */
 export default function AdminDashboard() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [reporte,  setReporte]  = useState(null)
   const [loading,  setLoading]  = useState(true)
   const [error,    setError]    = useState('')
@@ -40,6 +41,9 @@ export default function AdminDashboard() {
 
   const dashboardRef = useRef(null)
 
+  /**
+   * Genera y descarga un reporte gerencial en formato PDF respetando el idioma activo.
+   */
   const handleExportarPDF = () => {
     setExportandoPdf(true)
     try {
@@ -52,7 +56,7 @@ export default function AdminDashboard() {
       
       pdf.setFontSize(11)
       pdf.setTextColor(100)
-      const dateStr = new Date().toLocaleDateString(t('catalog.currency') ? 'en-US' : 'es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
+      const dateStr = new Date().toLocaleDateString(language === 'en' ? 'en-US' : 'es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
       pdf.text(t('admin.pdfGenerated', { date: dateStr }), 14, 28)
       if (fechaInicio || fechaFin) {
         pdf.text(t('admin.pdfPeriod', { start: fechaInicio || 'Inicio', end: fechaFin || 'Hoy' }), 14, 34)

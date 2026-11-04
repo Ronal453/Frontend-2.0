@@ -439,6 +439,11 @@ function ModalCrearUsuario({ abierto, onCerrar, onCreado }) {
     }
   }
 
+  /**
+   * Valida los datos del formulario de creación de usuario administrativo u operativo.
+   *
+   * @returns {boolean} `true` si todos los campos cumplen las reglas de validación.
+   */
   const validar = () => {
     const err = {}
     if (!form.nombreCompleto.trim()) {
@@ -451,7 +456,7 @@ function ModalCrearUsuario({ abierto, onCerrar, onCreado }) {
     }
     if (!form.passwordInicial) {
       err.passwordInicial = t('cart.requiredField') || 'La contraseña inicial es obligatoria'
-    } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(form.passwordInicial)) {
+    } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(form.passwordInicial)) {
       err.passwordInicial = t('admin.passwordRequirements')
     }
     setErrores(err)

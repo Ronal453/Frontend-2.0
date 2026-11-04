@@ -2,6 +2,11 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+/**
+ * Configuración principal de Vite y Progressive Web App (PWA) para Plantopolis.
+ * Restringe el cacheo en tiempo de ejecución (`api-cache`) exclusivamente a los endpoints
+ * públicos del catálogo (`/api/productos*`) para evitar almacenar datos privados de sesión.
+ */
 export default defineConfig({
   plugins: [
     react(),
@@ -14,7 +19,7 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: /\/api\/.*/i,
+            urlPattern: /\/api\/productos.*/i,
             handler: 'NetworkFirst',
             method: 'GET',
             options: {

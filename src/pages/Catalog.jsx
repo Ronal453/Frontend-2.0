@@ -38,25 +38,6 @@ export default function Catalog() {
     size:        24 // Incrementado para mostrar 24 productos
   })
 
-  // Lógica para detectar scroll y ocultar/mostrar botón flotante
-  const [showFloating, setShowFloating] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setShowFloating(false)
-      } else {
-        setShowFloating(true)
-      }
-      setLastScrollY(currentScrollY)
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [lastScrollY])
-
   useEffect(() => {
     getCategorias()
       .then(r => {

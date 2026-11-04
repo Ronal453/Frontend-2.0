@@ -33,6 +33,8 @@ export const es = {
   'common.page_info': 'Página {current} de {total}',
   'common.noResults': 'No se encontraron resultados',
   'common.resultsCount': '{count} resultados',
+  'common.retry': 'Reintentar',
+  'common.refresh': 'Actualizar',
 
   // Barra de Navegación (Navbar)
   'nav.catalogo': 'Catálogo',
@@ -152,6 +154,7 @@ export const es = {
   'catalog.light': 'Luz',
   'catalog.water': 'Riego',
   'catalog.humidity': 'Humedad',
+  'catalog.currency': 'COP',
 
   // Detalle de Producto (ProductDetail)
   'product.backToCatalog': 'Catálogo',
@@ -180,6 +183,8 @@ export const es = {
   'cart.shippingNote': 'Envío calculado en el checkout',
   'cart.checkout': 'Iniciar Compra',
   'cart.remove': 'Eliminar',
+  'cart.requiredField': 'Este campo es obligatorio',
+  'cart.invalidPrice': 'Ingresa un precio válido mayor a 0',
 
   // Checkout
   'checkout.title': 'Checkout',
@@ -198,6 +203,7 @@ export const es = {
   'checkout.paymentCredit': 'Tarjeta de Crédito',
   'checkout.paymentDebit': 'Tarjeta de Débito',
   'checkout.paymentPSE': 'PSE',
+  'checkout.paymentTransfer': 'Transferencia bancaria / PSE',
   'checkout.paymentCashOnDelivery': 'Contra entrega',
   'checkout.stepReview': '3. Confirmación',
   'checkout.orderSummary': 'Resumen del Pedido',
@@ -232,6 +238,7 @@ export const es = {
   'orders.paymentInfo': 'Método de Pago',
   'orders.statusHistory': 'Historial de Estados',
   'orders.orderPlaced': '¡Pedido Realizado con Éxito!',
+  'orders.errorLoadDetail': 'No se pudo cargar el detalle del pedido.',
 
   // Estados de Pedido
   'status.PENDIENTE': 'Pendiente',
@@ -646,6 +653,7 @@ export const es = {
   'admin.sowingDate': 'Fecha de Siembra *',
   'admin.assignedZone': 'Zona Asignada *',
   'admin.selectZone': 'Seleccione Zona...',
+  'admin.supplier': 'Proveedor (Opcional)',
   'admin.noneSupplier': 'Ninguno (Propio / Desconocido)',
   'admin.initialStatus': 'Estado Inicial *',
   'admin.registeringBatch': 'Registrando...',
@@ -661,6 +669,7 @@ export const es = {
   'admin.linkWarningPrompt': '⚠️ Advertencia\n\nLa especie del lote (\"{batchSpecies}\") no coincide exactamente con el nombre del producto seleccionado (\"{prodName}\").\n\n¿Estás seguro de vincular este lote a dicho producto?',
   'admin.createBatchError': 'Error al crear lote',
   'admin.linkBatchError': 'Error al vincular lote',
+  'admin.errorLoad': 'Error al cargar los datos operativos.',
 
   // Mermas (Waste)
   'admin.wasteReportTitle': 'Reporte de Mermas y Causas',
@@ -749,6 +758,10 @@ export const es = {
   'admin.conditionRequired': 'Selecciona el tipo de condición',
   'admin.exposureRequired': 'Selecciona la exposición solar',
   'admin.confirmReductionRequired': 'Debes confirmar la reducción por debajo de la ocupación.',
+  'admin.errorLoadingZones': 'Error al cargar las zonas de cultivo.',
+  'admin.errorChangingZoneStatus': 'Error al cambiar el estado de la zona.',
+  'admin.errorSavingZone': 'Error al guardar la zona.',
+  'admin.errorLoadingBatchesInZone': 'Error al consultar los lotes de la zona.',
 
   // Proveedores (Suppliers)
   'admin.suppliersHeaderTitle': 'Proveedores',
@@ -815,12 +828,6 @@ export const es = {
   'admin.restoreSessionExpired': 'Tu sesión ya no es válida tras la restauración. Inicia sesión con una cuenta del backup.',
 
   // Enums compartidos
-  'lotPhase.GERMINANDO': 'GERMINANDO',
-  'lotPhase.CRECIENDO': 'CRECIENDO',
-  'lotPhase.LISTO_PARA_VENTA': 'LISTO PARA VENTA',
-  'lotPhase.EN_TIENDA': 'EN TIENDA',
-  'lotPhase.DESCARTADO': 'DESCARTADO',
-
   'zoneCondition.INTERIOR': 'Interior',
   'zoneCondition.EXTERIOR': 'Exterior',
   'zoneCondition.INVERNADERO': 'Invernadero',
@@ -1002,26 +1009,18 @@ export const es = {
   'wasteCause.Quemadura por Sol': 'Quemadura por Sol',
   'wasteCause.Otra': 'Otra',
   'wasteCause.Otro': 'Otro',
-  'wasteCause.OTRO': 'Otro',
-  'wasteCause.PLAGA': 'Plaga',
   'wasteCause.ENFERMEDAD_HONGO': 'Enfermedad - Hongo',
   'wasteCause.CLIMA_EXCESO_CALOR': 'Exceso de Calor',
   'wasteCause.ERROR_MANIPULACION': 'Error de Manipulación',
 
   // Observaciones y Detalles de Merma (Waste Observations & Details)
   'wasteObservation.hongo en la pata': 'hongo en la pata',
-  'wasteObservation.Hongo en la pata': 'Hongo en la pata',
   'wasteObservation.hongo en la base': 'hongo en la base',
   'wasteObservation.Las lluvias recurrente pudrieron las plantas': 'Las lluvias recurrente pudrieron las plantas',
   'wasteObservation.Las lluvias recurrentes pudrieron las plantas': 'Las lluvias recurrentes pudrieron las plantas',
-  'wasteObservation.las lluvias recurrente pudrieron las plantas': 'las lluvias recurrente pudrieron las plantas',
   'wasteObservation.Fue pisada la planta': 'Fue pisada la planta',
-  'wasteObservation.fue pisada la planta': 'fue pisada la planta',
   'wasteObservation.Planta pisada': 'Planta pisada',
-  'wasteObservation.planta pisada': 'planta pisada',
   'wasteObservation.Mucha Agua': 'Mucha Agua',
-  'wasteObservation.mucha agua': 'mucha agua',
-  'wasteObservation.Mucha agua': 'Mucha agua',
 
   // Observaciones de Historial de Lotes (Lot Status History Observations)
   'lotObservation.Descartado automaticamente: la merma redujo la cantidad a 0.': 'Descartado automáticamente: la merma redujo la cantidad a 0.',
@@ -1032,7 +1031,6 @@ export const es = {
   'lotObservation.Lote vinculado a catálogo y movido a tienda': 'Lote vinculado a catálogo y movido a tienda',
   'lotObservation.Lote vinculado a catlogo y movido a tienda': 'Lote vinculado a catálogo y movido a tienda',
   'lotObservation.Ya esta grande': 'Ya esta grande',
-  'lotObservation.ya esta grande': 'ya esta grande',
   'lotObservation.Ya está grande': 'Ya está grande',
 
   // Nombres de Operadores Comunes (Operator Display Names)
@@ -1044,7 +1042,6 @@ export const es = {
 
   // Especies Botánicas Comunes (Plant Species)
   'plantSpecies.cactus': 'cactus',
-  'plantSpecies.Cactus': 'Cactus',
   'plantSpecies.Helecho': 'Helecho',
   'plantSpecies.Orquídea': 'Orquídea',
   'plantSpecies.Orqudea': 'Orquídea',
@@ -1052,7 +1049,6 @@ export const es = {
   'plantSpecies.Bonsái': 'Bonsái',
   'plantSpecies.Bonsi': 'Bonsái',
   'plantSpecies.Ficus Lyrata': 'Ficus Lyrata',
-  'plantSpecies.ficus lyrata': 'Ficus Lyrata',
   'plantSpecies.Orquidea Phalaenopsis': 'Orquídea Phalaenopsis',
   'plantSpecies.Orquídea Phalaenopsis': 'Orquídea Phalaenopsis',
 

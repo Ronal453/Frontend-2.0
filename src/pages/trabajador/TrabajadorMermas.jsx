@@ -134,7 +134,7 @@ export default function TrabajadorMermas() {
             onClick={cargarDatos}
             className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 transition-all duration-200"
           >
-            <RefreshCw size={18} /> {t('common.save')}
+            <RefreshCw size={18} /> {t('common.refresh', 'Actualizar')}
           </button>
         </div>
 

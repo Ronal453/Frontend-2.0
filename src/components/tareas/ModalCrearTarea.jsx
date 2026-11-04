@@ -323,7 +323,7 @@ export default function ModalCrearTarea({
                   <option value="">{t('createTask.selectZonePlaceholder')}</option>
                   {zonas.map(z => (
                     <option key={z.idZona} value={z.idZona}>
-                      {t('zone.name.' + (z.nombre || '').trim(), z.nombre)} ({z.tipo || 'Invernadero'})
+                      {t('zone.name.' + (z.nombre || '').trim(), z.nombre)} ({z.tipoCondicion || z.tipo || 'Invernadero'})
                     </option>
                   ))}
                 </select>
@@ -342,7 +342,7 @@ export default function ModalCrearTarea({
                   <option value="">{t('createTask.selectBatchPlaceholder')}</option>
                   {lotes.map(l => (
                     <option key={l.idLote} value={l.idLote}>
-                      {l.codigoLote} - {l.nombreEspecie || l.especie || 'Lote'} ({l.faseActual || l.estado || 'Activo'})
+                      {l.codigoLote} - {l.nombreEspecie || l.especie || 'Lote'} ({l.estadoLote || l.faseActual || l.estado || 'ACTIVO'})
                     </option>
                   ))}
                 </select>

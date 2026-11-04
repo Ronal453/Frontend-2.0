@@ -60,6 +60,10 @@ export default function TrabajadorKanban() {
     setTimeout(() => setMensajeExito(''), 4000)
   }
 
+  /**
+   * Consulta las tareas operativas desde el servidor según los filtros activos
+   * y reinicia el contador de auto-refresco a 60 segundos.
+   */
   const cargarTareas = async () => {
     setCargando(true)
     setError('')
@@ -81,20 +85,21 @@ export default function TrabajadorKanban() {
     cargarTareas()
   }, [soloMias, filtroPrioridad])
 
-  // Timer de auto-refresco cada 60s
+  // Timer puro de cuenta regresiva cada 1s
   useEffect(() => {
     const intervalo = setInterval(() => {
-      setSegundosParaRefresco(prev => {
-        if (prev <= 1) {
-          cargarTareas()
-          return 60
-        }
-        return prev - 1
-      })
+      setSegundosParaRefresco(prev => (prev <= 1 ? 0 : prev - 1))
     }, 1000)
 
     return () => clearInterval(intervalo)
-  }, [soloMias, filtroPrioridad])
+  }, [])
+
+  // Dispara la recarga fuera del updater de estado cuando el contador llega a 0
+  useEffect(() => {
+    if (segundosParaRefresco === 0) {
+      cargarTareas()
+    }
+  }, [segundosParaRefresco])
 
   const handleSolicitarCambioEstado = (tarea, nuevoEstado) => {
     setModalTransicion({ abierto: true, tarea, nuevoEstado })

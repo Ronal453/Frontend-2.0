@@ -41,8 +41,9 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
     TARJETA_CREDITO:        t('checkout.paymentCredit', 'Tarjeta de Crédito'),
     TARJETA_DEBITO:         t('checkout.paymentDebit', 'Tarjeta de Débito'),
     PSE:                    t('checkout.paymentPSE', 'PSE'),
-    TRANSFERENCIA_BANCARIA: t('checkout.paymentCashOnDelivery', 'Contra entrega'),
+    TRANSFERENCIA_BANCARIA: t('checkout.paymentTransfer', 'Transferencia bancaria / PSE'),
     CONTRA_ENTREGA:         t('checkout.paymentCashOnDelivery', 'Contra entrega'),
+    EFECTIVO:               t('checkout.paymentCashOnDelivery', 'Contra entrega'),
     PAYPAL:                 'PayPal',
   }), [t])
 

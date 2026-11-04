@@ -362,7 +362,7 @@ export default function ModalEditarTareaRecurrente({
                   <option value="">{t('editRecurring.selectZonePrompt')}</option>
                   {zonas.map(z => (
                     <option key={z.idZona} value={z.idZona}>
-                      {t('zone.name.' + (z.nombre || '').trim(), z.nombre)} ({z.tipo})
+                      {t('zone.name.' + (z.nombre || '').trim(), z.nombre)} ({z.tipoCondicion || z.tipo || 'Invernadero'})
                     </option>
                   ))}
                 </select>
