@@ -29,8 +29,8 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: 3. Instalar dependencias de forma determinista
-        run: npm ci
+      - name: 3. Instalar dependencias (con soporte legacy-peer-deps para Vite 8 + PWA)
+        run: npm install --legacy-peer-deps
 
       - name: 4. Ejecutar las 4 suites de pruebas TDD (15 tests)
         run: npm test
