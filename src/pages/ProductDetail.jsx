@@ -1,4 +1,4 @@
-import { getImagenProducto } from '../utils/imageUtils'
+import { getImagenProducto, generarPlaceholderSvg } from '../utils/imageUtils'
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 
@@ -104,10 +104,13 @@ export default function ProductDetail() {
               <img
                 src={getImagenProducto(producto.imagenUrl, producto.categoria)}
                 alt={t('product.name.' + producto.nombreProducto, producto.nombreProducto)}
+                decoding="async"
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                 onError={e => {
                   e.target.onerror = null
-                  e.target.src = `https://placehold.co/600x600/f8fafc/94a3b8?text=${encodeURIComponent(producto.nombreProducto)}`
+                  // Respaldo SVG local instantáneo sin llamadas externas adicionales
+                  e.target.src = generarPlaceholderSvg(t('product.name.' + producto.nombreProducto, producto.nombreProducto))
                 }}
               />
             ) : (

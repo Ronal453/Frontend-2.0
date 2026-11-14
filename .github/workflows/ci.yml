@@ -1,0 +1,39 @@
+# ==============================================================================
+# Pipeline de Integración Continua (CI) — Plantopolis Frontend
+# Repositorio: https://github.com/Ronal453/Frontend-2.0
+# Propósito: Ejecutar automáticamente las 4 suites de pruebas TDD (15 tests:
+# simetría i18n, motor t(), sesión JWT y máquina de estados Kanban) y validar
+# la compilación de producción con Vite en cada push o pull request.
+# ==============================================================================
+name: Plantopolis Frontend CI — Node Test & Vite Build (TDD)
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master", "develop" ]
+  workflow_dispatch: # Permite ejecutar manualmente desde la pestaña Actions
+
+jobs:
+  frontend-tests:
+    name: Frontend — Node Test Runner & Vite Build (Node 20)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Clonar repositorio Frontend (Checkout)
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Node.js 20 y caché de npm
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 3. Instalar dependencias de forma determinista
+        run: npm ci
+
+      - name: 4. Ejecutar las 4 suites de pruebas TDD (15 tests)
+        run: npm test
+
+      - name: 5. Validar compilación de producción (Vite Build)
+        run: npm run build

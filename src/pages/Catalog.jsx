@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getProductos, getCategorias } from '../api/productosApi'
 import { agregarItem } from '../api/carritoApi'
-import { getImagenProducto } from '../utils/imageUtils'
+import { getImagenProducto, generarPlaceholderSvg } from '../utils/imageUtils'
 import { useAuth } from '../hooks/useAuth'
 import { useCart } from '../context/CartContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -291,6 +291,15 @@ export default function Catalog() {
   )
 }
 
+/**
+ * Tarjeta individual de producto dentro de la cuadrícula del catálogo.
+ * Incluye carga diferida de imagen (`loading="lazy"`), política `no-referrer`
+ * para evitar bloqueos de Google Drive y respaldo SVG instantáneo sin red.
+ *
+ * @param {Object} props Propiedades del componente
+ * @param {Object} props.producto Objeto de dominio del producto a renderizar
+ * @returns {JSX.Element} Tarjeta interactiva del producto
+ */
 function ProductoCard({ producto: p }) {
   const navigate          = useNavigate()
   const { isAuth }        = useAuth()
@@ -339,11 +348,14 @@ function ProductoCard({ producto: p }) {
         <img
           src={imagenSrc}
           alt={p.nombreProducto}
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
           onError={e => {
             e.target.onerror = null
-            // Placeholder más orgánico y colorido (fondo dcfce7 verde claro, texto verde oscuro)
-            e.target.src = `https://placehold.co/400x500/dcfce7/166534?text=${encodeURIComponent(p.nombreProducto)}`
+            // Placeholder SVG local instantáneo (0 ms, sin depender de placehold.co)
+            e.target.src = generarPlaceholderSvg(t('product.name.' + p.nombreProducto, p.nombreProducto))
           }}
         />
         

@@ -14,7 +14,7 @@ import FlashMessage from '../components/ui/FlashMessage'
 import Pagination from '../components/ui/Pagination'
 import { Package, Search, Plus, Edit2, AlertTriangle, Power, PowerOff, X, Leaf, Sprout, Filter, Image as ImageIcon } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
-import { getImagenProducto, normalizarUrlImagen } from '../utils/imageUtils'
+import { getImagenProducto, normalizarUrlImagen, generarPlaceholderSvg } from '../utils/imageUtils'
 
 /**
  * Vista de administración de inventario de productos.
@@ -245,7 +245,18 @@ export default function AdminProductos() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {p.imagenUrl ? (
-                          <img src={getImagenProducto(p.imagenUrl, p.categoria)} alt={p.nombreProducto} className="w-10 h-10 rounded-lg object-cover shadow-sm border border-slate-200" />
+                          <img
+                            src={getImagenProducto(p.imagenUrl, p.categoria)}
+                            alt={p.nombreProducto}
+                            loading="lazy"
+                            decoding="async"
+                            referrerPolicy="no-referrer"
+                            className="w-10 h-10 rounded-lg object-cover shadow-sm border border-slate-200"
+                            onError={e => {
+                              e.target.onerror = null
+                              e.target.src = generarPlaceholderSvg(p.nombreProducto)
+                            }}
+                          />
                         ) : (
                           <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-200 dark:border-slate-700">
                             <Leaf size={20} />
@@ -521,6 +532,8 @@ function ProductoModal({ producto, categorias, guardando, onGuardar, onCerrar })
                 <img
                   src={normalizarUrlImagen(form.imagenUrl)}
                   alt="Vista previa"
+                  referrerPolicy="no-referrer"
+                  decoding="async"
                   className="w-14 h-14 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm shrink-0 bg-white"
                   onError={(e) => {
                     e.target.style.display = 'none'

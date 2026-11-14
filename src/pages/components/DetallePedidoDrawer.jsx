@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { X, User, MapPin, CreditCard, Package, Clock, Truck, CheckCircle, XCircle, AlertTriangle, Image as ImageIcon } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
-import { getImagenProducto } from '../../utils/imageUtils'
+import { getImagenProducto, generarPlaceholderSvg } from '../../utils/imageUtils'
 
 // Icon mapping component to make it easy to render
 const EstadoIcon = ({ estado, className = "", size = 16 }) => {
@@ -121,7 +121,20 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
                 <div key={i} className="flex items-center gap-3 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-3 shadow-sm hover:border-teal-300 dark:hover:border-teal-700 transition-colors">
                   <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
                     {d.imagenUrl
-                      ? <img src={getImagenProducto(d.imagenUrl)} alt={d.nombreProducto} className="w-full h-full object-cover" onError={e => { e.target.onerror = null; e.target.src = '' }} />
+                      ? (
+                        <img
+                          src={getImagenProducto(d.imagenUrl)}
+                          alt={d.nombreProducto}
+                          loading="lazy"
+                          decoding="async"
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
+                          onError={e => {
+                            e.target.onerror = null
+                            e.target.src = generarPlaceholderSvg(d.nombreProducto)
+                          }}
+                        />
+                      )
                       : <ImageIcon size={20} className="text-slate-300 dark:text-slate-500" strokeWidth={1.5} />
                     }
                   </div>
