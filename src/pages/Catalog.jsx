@@ -24,8 +24,10 @@ export default function Catalog() {
   const [loading,    setLoading]    = useState(true)
   const [totalPages, setTotalPages] = useState(0)
   
-  // Nuevo estado para mostrar/ocultar barra lateral
-  const [mostrarFiltros, setMostrarFiltros] = useState(true)
+  // En móviles (< 768px) iniciamos con los filtros ocultos para no empujar el catálogo fuera de pantalla
+  const [mostrarFiltros, setMostrarFiltros] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : true
+  )
 
   const [filtros, setFiltros] = useState({
     nombre:      '',
@@ -382,30 +384,30 @@ function ProductoCard({ producto: p }) {
         )}
       </div>
 
-      {/* Cuerpo de la tarjeta: Distribución equilibrada (Nombre arriba, Precio a la izquierda y Botón a la derecha) */}
-      <div className="p-4 sm:p-5 flex flex-col flex-1 relative z-10 justify-between gap-3">
+      {/* Cuerpo de la tarjeta: Distribución equilibrada y adaptada a 2 columnas en móvil */}
+      <div className="p-3 sm:p-5 flex flex-col flex-1 relative z-10 justify-between gap-2 sm:gap-3">
         
         {/* Nombre del Producto */}
-        <h3 className="font-extrabold text-slate-800 dark:text-white text-base sm:text-lg leading-snug line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+        <h3 className="font-extrabold text-slate-800 dark:text-white text-sm sm:text-lg leading-snug line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
           {t('product.name.' + p.nombreProducto, p.nombreProducto)}
         </h3>
 
-        {/* Fila Inferior: Precio y Botón de Carrito alineados horizontalmente */}
-        <div className="mt-auto pt-2 flex items-center justify-between gap-3">
-          <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight whitespace-nowrap">
+        {/* Fila Inferior: Precio y Botón de Carrito alineados horizontalmente sin desbordar en móviles */}
+        <div className="mt-auto pt-1.5 sm:pt-2 flex items-center justify-between gap-1.5 sm:gap-3 min-w-0">
+          <span className="text-base sm:text-xl md:text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight truncate">
             ${p.precio?.toLocaleString('es-CO')}
           </span>
 
           <button
             onClick={handleAgregar}
             disabled={sinStock || agregando}
-            className="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-green-600 hover:bg-green-500 text-white shadow-md shadow-green-600/30 hover:shadow-lg hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95 group-hover:rotate-6 shrink-0"
+            className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-green-600 hover:bg-green-500 text-white shadow-md shadow-green-600/30 hover:shadow-lg hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95 group-hover:rotate-6 shrink-0"
             title={t('catalog.addToCart')}
           >
             {agregando ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
-              <ShoppingBag size={20} />
+              <ShoppingBag size={18} className="sm:w-5 sm:h-5" />
             )}
           </button>
         </div>

@@ -167,33 +167,33 @@ export default function DetallePedido() {
 
       {/* Barra de Progreso */}
       {!cancelado && (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 sm:p-8 mb-8">
-          <h2 className="font-bold text-slate-900 dark:text-white text-lg mb-8 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-8 mb-8 overflow-hidden">
+          <h2 className="font-bold text-slate-900 dark:text-white text-base sm:text-lg mb-6 sm:mb-8 flex items-center gap-2">
             <Truck className="text-green-600 dark:text-green-500" size={20} /> {t('orders.statusHistory')}
           </h2>
-          <div className="relative max-w-3xl mx-auto px-4 sm:px-8">
-            <div className="absolute top-5 left-10 right-10 h-1 bg-slate-100 dark:bg-slate-700 rounded-full z-0" />
+          <div className="relative max-w-3xl mx-auto px-1 sm:px-8">
+            <div className="absolute top-4 sm:top-5 left-8 right-8 sm:left-10 sm:right-10 h-1 bg-slate-100 dark:bg-slate-700 rounded-full z-0" />
             <div
-              className="absolute top-5 left-10 h-1 bg-green-500 rounded-full z-0 transition-all duration-1000 ease-out"
+              className="absolute top-4 sm:top-5 left-8 sm:left-10 h-1 bg-green-500 rounded-full z-0 transition-all duration-1000 ease-out"
               style={{
                 width: pasoActual >= 0
-                  ? `calc(${(pasoActual / (PASOS.length - 1)) * 100}% - 2.5rem)`
+                  ? `calc(${(pasoActual / (PASOS.length - 1)) * 100}% - 2rem)`
                   : '0%'
               }}
             />
-            <div className="flex justify-between relative z-10">
+            <div className="flex justify-between relative z-10 gap-1">
               {PASOS.map((paso, i) => {
                 const isActive = i <= pasoActual
                 const isCurrent = i === pasoActual
                 return (
-                  <div key={paso} className="flex flex-col items-center w-24">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-500 border-4 shadow-sm
+                  <div key={paso} className="flex flex-col items-center w-16 sm:w-24">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-500 border-4 shadow-sm
                                      ${isActive
                                        ? 'bg-green-600 border-green-100 dark:border-green-900/50 text-white'
                                        : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500'}`}>
-                      {isActive && !isCurrent ? <CheckCircle size={16} /> : i + 1}
+                      {isActive && !isCurrent ? <CheckCircle size={14} /> : i + 1}
                     </div>
-                    <p className={`text-[10px] sm:text-xs mt-3 text-center font-bold uppercase tracking-wider
+                    <p className={`text-[9px] sm:text-xs mt-2 sm:mt-3 text-center font-bold uppercase tracking-tight sm:tracking-wider leading-tight break-words
                                    ${isActive
                                      ? 'text-green-700 dark:text-green-400'
                                      : 'text-slate-400 dark:text-slate-500'}`}>
@@ -206,6 +206,7 @@ export default function DetallePedido() {
           </div>
         </div>
       )}
+
 
       {/* 2 Columnas de Información */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

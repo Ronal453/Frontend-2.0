@@ -45,6 +45,8 @@ export const en = {
   'nav.salir': 'Logout',
   'nav.ingresar': 'Login',
   'nav.registrarse': 'Register',
+  'nav.openMenu': 'Open sidebar menu',
+  'nav.closeMenu': 'Close sidebar menu',
 
   // Footer & Cookies
   'footer.tagline': 'Plants for your ecosystem',
@@ -88,6 +90,8 @@ export const en = {
   'auth.sessionExpired': 'Your session expired due to inactivity.',
   'auth.registeredSuccess': 'Account created! You can now sign in',
   'auth.googleError': 'Google authentication failed',
+  'auth.invalidCredentials': 'Invalid credentials',
+  'auth.networkError': 'No connection to server. Check your network or disable browser "Offline" mode.',
   'auth.forgotPassword': 'Forgot your password?',
   'auth.forgotPasswordTitle': 'Reset Password',
   'auth.forgotPasswordSubtitle': 'Enter your email and we will send you a secure link to reset your password',

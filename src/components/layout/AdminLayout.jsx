@@ -1,18 +1,29 @@
-import { useMemo } from 'react'
-import { NavLink, Outlet, Link } from 'react-router-dom'
+import { useMemo, useState, useEffect } from 'react'
+import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
 import Navbar from './Navbar'
-import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck, AlertTriangle, DatabaseBackup, Kanban, Activity, ScrollText } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingBag, Users, MapPin, Sprout, ArrowLeft, Truck, AlertTriangle, DatabaseBackup, Kanban, Activity, ScrollText, X } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 
 /**
  * Componente de diseño para el panel administrativo (AdminLayout).
  * Renderiza la barra lateral izquierda con navegación organizada por módulos temáticos
  * (E-Commerce, Operaciones de Vivero y Sistema), garantizando reactividad a los cambios de idioma.
+ * En dispositivos móviles (< lg), la barra lateral funciona como un menú deslizante (drawer)
+ * para otorgar el 100% del ancho de pantalla al contenido principal.
  *
  * @returns {JSX.Element} Estructura visual del panel de administración con barra lateral y contenedor principal.
  */
 export default function AdminLayout() {
   const { t } = useLanguage()
+  const location = useLocation()
+
+  // Estado para controlar la apertura del menú lateral en dispositivos móviles
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Cierra automáticamente el menú lateral móvil cuando el usuario navega a otra ruta
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [location.pathname])
 
   /**
    * Enlaces del módulo comercial (E-Commerce).
@@ -47,20 +58,47 @@ export default function AdminLayout() {
   ], [t])
 
   return (
-    <div className="flex h-screen p-4 gap-4 overflow-hidden bg-slate-50 dark:bg-[#060A11]">
-      <aside className="w-64 bg-gradient-to-b from-teal-700 via-teal-800 to-cyan-900 text-white flex-shrink-0 flex flex-col py-6 px-4 gap-2 rounded-[2rem] shadow-2xl shadow-teal-900/30 border border-teal-600/40 transition-all overflow-y-auto z-10 custom-scrollbar">
-        <div className="px-2 mb-6 flex items-center gap-3">
-          <div className="w-11 h-11 bg-white/95 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 border border-white/50 p-1">
-            <img src="/logo-plantopolis.png" alt="Logo" className="w-full h-full object-contain drop-shadow-sm" />
+    <div className="flex h-screen p-2 sm:p-4 gap-2 sm:gap-4 overflow-hidden bg-slate-50 dark:bg-[#060A11] relative">
+      {/* Fondo oscuro traslúcido en móviles cuando el menú lateral está desplegado */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] lg:hidden transition-opacity"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Barra lateral: cajón deslizable en móvil (< lg) y columna fija en escritorio (lg+) */}
+      <aside
+        className={`fixed inset-y-2 left-2 z-[100] w-72 max-w-[85vw] lg:static lg:w-64 bg-gradient-to-b from-teal-700 via-teal-800 to-cyan-900 text-white flex-shrink-0 flex flex-col py-6 px-4 gap-2 rounded-[2rem] shadow-2xl shadow-teal-900/30 border border-teal-600/40 transition-transform duration-300 ease-in-out overflow-y-auto custom-scrollbar ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-[115%] lg:translate-x-0'
+        }`}
+      >
+        <div className="px-2 mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 bg-white/95 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 border border-white/50 p-1">
+              <img src="/logo-plantopolis.png" alt="Logo" className="w-full h-full object-contain drop-shadow-sm" />
+            </div>
+            <div>
+              <p className="text-xl font-black tracking-tight text-white leading-none">
+                Plantopolis
+              </p>
+              <p className="text-xs font-bold text-cyan-300 mt-1 uppercase tracking-widest">
+                Admin
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xl font-black tracking-tight text-white leading-none">
-              Plantopolis
-            </p>
-            <p className="text-xs font-bold text-cyan-300 mt-1 uppercase tracking-widest">
-              Admin
-            </p>
-          </div>
+
+          {/* Botón para cerrar el menú lateral en pantallas móviles */}
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            title={t('nav.closeMenu', 'Cerrar menú lateral')}
+            aria-label={t('nav.closeMenu', 'Cerrar menú lateral')}
+            className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X size={20} strokeWidth={2.5} />
+          </button>
         </div>
 
         <div className="mb-4">
@@ -74,6 +112,7 @@ export default function AdminLayout() {
                 <NavLink
                   key={link.to}
                   to={link.to}
+                  onClick={() => setSidebarOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group
                      ${isActive
@@ -104,6 +143,7 @@ export default function AdminLayout() {
                 <NavLink
                   key={link.to}
                   to={link.to}
+                  onClick={() => setSidebarOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group
                      ${isActive
@@ -134,6 +174,7 @@ export default function AdminLayout() {
                 <NavLink
                   key={link.to}
                   to={link.to}
+                  onClick={() => setSidebarOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group
                      ${isActive
@@ -162,9 +203,9 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col relative z-0 overflow-hidden">
-        <Navbar layoutMode="dashboard" />
-        <main className="flex-1 overflow-auto relative p-2 pr-4 custom-scrollbar">
+      <div className="flex-1 flex flex-col relative z-0 overflow-hidden min-w-0">
+        <Navbar layoutMode="dashboard" onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
+        <main className="flex-1 overflow-auto relative p-1 sm:p-2 sm:pr-4 custom-scrollbar">
           <Outlet />
         </main>
       </div>

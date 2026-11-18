@@ -55,8 +55,8 @@ export default function DetallePedidoDrawer({ pedido, onCerrar, fmtPrecio, fmtFe
   const esAprobado = pedido.pago?.estadoPago === 'APROBADO'
 
   return (
-    <div className="w-full md:w-96 flex-shrink-0 bg-slate-50 dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800
-                    shadow-2xl flex flex-col overflow-hidden z-50
+    <div className="fixed inset-0 md:static md:inset-auto w-full md:w-96 flex-shrink-0 bg-slate-50 dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800
+                    shadow-2xl flex flex-col overflow-hidden z-[110] md:z-50
                     animate-in slide-in-from-right duration-300">
 
       {/* HEADER DRAWER */}

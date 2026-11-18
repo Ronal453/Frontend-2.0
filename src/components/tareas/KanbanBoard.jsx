@@ -125,7 +125,7 @@ export default function KanbanBoard({
               onDragOver={(e) => handleDragOver(e, columna.id)}
               onDragLeave={(e) => handleDragLeave(e, columna.id)}
               onDrop={(e) => handleDrop(e, columna.id)}
-              className={`flex flex-col bg-slate-100/60 dark:bg-slate-900/40 rounded-3xl p-3 border transition-all duration-200 min-h-[500px]
+              className={`flex flex-col bg-slate-100/60 dark:bg-slate-900/40 rounded-3xl p-3 border transition-all duration-200 min-h-[180px] lg:min-h-[500px]
                 ${esDropActivo ? 'border-teal-500 ring-2 ring-teal-500/30 bg-teal-50/20 dark:bg-teal-950/20' : columna.colorBorde}
               `}
             >

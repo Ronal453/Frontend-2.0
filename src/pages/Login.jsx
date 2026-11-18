@@ -80,7 +80,12 @@ export default function Login() {
         navigate('/catalogo')
       }
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Credenciales incorrectas')
+      // Si no hay respuesta HTTP (!err.response), el navegador está en modo Offline o sin conexión al servidor
+      if (!err.response) {
+        setError(t('auth.networkError', 'Sin conexión con el servidor. Verifica tu red o desactiva el modo "Offline" del navegador.'))
+      } else {
+        setError(err.response?.data?.mensaje || t('auth.invalidCredentials', 'Credenciales incorrectas'))
+      }
     } finally {
       setLoading(false)
     }

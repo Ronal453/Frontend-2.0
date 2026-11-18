@@ -35,8 +35,9 @@ export default defineConfig({
             handler: 'NetworkOnly',
             method: 'POST',
             options: {
+              // Cola independiente para peticiones POST (Workbox exige nombres de cola únicos por instancia)
               backgroundSync: {
-                name: 'operaciones-queue',
+                name: 'operaciones-post-queue',
                 options: {
                   maxRetentionTime: 24 * 60 // 24 horas
                 }
@@ -48,8 +49,9 @@ export default defineConfig({
             handler: 'NetworkOnly',
             method: 'PUT',
             options: {
+              // Cola independiente para peticiones PUT
               backgroundSync: {
-                name: 'operaciones-queue',
+                name: 'operaciones-put-queue',
                 options: {
                   maxRetentionTime: 24 * 60
                 }
@@ -61,8 +63,9 @@ export default defineConfig({
             handler: 'NetworkOnly',
             method: 'PATCH',
             options: {
+              // Cola independiente para peticiones PATCH
               backgroundSync: {
-                name: 'operaciones-queue',
+                name: 'operaciones-patch-queue',
                 options: {
                   maxRetentionTime: 24 * 60
                 }

@@ -45,6 +45,8 @@ export const es = {
   'nav.salir': 'Salir',
   'nav.ingresar': 'Ingresar',
   'nav.registrarse': 'Registrarse',
+  'nav.openMenu': 'Abrir menú lateral',
+  'nav.closeMenu': 'Cerrar menú lateral',
 
   // Footer y Cookies
   'footer.tagline': 'Plantas para tu ecosistema',
@@ -88,6 +90,8 @@ export const es = {
   'auth.sessionExpired': 'Tu sesión expiró por inactividad.',
   'auth.registeredSuccess': '¡Cuenta creada! Ya puedes iniciar sesión',
   'auth.googleError': 'Falló la autenticación con Google',
+  'auth.invalidCredentials': 'Credenciales incorrectas',
+  'auth.networkError': 'Sin conexión con el servidor. Verifica tu red o desactiva el modo "Offline" del navegador.',
   'auth.forgotPassword': '¿Olvidaste tu contraseña?',
   'auth.forgotPasswordTitle': 'Recuperar contraseña',
   'auth.forgotPasswordSubtitle': 'Ingresa tu correo y te enviaremos un enlace seguro para restablecer tu clave',
